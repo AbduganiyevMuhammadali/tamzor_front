@@ -551,12 +551,15 @@ onUnmounted(() => {
   --bg:#f6f5fa; --surface:#ffffff; --line:#e6e3ef; --line2:#f0eef6;
   --ink:#0f172a; --ink2:#334155; --mut:#64748b; --sub:#94a3b8;
   --hov:#f3f1f9; --act:#ebe7f6; --acc:var(--brand-600); --acc-soft:var(--brand-50); --acc-ink:var(--brand-700);
-  /* sidebar — logodan olingan: to'q binafsha "siyoh" fon, faollik — logo plitkasi rangi (#7C3AED) + oq.
-     t: asosiy matn, t2: ichki sahifalar, t3: yorliqlar, ic: ikonlar, acc: logo binafshasi */
-  --sb-g1:#1e1536; --sb-g2:#160f2b; --sb-edge:transparent;
-  --sb-line:rgba(255,255,255,.07); --sb-line2:rgba(196,181,253,.16);
-  --sb-t:#e4ddf9; --sb-t2:#bdb1e6; --sb-t3:#9b8ecd; --sb-ic:#ab9edc;
-  --sb-hov:rgba(255,255,255,.06); --sb-acc:#7C3AED; --sb-acc2:#a78bfa; --sb-acc3:#c4b5fd;
+  /* sidebar — logoning o'zi: binafsha plitka foni (#6D28D9 → #4C1D95, tepada logo #7C3AED nuri), ustida oq.
+     Faol sahifa — logodagi oq pin kabi oq "pill", ichida binafsha yozuv.
+     t: asosiy matn, t2: ichki sahifalar, t3: yorliqlar, ic: ikonlar, on-*: faol "pill" */
+  --sb-g1:#6d28d9; --sb-g2:#5b21b6; --sb-g3:#4c1d95; --sb-glow:rgba(139,92,246,.55);
+  --sb-line:rgba(255,255,255,.14); --sb-line2:rgba(255,255,255,.22);
+  --sb-t:rgba(255,255,255,.94); --sb-t2:rgba(255,255,255,.8); --sb-t3:rgba(255,255,255,.7); --sb-ic:rgba(255,255,255,.82);
+  --sb-hov:rgba(255,255,255,.1);
+  --sb-on-bg:#ffffff; --sb-on-ink:#5b21b6; --sb-on-ic:#7c3aed;
+  --sb-on-sh:inset 0 -1px 0 rgba(76,29,149,.12), 0 8px 18px -8px rgba(30,8,72,.6);
   --main-bg:var(--bg); --page-bg:var(--bg); --page-scroll:#d5d0e3;
   --sb-w:248px; --sb-wy:60px;
   display:flex; height:100vh; width:100vw; overflow:hidden; background:var(--bg); color:var(--ink);
@@ -566,33 +569,41 @@ onUnmounted(() => {
   --bg:#0f0d16; --surface:#16131f; --line:#29243a; --line2:#1f1b2c;
   --ink:#e8eaf0; --ink2:#c3c9d6; --mut:#8b93a7; --sub:#5f6a7e;
   --hov:#1c1828; --act:#251f35; --acc:var(--brand-400); --acc-soft:rgba(139,92,246,.16); --acc-ink:var(--brand-300);
-  --sb-g1:#181029; --sb-g2:#110b1f; --sb-edge:rgba(255,255,255,.06);
+  --sb-g1:#4c1d95; --sb-g2:#3b1679; --sb-g3:#2a0f5c; --sb-glow:rgba(124,58,237,.45);
+  --sb-on-bg:#f5f3ff; --sb-on-ink:#4c1d95;
   --page-scroll:#352e4a;
 }
 
 /* ═══ SIDEBAR ═══
-   Tinch va zich: to'q indigo, oddiy chiziqli ikonlar, faollik — yumshoq fon.
-   Ichki sahifalar matni ota modul matni bilan bir chiziqda; chapda
-   yo'naltiruvchi chiziq, faol sahifada shu chiziq ustida indigo belgi. */
+   Logoning o'zi: binafsha plitka foni, ustida oq. Faol sahifa — logodagi oq pin kabi
+   oq "pill", ichida binafsha yozuv. Ichki sahifalar matni ota modul matni bilan bir
+   chiziqda, chapda yo'naltiruvchi chiziq. Pastda logodagi pin + "S" — juda xira bezak. */
 .sb {
   width:var(--sb-w); flex-shrink:0; height:100vh;
-  display:flex; flex-direction:column; position:relative; z-index:40;
-  background:linear-gradient(180deg, var(--sb-g1), var(--sb-g2));
+  display:flex; flex-direction:column; position:relative; z-index:40; isolation:isolate; overflow:hidden;
+  background:
+    radial-gradient(120% 38% at 0% 0%, var(--sb-glow), transparent 70%),
+    linear-gradient(180deg, var(--sb-g1) 0%, var(--sb-g2) 55%, var(--sb-g3) 100%);
   color:var(--sb-t);
-  box-shadow:inset -1px 0 0 var(--sb-edge);
   transition:width .2s cubic-bezier(.2,.7,.2,1);
 }
+.sb::after {
+  content:''; position:absolute; z-index:-1; pointer-events:none;
+  right:-58px; bottom:-34px; width:230px; height:281px; opacity:.08;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='100 80 344 420' fill='none' stroke='white' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'><path d='M272 477C340.3 401.2 413 318 413 242A141 141 0 0 0 131 242C131 318 203.7 401.2 272 477Z'/><path d='M325 180H242A24 24 0 0 0 218 204V218.5A24 24 0 0 0 242 242.5H301A24 24 0 0 1 325 266.5V281.5A24 24 0 0 1 301 305.5H218'/></svg>") no-repeat center / contain;
+}
 .sb--yigiq { width:var(--sb-wy); }
+.sb--yigiq::after { display:none; }
 
 /* Bosh qism — topbar bilan bir balandlikda */
 .sb-hd { height:60px; flex-shrink:0; display:flex; align-items:center; gap:8px; padding:0 10px 0 16px; border-bottom:1px solid var(--sb-line); }
 .sb--yigiq .sb-hd { justify-content:center; padding:0; }
 .brand { display:flex; align-items:center; gap:10px; min-width:0; text-decoration:none; color:#fff; border-radius:8px; }
-/* Logo (components/SellzLogo.vue) o'z binafsha plitkasi bilan keladi; yozuv logodagidek — keng harflar */
-.brand-mark { border-radius:8px; box-shadow:0 2px 8px -2px rgba(124,58,237,.55); }
+/* Logo o'z binafsha plitkasi bilan; binafsha fonda ajralib turishi uchun yupqa oq halqa */
+.brand-mark { border-radius:8px; box-shadow:0 0 0 1.5px rgba(255,255,255,.42), 0 6px 14px -4px rgba(30,8,72,.6); }
 .brand-t { display:flex; flex-direction:column; min-width:0; line-height:1.2; }
 .brand-t b { font-size:13.5px; font-weight:700; letter-spacing:.2em; margin-right:-.2em; text-transform:uppercase; color:#fff; }
-.brand-t small { margin-top:3px; font-size:9.5px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:#c4b5fd; }
+.brand-t small { margin-top:3px; font-size:9.5px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.74); }
 .sb-ib--hd { margin-left:auto; }
 .sb .sb-x { display:none; margin-left:auto; }
 
@@ -601,41 +612,42 @@ onUnmounted(() => {
 .sb-ib:hover { background:var(--sb-hov); color:#fff; }
 .sb-ib svg { width:17px; height:17px; }
 .sb-ib--w { width:36px; height:36px; border-radius:8px; }
-.sb-ib--x:hover { color:#fca5a5; }
-.brand:focus-visible, .sb-ib:focus-visible, .ni:focus-visible, .si:focus-visible { outline:2px solid var(--sb-acc3); outline-offset:-2px; }
+.sb-ib--x:hover { background:rgba(255,255,255,.14); color:#fecaca; }
+.brand:focus-visible, .sb-ib:focus-visible, .ni:focus-visible, .si:focus-visible { outline:2px solid #fff; outline-offset:-2px; }
 
 /* Ro'yxat */
 .sb-nav { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:8px 10px 16px;
   scrollbar-width:thin; scrollbar-color:transparent transparent; }
-.sb-nav:hover { scrollbar-color:rgba(255,255,255,.16) transparent; }
+.sb-nav:hover { scrollbar-color:rgba(255,255,255,.28) transparent; }
 .sb-g + .sb-g { margin-top:12px; }
 /* guruh nomi — logodagi "AGENT" yozuvi kabi: katta, keng harflar */
 .sb-gt { height:28px; display:flex; align-items:center; padding:0 10px; font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--sb-t3); }
 .sb-gl { height:1px; margin:6px 12px; background:var(--sb-line); }
 
 /* Modul qatori */
-.ni { width:100%; height:34px; display:flex; align-items:center; gap:10px; padding:0 8px 0 10px; margin:1px 0; border:none; border-radius:7px;
+.ni { width:100%; height:34px; display:flex; align-items:center; gap:10px; padding:0 8px 0 10px; margin:1px 0; border:none; border-radius:8px;
   background:none; color:var(--sb-t); font:inherit; font-size:13px; font-weight:500; text-decoration:none; text-align:left; cursor:pointer;
   position:relative; transition:background .12s, color .12s; }
 .ni:hover { background:var(--sb-hov); color:#fff; }
 .ni-tl { display:grid; place-items:center; flex-shrink:0; color:var(--sb-ic); transition:color .12s; }
 .ni-ic { width:16px; height:16px; }
 .ni:hover .ni-tl, .ni.act .ni-tl { color:#fff; }
-.ni.act { color:#fff; }
-/* faol sahifa — logo plitkasi kabi: binafsha fon, oq yozuv */
-.ni.on { background:var(--sb-acc); color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 6px 14px -6px rgba(124,58,237,.75); }
-.ni.on .ni-tl { color:#fff; }
+.ni.act { color:#fff; font-weight:600; }
+/* faol sahifa — logodagi oq pin kabi: oq fon, binafsha yozuv */
+.ni.on { background:var(--sb-on-bg); color:var(--sb-on-ink); font-weight:600; box-shadow:var(--sb-on-sh); }
+.ni.on .ni-tl { color:var(--sb-on-ic); }
 .ni-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ni-n, .si-n.ish { min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:rgba(167,139,250,.24); color:#f1ecff;
-  font-size:11px; font-weight:600; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; }
+.ni-n, .si-n.ish { min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:rgba(255,255,255,.2); color:#fff;
+  font-size:11px; font-weight:700; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; }
 .ni-n.dot { position:absolute; top:7px; right:7px; min-width:0; width:7px; height:7px; padding:0; border-radius:50%;
-  background:var(--sb-acc2); box-shadow:0 0 0 2px var(--sb-g1); }
-.ni.on .ni-n, .si.on .si-n.ish { background:#fff; color:#6d28d9; }
-.si.on .si-n { color:rgba(255,255,255,.85); }
+  background:#fff; box-shadow:0 0 0 2px var(--sb-g1); }
+.ni.on .ni-n, .si.on .si-n.ish { background:var(--sb-on-ic); color:#fff; }
+.ni.on .ni-n.dot { background:var(--sb-on-ic); box-shadow:0 0 0 2px var(--sb-on-bg); }
+.si.on .si-n { color:var(--sb-on-ic); }
 .ni-ch { width:14px; height:14px; flex-shrink:0; color:var(--sb-t3); transition:transform .18s cubic-bezier(.2,.7,.2,1), color .12s; }
-.ni:hover .ni-ch { color:var(--sb-t); }
+.ni:hover .ni-ch { color:#fff; }
 .ni-ch.up { transform:rotate(90deg); }
-.sb--yigiq .ni { justify-content:center; width:40px; height:40px; margin:2px auto; padding:0; border-radius:9px; }
+.sb--yigiq .ni { justify-content:center; width:40px; height:40px; margin:2px auto; padding:0; border-radius:10px; }
 .sb--yigiq .ni-ic { width:18px; height:18px; }
 
 /* Ichki sahifalar — silliq ochiladi (grid 0fr → 1fr), yopiqda inert */
@@ -645,40 +657,41 @@ onUnmounted(() => {
 .sub.open .sub-in { visibility:visible; transition:visibility 0s; }
 .sub-l { position:relative; padding:1px 0 6px; }
 .sub-l::before { content:''; position:absolute; left:17.5px; top:2px; bottom:7px; width:1px; background:var(--sb-line2); }
-.si { height:30px; display:flex; align-items:center; gap:8px; margin:1px 0 1px 26px; padding:0 8px 0 10px; border-radius:7px;
+.si { height:30px; display:flex; align-items:center; gap:8px; margin:1px 0 1px 26px; padding:0 8px 0 10px; border-radius:8px;
   color:var(--sb-t2); font-size:13px; text-decoration:none; position:relative; transition:background .12s, color .12s; }
 .si:hover { background:var(--sb-hov); color:#fff; }
-.si.on { background:var(--sb-acc); color:#fff; font-weight:500; box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 6px 14px -6px rgba(124,58,237,.75); }
-.si.on::before { content:''; position:absolute; left:-9.5px; top:7px; bottom:7px; width:2px; border-radius:1px; background:var(--sb-acc3); }
+.si.on { background:var(--sb-on-bg); color:var(--sb-on-ink); font-weight:600; box-shadow:var(--sb-on-sh); }
+.si.on::before { content:''; position:absolute; left:-9.5px; top:7px; bottom:7px; width:2px; border-radius:1px; background:#fff; }
 .si-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .si-n { font-size:11.5px; color:var(--sb-t3); font-variant-numeric:tabular-nums; }
 
-/* Pastki qism: foydalanuvchi */
+/* Pastki qism: foydalanuvchi kartasi */
 .sb-ft { flex-shrink:0; padding:8px 10px 10px; border-top:1px solid var(--sb-line); display:flex; justify-content:center; }
-.sb-me { width:100%; display:flex; align-items:center; gap:10px; padding:6px 2px 6px 6px; border-radius:8px; }
+.sb-me { width:100%; display:flex; align-items:center; gap:10px; padding:6px 4px 6px 6px; border-radius:10px;
+  background:rgba(255,255,255,.08); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
 .sb-me-t { flex:1; display:flex; flex-direction:column; min-width:0; line-height:1.25; }
 .sb-me-t b { font-size:13px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sb-me-t small { font-size:11.5px; color:var(--sb-t3); }
 .av { width:32px; height:32px; flex-shrink:0; border-radius:50%; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:600; letter-spacing:.02em; }
-.av--sb { width:28px; height:28px; font-size:11px; background:var(--sb-acc); box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
+.av--sb { width:28px; height:28px; font-size:11px; font-weight:700; background:#fff; color:var(--sb-on-ink); }
 .av--lg { width:40px; height:40px; font-size:14px; }
 
-/* Yig'ilgan menyuning suzuvchi paneli */
-.fly { position:fixed; z-index:60; left:calc(var(--sb-wy) + 6px); min-width:210px; max-width:280px; padding:4px; border-radius:10px;
-  color:var(--sb-t); background:var(--sb-g1); border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 12px 32px -8px rgba(18,9,30,.55), 0 2px 6px rgba(18,9,30,.3); }
-.fly-hd { display:flex; flex-direction:column; gap:1px; padding:7px 10px 8px; border-radius:7px; text-decoration:none; }
+/* Yig'ilgan menyuning suzuvchi paneli — menyuning o'zi kabi binafsha */
+.fly { position:fixed; z-index:60; left:calc(var(--sb-wy) + 6px); min-width:210px; max-width:280px; padding:4px; border-radius:12px;
+  color:var(--sb-t); background:linear-gradient(180deg, var(--sb-g1), var(--sb-g2)); border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 14px 34px -8px rgba(30,8,72,.5), 0 2px 6px rgba(30,8,72,.25); }
+.fly-hd { display:flex; flex-direction:column; gap:1px; padding:7px 10px 8px; border-radius:8px; text-decoration:none; }
 .fly-hd b { font-size:13px; font-weight:600; color:#fff; }
 .fly-hd small { font-size:11.5px; line-height:1.35; color:var(--sb-t3); }
 .fly-hd:hover { background:var(--sb-hov); }
 .fly-l { margin-top:2px; padding-top:4px; border-top:1px solid var(--sb-line); }
-.fs { height:30px; display:flex; align-items:center; gap:8px; padding:0 10px; border-radius:7px; color:var(--sb-t2); font-size:13px; text-decoration:none;
+.fs { height:30px; display:flex; align-items:center; gap:8px; padding:0 10px; border-radius:8px; color:var(--sb-t2); font-size:13px; text-decoration:none;
   transition:background .12s, color .12s; }
 .fs:hover { background:var(--sb-hov); color:#fff; }
-.fs.on { background:var(--sb-acc); color:#fff; font-weight:500; }
-.fs.on .si-n { color:rgba(255,255,255,.85); }
-.fs.on .si-n.ish { background:#fff; color:#6d28d9; }
+.fs.on { background:var(--sb-on-bg); color:var(--sb-on-ink); font-weight:600; }
+.fs.on .si-n { color:var(--sb-on-ic); }
+.fs.on .si-n.ish { background:var(--sb-on-ic); color:#fff; }
 .fs-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .fly-enter-active, .fly-leave-active { transition:opacity .12s, transform .12s; }
 .fly-enter-from, .fly-leave-to { opacity:0; transform:translateX(-4px); }
