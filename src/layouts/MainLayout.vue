@@ -4,7 +4,7 @@
    ichki sahifalar o'z ikonlari bilan akkordeonda. Raqamlar /navbat dan keladigan
    haqiqiy "bajarilishi kerak" sonlari. Yuqorida — sahifa ikoni va nomi,
    qidiruv (⌘K), vazifalar, bildirishnomalar, profil (mavzu shu yerda). */
-import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { authStore } from '@/stores/auth'
 import { rejimStore } from '@/stores/rejim'
@@ -37,6 +37,12 @@ watch(dark, v => {
 }, { immediate: true })
 watch(yigiq, v => yoz('sellz_nav_yigiq', v ? '1' : '0'))
 
+/* Kichik ekranda menyu — chiqib keluvchi panel, u yerda "yig'ilgan" holat ishlamaydi */
+const torMq = window.matchMedia('(max-width: 900px)')
+const tor   = ref(torMq.matches)
+const torYangila = (e: MediaQueryListEvent) => { tor.value = e.matches }
+const yig   = computed(() => yigiq.value && !tor.value)
+
 const noSidebar   = computed(() => route.name === 'PrixodForm')
 const optom       = rejimStore.isOptom
 const currentUser = authStore.user
@@ -49,10 +55,10 @@ const modullar = computed<Modul[]>(() => MODULLAR
   .map(m => ({ ...m, sahifalar: m.sahifalar.filter(s => rejimStore.mos(s.faqat) && authStore.canView(s.perm || m.perm)) }))
   .filter(m => m.sahifalar.length))
 const guruhlar = computed(() => [
-  { nom: 'Asosiy',         items: modullar.value.filter(m => m.key === 'dashboard') },
-  { nom: 'Savdo jarayoni', items: modullar.value.filter(m => m.zanjir) },
-  { nom: 'Tahlil',         items: modullar.value.filter(m => !m.zanjir && !m.tizim && m.key !== 'dashboard') },
-  { nom: 'Tizim',          items: modullar.value.filter(m => m.tizim) },
+  { nom: 'Asosiy',         zanjir: false, items: modullar.value.filter(m => m.key === 'dashboard') },
+  { nom: 'Savdo jarayoni', zanjir: true,  items: modullar.value.filter(m => m.zanjir) },
+  { nom: 'Tahlil',         zanjir: false, items: modullar.value.filter(m => !m.zanjir && !m.tizim && m.key !== 'dashboard') },
+  { nom: 'Tizim',          zanjir: false, items: modullar.value.filter(m => m.tizim) },
 ].filter(g => g.items.length))
 
 const joriy = computed<{ m: Modul | null; s: Sahifa | null }>(() => {
@@ -68,10 +74,29 @@ const joriyIkon = computed(() => joriy.value.s?.ikon || joriy.value.m?.ikon || '
 watch(() => joriy.value.m?.key, k => { if (k) ochiq[k] = true }, { immediate: true })
 
 function modulBos(m: Modul) {
-  if (bitta(m) || yigiq.value) { router.push(m.sahifalar[0]!.yol); mobil.value = false; return }
+  if (bitta(m) || yig.value) { router.push(m.sahifalar[0]!.yol); mobil.value = false; return }
   ochiq[m.key] = !ochiq[m.key]
 }
 watch(() => route.fullPath, () => { mobil.value = false; userOpen.value = false; ishOpen.value = false })
+
+/* ── Yig'ilgan menyu: modul ustiga kelganda ichki sahifalar suzuvchi panelda ── */
+const fly = ref<{ m: Modul; top: number } | null>(null)
+let flyT: ReturnType<typeof setTimeout> | null = null
+function flyOch(m: Modul, e: Event) {
+  if (!yig.value) return
+  if (flyT) clearTimeout(flyT)
+  const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const boy = 60 + (bitta(m) ? 0 : m.sahifalar.length * 35 + 12)   // panelning taxminiy balandligi
+  fly.value = { m, top: Math.max(10, Math.min(r.top - 6, window.innerHeight - boy - 10)) }
+}
+function flyYop() { if (flyT) clearTimeout(flyT); flyT = setTimeout(() => (fly.value = null), 160) }
+function flyQol() { if (flyT) clearTimeout(flyT) }
+watch([yig, () => route.fullPath], () => { fly.value = null })
+
+/* Faol sahifa menyuning pastida qolib ketmasin */
+function faolniKorsat() {
+  nextTick(() => document.querySelector('.sb .si.on, .sb .ni.on, .sb .ni.act')?.scrollIntoView({ block: 'nearest' }))
+}
 
 /* ── Haqiqiy sonlar (/navbat) ───────────────────────────── */
 const qiymat = (k: string) => k.split('.').reduce((o: any, p) => (o == null ? undefined : o[p]), navbat.value) as number | undefined
@@ -265,6 +290,8 @@ onMounted(() => {
   document.addEventListener('visibilitychange', miltillaToxtat)
   pollBildirishnoma(); bildPollId = setInterval(pollBildirishnoma, 15000)
   window.addEventListener('keydown', tugma)
+  torMq.addEventListener('change', torYangila)
+  faolniKorsat()
   navbatYukla()
   navbatTaymer = setInterval(navbatYukla, 60000)
   // Optomda agent buyurtmasi yo'q — sotuv shu zahoti yetkazilgan bo'ladi, kuzatadigan "yangi zakaz" yo'q
@@ -273,8 +300,10 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('sellz:session-expired', handleSessionExpired)
   window.removeEventListener('keydown', tugma)
+  torMq.removeEventListener('change', torYangila)
   document.removeEventListener('visibilitychange', miltillaToxtat)
   ;[navbatTaymer, zakazPollId, bildPollId, miltillaId].forEach(t => { if (t) clearInterval(t) })
+  if (flyT) clearTimeout(flyT)
 })
 </script>
 
@@ -283,68 +312,99 @@ onUnmounted(() => {
 
     <!-- ══════════ SIDEBAR ══════════ -->
     <template v-if="!noSidebar">
-      <div v-if="mobil" class="sb-ov" @click="mobil = false"/>
-      <aside class="sb" :class="{ 'sb--yigiq': yigiq, 'sb--mobil': mobil }" aria-label="Asosiy menyu">
+      <transition name="sb-ov"><div v-if="mobil" class="sb-ov" @click="mobil = false"/></transition>
+      <aside class="sb" :class="{ 'sb--yigiq': yig, 'sb--mobil': mobil }" aria-label="Asosiy menyu">
         <div class="sb-hd">
-          <router-link to="/dashboard" class="brand" :title="optom ? 'Sellz Optom' : 'Sellz Distributor'">
+          <router-link to="/dashboard" class="brand" :aria-label="optom ? 'Sellz Optom — bosh sahifa' : 'Sellz Distributor — bosh sahifa'">
             <span class="brand-mark">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 20 7.3v9.4l-8 4.5-8-4.5V7.3z"/><path d="m4.4 7.5 7.6 4.3 7.6-4.3M12 11.8v9.2"/></svg>
             </span>
-            <span v-if="!yigiq" class="brand-t"><b>Sellz</b><small>{{ optom ? 'Optom' : 'Distributor' }}</small></span>
+            <span v-if="!yig" class="brand-t"><b>Sellz</b><small>{{ optom ? 'Optom' : 'Distributor' }}</small></span>
           </router-link>
-          <button v-if="!yigiq" class="sb-ib" title="Menyuni yig'ish (Ctrl+\)" @click="yigiq = true">
+          <button v-if="!yig" class="sb-ib sb-ib--hd" title="Menyuni yig'ish (Ctrl+\)" aria-label="Menyuni yig'ish" @click="yigiq = true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 10l-2 2 2 2"/></svg>
+          </button>
+          <button class="sb-ib sb-x" aria-label="Menyuni yopish" @click="mobil = false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
 
         <nav class="sb-nav">
-          <section v-for="g in guruhlar" :key="g.nom" class="sb-g">
-            <div v-if="!yigiq" class="sb-gt">{{ g.nom }}</div>
+          <section v-for="g in guruhlar" :key="g.nom" class="sb-g" :class="{ 'sb-g--zanjir': g.zanjir && g.items.length > 1 }">
+            <div v-if="!yig" class="sb-gt"><span>{{ g.nom }}</span></div>
             <div v-else class="sb-gl"/>
 
-            <template v-for="m in g.items" :key="m.key">
-              <!-- bitta sahifali modul -->
-              <router-link v-if="bitta(m)" :to="m.sahifalar[0]!.yol" class="ni"
-                :class="{ on: joriy.m?.key === m.key }" :title="yigiq ? m.nom : undefined">
-                <svg class="ni-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="m.ikon"/>
-                <span v-if="!yigiq" class="ni-t">{{ m.nom }}</span>
-                <span v-if="modulSon(m)" class="ni-n" :class="{ dot: yigiq }">{{ yigiq ? '' : modulSon(m) }}</span>
-              </router-link>
+            <div class="sb-gi">
+              <template v-for="m in g.items" :key="m.key">
+                <!-- bitta sahifali modul -->
+                <router-link v-if="bitta(m)" :to="m.sahifalar[0]!.yol" class="ni"
+                  :class="{ on: joriy.m?.key === m.key }" :aria-label="yig ? m.nom : undefined"
+                  @mouseenter="flyOch(m, $event)" @mouseleave="flyYop" @focus="flyOch(m, $event)" @blur="flyYop">
+                  <span class="ni-tl"><svg class="ni-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="m.ikon"/></span>
+                  <span v-if="!yig" class="ni-t">{{ m.nom }}</span>
+                  <span v-if="modulSon(m)" class="ni-n" :class="{ dot: yig }">{{ yig ? '' : modulSon(m) }}</span>
+                </router-link>
 
-              <!-- ichki sahifali modul -->
-              <template v-else>
-                <button class="ni" :class="{ act: joriy.m?.key === m.key, on: yigiq && joriy.m?.key === m.key }"
-                  :title="yigiq ? m.nom : undefined" :aria-expanded="!!ochiq[m.key]" @click="modulBos(m)">
-                  <svg class="ni-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="m.ikon"/>
-                  <span v-if="!yigiq" class="ni-t">{{ m.nom }}</span>
-                  <span v-if="modulSon(m) && (!ochiq[m.key] || yigiq)" class="ni-n" :class="{ dot: yigiq }">{{ yigiq ? '' : modulSon(m) }}</span>
-                  <svg v-if="!yigiq" class="ni-ch" :class="{ up: ochiq[m.key] }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
-                </button>
-                <div v-if="ochiq[m.key] && !yigiq" class="sub">
-                  <router-link v-for="s in m.sahifalar" :key="s.yol" :to="s.yol" class="si" :class="{ on: joriy.s?.yol === s.yol }">
-                    <svg class="si-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="s.ikon"/>
-                    <span class="si-t">{{ s.nom }}</span>
-                    <span v-if="sahifaSon(s)" class="si-n" :class="{ ish: sahifaSon(s)?.ish }">{{ sahifaSon(s)?.matn }}</span>
-                  </router-link>
-                </div>
+                <!-- ichki sahifali modul -->
+                <template v-else>
+                  <button class="ni" :class="{ act: joriy.m?.key === m.key, on: yig && joriy.m?.key === m.key }"
+                    :aria-label="yig ? m.nom : undefined" :aria-expanded="yig ? undefined : !!ochiq[m.key]" @click="modulBos(m)"
+                    @mouseenter="flyOch(m, $event)" @mouseleave="flyYop" @focus="flyOch(m, $event)" @blur="flyYop">
+                    <span class="ni-tl"><svg class="ni-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="m.ikon"/></span>
+                    <span v-if="!yig" class="ni-t">{{ m.nom }}</span>
+                    <span v-if="modulSon(m) && (!ochiq[m.key] || yig)" class="ni-n" :class="{ dot: yig }">{{ yig ? '' : modulSon(m) }}</span>
+                    <svg v-if="!yig" class="ni-ch" :class="{ up: ochiq[m.key] }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
+                  </button>
+                  <div v-if="!yig" class="sub" :class="{ open: ochiq[m.key] }">
+                    <div class="sub-in" :inert="!ochiq[m.key] || undefined">
+                      <div class="sub-l">
+                        <router-link v-for="s in m.sahifalar" :key="s.yol" :to="s.yol" class="si" :class="{ on: joriy.s?.yol === s.yol }">
+                          <svg class="si-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="s.ikon"/>
+                          <span class="si-t">{{ s.nom }}</span>
+                          <span v-if="sahifaSon(s)" class="si-n" :class="{ ish: sahifaSon(s)?.ish }">{{ sahifaSon(s)?.matn }}</span>
+                        </router-link>
+                      </div>
+                    </div>
+                  </div>
+                </template>
               </template>
-            </template>
+            </div>
           </section>
         </nav>
 
         <div class="sb-ft">
-          <button v-if="yigiq" class="sb-ib sb-ib--w" title="Menyuni kengaytirish (Ctrl+\)" @click="yigiq = false">
+          <button v-if="yig" class="sb-ib sb-ib--w" title="Menyuni kengaytirish (Ctrl+\)" aria-label="Menyuni kengaytirish" @click="yigiq = false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l2 2-2 2"/></svg>
           </button>
           <div v-else class="sb-me">
             <span class="av av--sb">{{ currentUser ? initsial(currentUser.fullname) : '?' }}</span>
             <span class="sb-me-t"><b>{{ currentUser?.fullname ?? '—' }}</b><small>{{ currentUser?.role ?? '—' }}</small></span>
-            <button class="sb-ib" title="Tizimdan chiqish" @click="logout">
+            <button class="sb-ib" :title="dark ? 'Yorug\' mavzu' : 'Qorong\'i mavzu'" :aria-label="dark ? 'Yorug\' mavzuga o\'tish' : 'Qorong\'i mavzuga o\'tish'" @click="dark = !dark">
+              <svg v-if="dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
+            </button>
+            <button class="sb-ib sb-ib--x" title="Tizimdan chiqish" aria-label="Tizimdan chiqish" @click="logout">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
             </button>
           </div>
         </div>
       </aside>
+
+      <!-- Yig'ilgan menyu: modul ustida suzuvchi panel (nom + ichki sahifalar) -->
+      <transition name="fly">
+        <div v-if="yig && fly" class="fly" :style="{ top: fly.top + 'px' }" @mouseenter="flyQol" @mouseleave="flyYop">
+          <router-link :to="fly.m.sahifalar[0]!.yol" class="fly-hd" tabindex="-1">
+            <b>{{ fly.m.nom }}</b><small>{{ fly.m.izoh }}</small>
+          </router-link>
+          <div v-if="!bitta(fly.m)" class="fly-l">
+            <router-link v-for="s in fly.m.sahifalar" :key="s.yol" :to="s.yol" class="fs" :class="{ on: joriy.s?.yol === s.yol }" tabindex="-1">
+              <svg class="fs-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="s.ikon"/>
+              <span class="fs-t">{{ s.nom }}</span>
+              <span v-if="sahifaSon(s)" class="si-n" :class="{ ish: sahifaSon(s)?.ish }">{{ sahifaSon(s)?.matn }}</span>
+            </router-link>
+          </div>
+        </div>
+      </transition>
     </template>
 
     <!-- ══════════ ASOSIY QISM ══════════ -->
@@ -496,11 +556,14 @@ onUnmounted(() => {
   --bg:#f5f6fa; --surface:#ffffff; --line:#e3e6ee; --line2:#eef0f5;
   --ink:#0f172a; --ink2:#334155; --mut:#64748b; --sub:#94a3b8;
   --hov:#f1f3f9; --act:#e8ebf5; --acc:var(--brand-600); --acc-soft:var(--brand-50); --acc-ink:var(--brand-700);
-  /* sidebar — to'q indigo */
-  --sb-bg:var(--brand-950); --sb-line:rgba(255,255,255,.08); --sb-t:#c7cbf5; --sb-t2:#9ea4e6; --sb-gt:#7d84d4;
-  --sb-hov:rgba(255,255,255,.06); --sb-sel:rgba(255,255,255,.1);
+  /* sidebar — suzuvchi to'q indigo shisha panel */
+  --sb-g1:#201d52; --sb-g2:#171544; --sb-g3:#100e30;
+  --sb-glow:rgba(99,102,241,.42); --sb-glow2:rgba(67,56,202,.30);
+  --sb-line:rgba(255,255,255,.08); --sb-t:#d4d7fb; --sb-t2:#a5aaec; --sb-gt:#8d93de;
+  --sb-hov:rgba(255,255,255,.065); --sb-sel:rgba(255,255,255,.1);
+  --sb-tile:#2a2762; --sb-tile-h:#363275; --sb-rail:rgba(165,180,252,.24);
   --main-bg:var(--bg); --page-bg:var(--bg); --page-scroll:#cfd4e1;
-  --sb-w:256px;
+  --sb-w:264px; --sb-wy:76px; --sb-m:10px;
   display:flex; height:100vh; width:100vw; overflow:hidden; background:var(--bg); color:var(--ink);
   -webkit-font-smoothing:antialiased;
 }
@@ -508,72 +571,175 @@ onUnmounted(() => {
   --bg:#0e1118; --surface:#141925; --line:#242b3b; --line2:#1c2230;
   --ink:#e8eaf0; --ink2:#c3c9d6; --mut:#8b93a7; --sub:#5f6a7e;
   --hov:#1a2030; --act:#20283a; --acc:var(--brand-400); --acc-soft:rgba(99,102,241,.16); --acc-ink:var(--brand-300);
-  --sb-bg:#13123a; --sb-line:rgba(255,255,255,.07);
+  --sb-g1:#1a1844; --sb-g2:#131134; --sb-g3:#0d0c26;
+  --sb-glow:rgba(99,102,241,.30); --sb-glow2:rgba(67,56,202,.22);
+  --sb-line:rgba(255,255,255,.07); --sb-tile:#232053; --sb-tile-h:#2d2a65;
   --page-scroll:#2e3648;
 }
 
-/* ═══ SIDEBAR ═══ */
-.sb { width:var(--sb-w); flex-shrink:0; height:100vh; display:flex; flex-direction:column; background:var(--sb-bg); color:var(--sb-t);
-  transition:width .2s ease; position:relative; z-index:40; }
-.sb--yigiq { width:68px; }
-.sb-hd { height:60px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 12px 0 16px; border-bottom:1px solid var(--sb-line); }
+/* ═══ SIDEBAR — suzuvchi indigo shisha panel ═══
+   --rail: modul ikonkasi markazi (zanjir chizig'i shu yerdan o'tadi),
+   --sub-x: ichki sahifalar chap chekkasi, --row: modul qatori balandligi. */
+.sb {
+  --rail:24px; --sub-x:40px; --row:42px;
+  width:var(--sb-w); flex-shrink:0; height:calc(100vh - var(--sb-m) * 2);
+  margin:var(--sb-m) var(--sb-m) var(--sb-m) var(--sb-m);
+  display:flex; flex-direction:column; position:relative; z-index:40; isolation:isolate; overflow:hidden;
+  border-radius:20px; color:var(--sb-t);
+  background:
+    radial-gradient(130% 55% at 0% 0%, var(--sb-glow), transparent 62%),
+    radial-gradient(110% 45% at 100% 100%, var(--sb-glow2), transparent 60%),
+    linear-gradient(180deg, var(--sb-g1) 0%, var(--sb-g2) 52%, var(--sb-g3) 100%);
+  box-shadow:0 1px 2px rgba(15,23,42,.10), 0 18px 40px -18px rgba(30,27,75,.55);
+  transition:width .22s cubic-bezier(.2,.7,.2,1);
+}
+.shell.dark .sb { box-shadow:0 18px 44px -16px rgba(0,0,0,.75); }
+/* yorug'lik tushgan shisha qirra */
+.sb::before { content:''; position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit; padding:1px;
+  background:linear-gradient(160deg, rgba(255,255,255,.24), rgba(255,255,255,.05) 30%, rgba(255,255,255,.02) 70%, rgba(165,180,252,.18));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; }
+/* mayda don — shishaga "jon" beradi */
+.sb::after { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none; opacity:.06; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+.sb--yigiq { --rail:50%; --row:46px; width:var(--sb-wy); }
+
+/* Bosh qism */
+.sb-hd { height:66px; flex-shrink:0; display:flex; align-items:center; gap:8px; padding:0 12px 0 16px; position:relative; }
+.sb-hd::after, .sb-ft::before { content:''; position:absolute; left:14px; right:14px; height:1px;
+  background:linear-gradient(90deg, transparent, var(--sb-line) 18%, var(--sb-line) 82%, transparent); }
+.sb-hd::after { bottom:0; }
 .sb--yigiq .sb-hd { justify-content:center; padding:0; }
-.brand { display:flex; align-items:center; gap:11px; text-decoration:none; color:#fff; }
-.brand-mark { width:32px; height:32px; border-radius:8px; background:var(--brand-500); color:#fff; display:flex; align-items:center; justify-content:center;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 1px 2px rgba(0,0,0,.3); }
-.brand-mark svg { width:18px; height:18px; }
-.brand-t { display:flex; flex-direction:column; line-height:1.15; }
-.brand-t b { font-size:15px; font-weight:700; letter-spacing:.01em; color:#fff; }
-.brand-t small { font-size:11.5px; color:var(--sb-t2); }
-.sb-ib { width:30px; height:30px; flex-shrink:0; border:none; border-radius:7px; background:none; color:var(--sb-t2); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.brand { display:flex; align-items:center; gap:11px; min-width:0; text-decoration:none; color:#fff; border-radius:12px; }
+.brand-mark { width:36px; height:36px; flex-shrink:0; border-radius:11px; display:grid; place-items:center; color:#fff;
+  background:linear-gradient(145deg, var(--brand-400), var(--brand-600));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 6px 16px -4px rgba(79,70,229,.75); transition:transform .2s; }
+.brand:hover .brand-mark { transform:rotate(-6deg) scale(1.04); }
+.brand-mark svg { width:20px; height:20px; }
+.brand-t { display:flex; flex-direction:column; min-width:0; line-height:1.15; }
+.brand-t b { font-size:16px; font-weight:800; letter-spacing:.005em; color:#fff; }
+.brand-t small { margin-top:3px; font-size:10px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--sb-t2); }
+.sb-ib--hd { margin-left:auto; }
+.sb .sb-x { display:none; margin-left:auto; }
+
+/* Ikon tugmalar */
+.sb-ib { width:32px; height:32px; flex-shrink:0; border:none; border-radius:9px; background:none; color:var(--sb-t2); cursor:pointer;
+  display:grid; place-items:center; transition:background .15s, color .15s; }
 .sb-ib:hover { background:var(--sb-hov); color:#fff; }
 .sb-ib svg { width:18px; height:18px; }
-.sb-ib--w { width:40px; height:36px; }
+.sb-ib--w { width:44px; height:40px; border-radius:12px; }
+.sb-ib--x:hover { background:rgba(248,113,113,.14); color:#fca5a5; }
+.brand:focus-visible, .sb-ib:focus-visible, .ni:focus-visible, .si:focus-visible { outline:2px solid var(--brand-300); outline-offset:-2px; }
 
-.sb-nav { flex:1; overflow-y:auto; overflow-x:hidden; padding:6px 12px 14px; scrollbar-width:none; }
-.sb-nav::-webkit-scrollbar { display:none; }
-.sb-g { margin-top:18px; }
-.sb-g:first-child { margin-top:10px; }
-.sb-gt { font-size:11px; font-weight:600; color:var(--sb-gt); letter-spacing:.06em; text-transform:uppercase; padding:0 10px 8px; }
-.sb-gl { height:1px; background:var(--sb-line); margin:4px 8px 12px; }
+/* Menyu ro'yxati — chetlari mayin so'nadi */
+.sb-nav { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:6px 12px 18px;
+  scrollbar-width:thin; scrollbar-color:transparent transparent;
+  -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 12px, #000 calc(100% - 22px), transparent 100%);
+          mask-image:linear-gradient(180deg, transparent 0, #000 12px, #000 calc(100% - 22px), transparent 100%); }
+.sb-nav:hover { scrollbar-color:rgba(255,255,255,.18) transparent; }
 
-.ni { width:100%; height:38px; display:flex; align-items:center; gap:11px; padding:0 10px; margin-bottom:2px; border:none; border-radius:8px; background:none;
-  color:var(--sb-t); font:inherit; font-size:13.5px; font-weight:500; text-decoration:none; cursor:pointer; text-align:left; position:relative; transition:background .12s, color .12s; }
+.sb-g { margin-top:16px; }
+.sb-g:first-child { margin-top:8px; }
+.sb-gt { display:flex; align-items:center; gap:10px; padding:0 10px 8px; font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--sb-gt); }
+.sb-gt::after { content:''; flex:1; height:1px; background:linear-gradient(90deg, var(--sb-line), transparent); }
+.sb-gl { height:1px; margin:2px 14px 12px; background:var(--sb-line); }
+.sb-gi { position:relative; }
+/* Savdo jarayoni zanjiri: modullar biznes oqimi tartibida bitta chiziqqa tizilgan */
+.sb-g--zanjir .sb-gi::before { content:''; position:absolute; left:calc(var(--rail) - .5px); width:1px;
+  top:calc(var(--row) / 2); bottom:calc(var(--row) / 2 + 2px); background:var(--sb-rail); }
+
+/* Modul qatori */
+.ni { width:100%; height:var(--row); display:flex; align-items:center; gap:11px; padding:0 10px 0 9px; margin-bottom:2px; border:none; border-radius:12px;
+  background:none; color:var(--sb-t); font:inherit; font-size:13.5px; font-weight:500; text-decoration:none; text-align:left; cursor:pointer;
+  position:relative; transition:background .15s, color .15s; }
 .ni:hover { background:var(--sb-hov); color:#fff; }
+.ni-tl { position:relative; z-index:1; width:30px; height:30px; flex-shrink:0; border-radius:9px; display:grid; place-items:center;
+  background:var(--sb-tile); color:var(--sb-t2); box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);
+  transition:background .15s, color .15s, box-shadow .15s; }
+.ni-ic { width:17px; height:17px; }
+.ni:hover .ni-tl { background:var(--sb-tile-h); color:#fff; }
 .ni.act { color:#fff; }
-.ni.on { background:var(--brand-600); color:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08); }
-.ni-ic { width:19px; height:19px; flex-shrink:0; color:var(--sb-t2); transition:color .12s; }
-.ni:hover .ni-ic, .ni.act .ni-ic { color:#fff; }
-.ni.on .ni-ic { color:#fff; }
+.ni.act .ni-tl, .ni.on .ni-tl { background:linear-gradient(145deg, var(--brand-400), var(--brand-600)); color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 4px 12px -3px rgba(99,102,241,.8); }
+.ni.on { color:#fff; background:linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(255,255,255,.07), 0 8px 18px -10px rgba(0,0,0,.55); }
 .ni-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ni-n { min-width:22px; height:20px; padding:0 7px; border-radius:10px; background:var(--brand-500); color:#fff; font-size:11.5px; font-weight:600; line-height:20px; text-align:center; font-variant-numeric:tabular-nums; }
-.ni.on .ni-n { background:#fff; color:var(--brand-700); }
-.ni-n.dot { position:absolute; top:7px; right:11px; min-width:0; width:7px; height:7px; padding:0; border-radius:50%; background:var(--brand-400); box-shadow:0 0 0 2px var(--sb-bg); }
-.ni-ch { width:14px; height:14px; color:var(--sb-gt); transition:transform .15s; flex-shrink:0; }
+.ni-n { min-width:22px; height:20px; padding:0 7px; border-radius:10px; background:var(--brand-500); color:#fff; font-size:11px; font-weight:700;
+  line-height:20px; text-align:center; font-variant-numeric:tabular-nums; box-shadow:0 2px 8px -2px rgba(99,102,241,.8); }
+.ni.on .ni-n { background:#fff; color:var(--brand-700); box-shadow:none; }
+.ni-n.dot { position:absolute; z-index:2; top:2px; right:calc(50% - 23px); min-width:0; width:9px; height:9px; padding:0; border-radius:50%;
+  background:var(--brand-400); box-shadow:0 0 0 2px var(--sb-g2), 0 0 10px rgba(129,140,248,.9); }
+.ni-ch { width:15px; height:15px; flex-shrink:0; color:var(--sb-gt); transition:transform .22s cubic-bezier(.2,.7,.2,1), color .15s; }
+.ni:hover .ni-ch { color:var(--sb-t); }
 .ni-ch.up { transform:rotate(90deg); }
-.sb--yigiq .ni { justify-content:center; padding:0; height:42px; }
+.sb--yigiq .ni { justify-content:center; padding:0; }
+.sb--yigiq .ni.on { background:none; box-shadow:none; }
+.sb--yigiq .ni-tl { width:38px; height:38px; border-radius:12px; }
+.sb--yigiq .ni-ic { width:19px; height:19px; }
 
-.sub { margin:2px 0 8px 19px; padding-left:10px; border-left:1px solid var(--sb-line); }
-.si { height:34px; display:flex; align-items:center; gap:10px; padding:0 10px; margin-bottom:1px; border-radius:7px; color:var(--sb-t2); font-size:13px; text-decoration:none; position:relative; transition:background .12s, color .12s; }
+/* Ichki sahifalar — silliq ochiladi (grid 0fr → 1fr) */
+.sub { display:grid; grid-template-rows:0fr; transition:grid-template-rows .26s cubic-bezier(.2,.7,.2,1); }
+.sub.open { grid-template-rows:1fr; }
+.sub-in { min-height:0; overflow:hidden; visibility:hidden; transition:visibility 0s .26s; }
+.sub.open .sub-in { visibility:visible; transition:visibility 0s; }
+.sub-l { position:relative; padding:2px 0 8px; }
+/* zanjirdan tashqari modullarda ichki sahifalarni o'z chizig'i bog'laydi */
+.sb-g:not(.sb-g--zanjir) .sub-l::before { content:''; position:absolute; left:calc(var(--rail) - .5px); width:1px; top:-8px; bottom:25px; background:var(--sb-rail); }
+
+.si { height:34px; display:flex; align-items:center; gap:10px; margin:0 0 1px var(--sub-x); padding:0 10px; border-radius:10px;
+  color:var(--sb-t2); font-size:13px; text-decoration:none; position:relative; transition:background .15s, color .15s; }
+/* chiziqdagi "bekat" nuqtasi */
+.si::before { content:''; position:absolute; left:calc(var(--rail) - var(--sub-x) - 3.5px); top:50%; width:7px; height:7px; margin-top:-3.5px;
+  border-radius:50%; background:var(--sb-g2); box-shadow:0 0 0 1px rgba(165,180,252,.45); opacity:0; transition:opacity .15s; }
 .si:hover { background:var(--sb-hov); color:#fff; }
-.si.on { background:var(--sb-sel); color:#fff; font-weight:500; }
-.si.on::before { content:''; position:absolute; left:-11px; top:8px; bottom:8px; width:2px; border-radius:1px; background:var(--brand-400); }
-.si-ic { width:16px; height:16px; flex-shrink:0; color:var(--sb-gt); }
+.si:hover::before { opacity:1; }
+.si.on { background:var(--sb-sel); color:#fff; font-weight:500; box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); }
+.si.on::before { opacity:1; background:var(--brand-400); box-shadow:0 0 0 3px rgba(129,140,248,.22), 0 0 10px rgba(129,140,248,.95); }
+.si-ic { width:16px; height:16px; flex-shrink:0; color:var(--sb-gt); transition:color .15s; }
 .si:hover .si-ic { color:var(--sb-t); }
 .si.on .si-ic { color:var(--brand-300); }
 .si-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .si-n { font-size:11.5px; font-weight:500; color:var(--sb-gt); font-variant-numeric:tabular-nums; }
-.si-n.ish { min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:var(--brand-500); color:#fff; line-height:18px; text-align:center; font-weight:600; }
+.si-n.ish { min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:var(--brand-500); color:#fff; line-height:18px; text-align:center; font-weight:700; }
 
-.sb-ft { flex-shrink:0; border-top:1px solid var(--sb-line); padding:12px; display:flex; justify-content:center; }
-.sb-me { width:100%; display:flex; align-items:center; gap:10px; padding:2px 2px 2px 4px; }
+/* Pastki qism: foydalanuvchi kartasi */
+.sb-ft { flex-shrink:0; position:relative; padding:12px; display:flex; justify-content:center; }
+.sb-ft::before { top:0; }
+.sb-me { width:100%; display:flex; align-items:center; gap:10px; padding:8px 6px 8px 8px; border-radius:14px;
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.035));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07), inset 0 1px 0 rgba(255,255,255,.07); }
 .sb-me-t { flex:1; display:flex; flex-direction:column; min-width:0; line-height:1.25; }
 .sb-me-t b { font-size:13px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sb-me-t small { font-size:11.5px; color:var(--sb-t2); }
+.sb-me .sb-ib { width:30px; height:30px; }
 .av { width:32px; height:32px; flex-shrink:0; border-radius:50%; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:600; letter-spacing:.02em; }
-.av--sb { background:var(--brand-500); box-shadow:0 0 0 2px rgba(255,255,255,.12); }
+.av--sb { width:34px; height:34px; background:linear-gradient(145deg, var(--brand-400), var(--brand-600)); box-shadow:0 0 0 2px rgba(255,255,255,.14); }
 .av--lg { width:40px; height:40px; font-size:14px; }
+
+/* Yig'ilgan menyuning suzuvchi paneli */
+.fly { position:fixed; z-index:60; left:calc(var(--sb-wy) + var(--sb-m) + 10px); min-width:220px; max-width:290px; padding:6px; border-radius:16px;
+  color:var(--sb-t);
+  background:linear-gradient(160deg, rgba(38,35,94,.94), rgba(21,19,60,.96));
+  -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  box-shadow:0 20px 44px -12px rgba(15,13,46,.6), inset 0 0 0 1px rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.12); }
+.fly-hd { display:flex; flex-direction:column; gap:2px; padding:8px 10px; border-radius:10px; text-decoration:none; }
+.fly-hd b { font-size:13.5px; font-weight:700; color:#fff; }
+.fly-hd small { font-size:11.5px; line-height:1.35; color:var(--sb-t2); }
+.fly-hd:hover { background:var(--sb-hov); }
+.fly-l { margin-top:4px; padding-top:4px; border-top:1px solid var(--sb-line); }
+.fs { height:34px; display:flex; align-items:center; gap:10px; padding:0 10px; border-radius:9px; color:var(--sb-t2); font-size:13px; text-decoration:none;
+  transition:background .12s, color .12s; }
+.fs:hover { background:var(--sb-hov); color:#fff; }
+.fs.on { background:var(--sb-sel); color:#fff; font-weight:500; }
+.fs-ic { width:16px; height:16px; flex-shrink:0; color:var(--sb-gt); }
+.fs.on .fs-ic, .fs:hover .fs-ic { color:var(--brand-300); }
+.fs-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fly-enter-active, .fly-leave-active { transition:opacity .14s, transform .14s; }
+.fly-enter-from, .fly-leave-to { opacity:0; transform:translateX(-6px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sb, .sub, .ni-ch, .brand-mark { transition:none; }
+}
 
 /* ═══ YUQORI PANEL ═══ */
 .main { flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; }
@@ -701,9 +867,14 @@ kbd { font:500 11px/1 ui-sans-serif, system-ui, sans-serif; padding:3px 5px; bor
 @media (max-width:1180px) { .search { width:200px; } }
 @media (max-width:1040px) { .tb--txt span:not(.tb-n) { display:none; } .search { width:auto; } .search span, .search kbd { display:none; } }
 @media (max-width:900px) {
-  .sb { position:fixed; inset:0 auto 0 0; transform:translateX(-100%); transition:transform .2s ease; width:var(--sb-w) !important; }
-  .sb--mobil { transform:none; box-shadow:0 0 40px rgba(0,0,0,.3); }
-  .sb-ov { position:fixed; inset:0; z-index:39; background:rgba(15,23,42,.45); }
+  .sb { position:fixed; top:0; bottom:0; left:0; height:auto; margin:8px; width:min(var(--sb-w), calc(100vw - 56px));
+    transform:translateX(calc(-100% - 16px)); transition:transform .28s cubic-bezier(.2,.7,.2,1); }
+  .sb--mobil { transform:none; box-shadow:0 24px 60px rgba(0,0,0,.45); }
+  .sb .sb-ib--hd { display:none; }
+  .sb .sb-x { display:grid; }
+  .sb-ov { position:fixed; inset:0; z-index:39; background:rgba(15,23,42,.42); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+  .sb-ov-enter-active, .sb-ov-leave-active { transition:opacity .25s; }
+  .sb-ov-enter-from, .sb-ov-leave-to { opacity:0; }
   .tb--menu { display:flex; }
   .top { padding:0 12px; }
   .crumb-ic { display:none; }
