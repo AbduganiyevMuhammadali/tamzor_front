@@ -13,6 +13,7 @@ import { notifStore } from '@/stores/notif'
 import { arizaApi, api } from '@/api/api'
 import { MODULLAR, sahifaMos, type Modul, type Sahifa, type Buyruq } from './nav'
 import CommandPalette from './CommandPalette.vue'
+import SellzLogo from '@/components/SellzLogo.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -316,9 +317,7 @@ onUnmounted(() => {
       <aside class="sb" :class="{ 'sb--yigiq': yig, 'sb--mobil': mobil }" aria-label="Asosiy menyu">
         <div class="sb-hd">
           <router-link to="/dashboard" class="brand" :aria-label="optom ? 'Sellz Optom — bosh sahifa' : 'Sellz Distributor — bosh sahifa'">
-            <span class="brand-mark">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 20 7.3v9.4l-8 4.5-8-4.5V7.3z"/><path d="m4.4 7.5 7.6 4.3 7.6-4.3M12 11.8v9.2"/></svg>
-            </span>
+            <SellzLogo class="brand-mark" :size="30"/>
             <span v-if="!yig" class="brand-t"><b>Sellz</b><small>{{ optom ? 'Optom' : 'Distributor' }}</small></span>
           </router-link>
           <button v-if="!yig" class="sb-ib sb-ib--hd" title="Menyuni yig'ish (Ctrl+\)" aria-label="Menyuni yig'ish" @click="yigiq = true">
@@ -588,12 +587,11 @@ onUnmounted(() => {
 .sb-hd { height:60px; flex-shrink:0; display:flex; align-items:center; gap:8px; padding:0 10px 0 16px; border-bottom:1px solid var(--sb-line); }
 .sb--yigiq .sb-hd { justify-content:center; padding:0; }
 .brand { display:flex; align-items:center; gap:10px; min-width:0; text-decoration:none; color:#fff; border-radius:8px; }
-.brand-mark { width:28px; height:28px; flex-shrink:0; border-radius:8px; display:grid; place-items:center; color:#fff;
-  background:var(--brand-500); box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 1px 2px rgba(0,0,0,.35); }
-.brand-mark svg { width:16px; height:16px; }
+/* Logo (components/SellzLogo.vue) o'z binafsha plitkasi bilan keladi; yozuv logodagidek — keng harflar */
+.brand-mark { border-radius:8px; box-shadow:0 2px 8px -2px rgba(124,58,237,.55); }
 .brand-t { display:flex; flex-direction:column; min-width:0; line-height:1.2; }
-.brand-t b { font-size:14px; font-weight:650; letter-spacing:-.005em; color:#fff; }
-.brand-t small { font-size:11.5px; color:var(--sb-t3); }
+.brand-t b { font-size:13.5px; font-weight:700; letter-spacing:.2em; margin-right:-.2em; text-transform:uppercase; color:#fff; }
+.brand-t small { margin-top:3px; font-size:9.5px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:#c4b5fd; }
 .sb-ib--hd { margin-left:auto; }
 .sb .sb-x { display:none; margin-left:auto; }
 

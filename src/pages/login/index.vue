@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { authStore } from '@/stores/auth'
 import { rejimStore } from '@/stores/rejim'
 import { IK } from '@/layouts/nav'
+import SellzLogo from '@/components/SellzLogo.vue'
 
 const router = useRouter()
 
@@ -121,9 +122,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
       <!-- ── Chap: brend va tizim haqida ── -->
       <section class="intro">
         <div class="brand">
-          <span class="brand-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 20 7.3v9.4l-8 4.5-8-4.5V7.3z"/><path d="m4.4 7.5 7.6 4.3 7.6-4.3M12 11.8v9.2"/></svg>
-          </span>
+          <SellzLogo class="brand-mark" :size="42"/>
           <span class="brand-t"><b>Sellz</b><small>{{ optom ? 'Optom' : 'Distributor' }}</small></span>
         </div>
 
@@ -141,16 +140,17 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
           </ul>
         </div>
 
-        <!-- Bezak: katta shaffof brend belgisi -->
-        <svg class="intro-belgi" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".35" stroke-linejoin="round"><path d="M12 2.8 20 7.3v9.4l-8 4.5-8-4.5V7.3z"/><path d="m4.4 7.5 7.6 4.3 7.6-4.3M12 11.8v9.2"/></svg>
+        <!-- Bezak: logodagi pin va "S" — katta, shaffof chiziqlar -->
+        <svg class="intro-belgi" aria-hidden="true" viewBox="100 80 344 420" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M272 477C340.3 401.2 413 318 413 242A141 141 0 0 0 131 242C131 318 203.7 401.2 272 477Z"/>
+          <path d="M325 180H242A24 24 0 0 0 218 204V218.5A24 24 0 0 0 242 242.5H301A24 24 0 0 1 325 266.5V281.5A24 24 0 0 1 301 305.5H218"/>
+        </svg>
       </section>
 
       <!-- ── O'ng: kirish formasi ── -->
       <section class="kirish">
         <div class="brand brand--mobil">
-          <span class="brand-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 20 7.3v9.4l-8 4.5-8-4.5V7.3z"/><path d="m4.4 7.5 7.6 4.3 7.6-4.3M12 11.8v9.2"/></svg>
-          </span>
+          <SellzLogo class="brand-mark" :size="42"/>
           <span class="brand-t"><b>Sellz</b><small>{{ optom ? 'Optom' : 'Distributor' }}</small></span>
         </div>
 
@@ -318,16 +318,11 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 
 /* ── BREND ── */
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand-mark {
-  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
-  display: grid; place-items: center; color: #fff;
-  background: linear-gradient(145deg, #818cf8, #4f46e5);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px -6px rgba(79,70,229,.8);
-}
-.brand-mark svg { width: 22px; height: 22px; }
+/* Logo (components/SellzLogo.vue) o'z binafsha plitkasi bilan; yozuv logodagidek — keng harflar */
+.brand-mark { border-radius: 11px; box-shadow: 0 10px 24px -8px rgba(124,58,237,.8); }
 .brand-t { display: flex; flex-direction: column; }
-.brand-t b { font-size: 17px; font-weight: 800; letter-spacing: .01em; line-height: 1.1; }
-.brand-t small { margin-top: 3px; font-size: 10.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--g-mut); }
+.brand-t b { font-size: 17px; font-weight: 700; letter-spacing: .22em; margin-right: -.22em; text-transform: uppercase; line-height: 1.1; }
+.brand-t small { margin-top: 4px; font-size: 10px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: #c4b5fd; }
 
 /* ── CHAP QISM ── */
 .intro {
@@ -366,8 +361,8 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 .modul-t span { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.4; color: var(--g-mut); }
 
 .intro-belgi {
-  position: absolute; right: -90px; top: -70px; width: 360px; height: 360px;
-  color: rgba(255,255,255,.07); pointer-events: none;
+  position: absolute; right: -60px; top: -50px; width: 300px; height: 366px;
+  color: rgba(255,255,255,.08); pointer-events: none;
 }
 
 /* ── O'NG QISM: FORMA ── */
