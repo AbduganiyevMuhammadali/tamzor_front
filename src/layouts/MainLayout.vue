@@ -551,11 +551,12 @@ onUnmounted(() => {
   --bg:#f5f6fa; --surface:#ffffff; --line:#e3e6ee; --line2:#eef0f5;
   --ink:#0f172a; --ink2:#334155; --mut:#64748b; --sub:#94a3b8;
   --hov:#f1f3f9; --act:#e8ebf5; --acc:var(--brand-600); --acc-soft:var(--brand-50); --acc-ink:var(--brand-700);
-  /* sidebar — to'q indigo; t: asosiy matn, t2: ichki sahifalar, t3: yorliqlar, ic: ikonlar */
-  --sb-g1:#1c1a46; --sb-g2:#171540; --sb-edge:transparent;
-  --sb-line:rgba(255,255,255,.07); --sb-line2:rgba(255,255,255,.11);
-  --sb-t:#d3d6f3; --sb-t2:#b0b4e3; --sb-t3:#8d92d0; --sb-ic:#9da2dc;
-  --sb-hov:rgba(255,255,255,.055); --sb-sel:rgba(255,255,255,.1);
+  /* sidebar — logodan olingan: to'q binafsha "siyoh" fon, faollik — logo plitkasi rangi (#7C3AED) + oq.
+     t: asosiy matn, t2: ichki sahifalar, t3: yorliqlar, ic: ikonlar, acc: logo binafshasi */
+  --sb-g1:#1e1536; --sb-g2:#160f2b; --sb-edge:transparent;
+  --sb-line:rgba(255,255,255,.07); --sb-line2:rgba(196,181,253,.16);
+  --sb-t:#e4ddf9; --sb-t2:#bdb1e6; --sb-t3:#9b8ecd; --sb-ic:#ab9edc;
+  --sb-hov:rgba(255,255,255,.06); --sb-acc:#7C3AED; --sb-acc2:#a78bfa; --sb-acc3:#c4b5fd;
   --main-bg:var(--bg); --page-bg:var(--bg); --page-scroll:#cfd4e1;
   --sb-w:248px; --sb-wy:60px;
   display:flex; height:100vh; width:100vw; overflow:hidden; background:var(--bg); color:var(--ink);
@@ -565,7 +566,7 @@ onUnmounted(() => {
   --bg:#0e1118; --surface:#141925; --line:#242b3b; --line2:#1c2230;
   --ink:#e8eaf0; --ink2:#c3c9d6; --mut:#8b93a7; --sub:#5f6a7e;
   --hov:#1a2030; --act:#20283a; --acc:var(--brand-400); --acc-soft:rgba(99,102,241,.16); --acc-ink:var(--brand-300);
-  --sb-g1:#15143a; --sb-g2:#111030; --sb-edge:rgba(255,255,255,.06);
+  --sb-g1:#181029; --sb-g2:#110b1f; --sb-edge:rgba(255,255,255,.06);
   --page-scroll:#2e3648;
 }
 
@@ -601,14 +602,15 @@ onUnmounted(() => {
 .sb-ib svg { width:17px; height:17px; }
 .sb-ib--w { width:36px; height:36px; border-radius:8px; }
 .sb-ib--x:hover { color:#fca5a5; }
-.brand:focus-visible, .sb-ib:focus-visible, .ni:focus-visible, .si:focus-visible { outline:2px solid var(--brand-400); outline-offset:-2px; }
+.brand:focus-visible, .sb-ib:focus-visible, .ni:focus-visible, .si:focus-visible { outline:2px solid var(--sb-acc3); outline-offset:-2px; }
 
 /* Ro'yxat */
 .sb-nav { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:8px 10px 16px;
   scrollbar-width:thin; scrollbar-color:transparent transparent; }
 .sb-nav:hover { scrollbar-color:rgba(255,255,255,.16) transparent; }
 .sb-g + .sb-g { margin-top:12px; }
-.sb-gt { height:28px; display:flex; align-items:center; padding:0 10px; font-size:11.5px; font-weight:500; color:var(--sb-t3); }
+/* guruh nomi — logodagi "AGENT" yozuvi kabi: katta, keng harflar */
+.sb-gt { height:28px; display:flex; align-items:center; padding:0 10px; font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--sb-t3); }
 .sb-gl { height:1px; margin:6px 12px; background:var(--sb-line); }
 
 /* Modul qatori */
@@ -620,13 +622,16 @@ onUnmounted(() => {
 .ni-ic { width:16px; height:16px; }
 .ni:hover .ni-tl, .ni.act .ni-tl { color:#fff; }
 .ni.act { color:#fff; }
-.ni.on { background:var(--sb-sel); color:#fff; box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
-.ni.on .ni-tl { color:var(--brand-300); }
+/* faol sahifa — logo plitkasi kabi: binafsha fon, oq yozuv */
+.ni.on { background:var(--sb-acc); color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 6px 14px -6px rgba(124,58,237,.75); }
+.ni.on .ni-tl { color:#fff; }
 .ni-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ni-n, .si-n.ish { min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:rgba(129,140,248,.22); color:#e0e4ff;
+.ni-n, .si-n.ish { min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:rgba(167,139,250,.24); color:#f1ecff;
   font-size:11px; font-weight:600; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; }
 .ni-n.dot { position:absolute; top:7px; right:7px; min-width:0; width:7px; height:7px; padding:0; border-radius:50%;
-  background:var(--brand-400); box-shadow:0 0 0 2px var(--sb-g1); }
+  background:var(--sb-acc2); box-shadow:0 0 0 2px var(--sb-g1); }
+.ni.on .ni-n, .si.on .si-n.ish { background:#fff; color:#6d28d9; }
+.si.on .si-n { color:rgba(255,255,255,.85); }
 .ni-ch { width:14px; height:14px; flex-shrink:0; color:var(--sb-t3); transition:transform .18s cubic-bezier(.2,.7,.2,1), color .12s; }
 .ni:hover .ni-ch { color:var(--sb-t); }
 .ni-ch.up { transform:rotate(90deg); }
@@ -643,8 +648,8 @@ onUnmounted(() => {
 .si { height:30px; display:flex; align-items:center; gap:8px; margin:1px 0 1px 26px; padding:0 8px 0 10px; border-radius:7px;
   color:var(--sb-t2); font-size:13px; text-decoration:none; position:relative; transition:background .12s, color .12s; }
 .si:hover { background:var(--sb-hov); color:#fff; }
-.si.on { background:var(--sb-sel); color:#fff; font-weight:500; }
-.si.on::before { content:''; position:absolute; left:-9.5px; top:7px; bottom:7px; width:2px; border-radius:1px; background:var(--brand-400); }
+.si.on { background:var(--sb-acc); color:#fff; font-weight:500; box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 6px 14px -6px rgba(124,58,237,.75); }
+.si.on::before { content:''; position:absolute; left:-9.5px; top:7px; bottom:7px; width:2px; border-radius:1px; background:var(--sb-acc3); }
 .si-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .si-n { font-size:11.5px; color:var(--sb-t3); font-variant-numeric:tabular-nums; }
 
@@ -656,7 +661,7 @@ onUnmounted(() => {
 .sb-me-t small { font-size:11.5px; color:var(--sb-t3); }
 .av { width:32px; height:32px; flex-shrink:0; border-radius:50%; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:600; letter-spacing:.02em; }
-.av--sb { width:28px; height:28px; font-size:11px; background:var(--brand-500); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14); }
+.av--sb { width:28px; height:28px; font-size:11px; background:var(--sb-acc); box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
 .av--lg { width:40px; height:40px; font-size:14px; }
 
 /* Yig'ilgan menyuning suzuvchi paneli */
@@ -671,7 +676,9 @@ onUnmounted(() => {
 .fs { height:30px; display:flex; align-items:center; gap:8px; padding:0 10px; border-radius:7px; color:var(--sb-t2); font-size:13px; text-decoration:none;
   transition:background .12s, color .12s; }
 .fs:hover { background:var(--sb-hov); color:#fff; }
-.fs.on { background:var(--sb-sel); color:#fff; font-weight:500; }
+.fs.on { background:var(--sb-acc); color:#fff; font-weight:500; }
+.fs.on .si-n { color:rgba(255,255,255,.85); }
+.fs.on .si-n.ish { background:#fff; color:#6d28d9; }
 .fs-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .fly-enter-active, .fly-leave-active { transition:opacity .12s, transform .12s; }
 .fly-enter-from, .fly-leave-to { opacity:0; transform:translateX(-4px); }
