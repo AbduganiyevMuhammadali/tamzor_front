@@ -195,7 +195,7 @@ interface OmborQoldiq {
               qoldiq: number; summa: number; oxirgi: string }[]
 }
 
-const RANGLAR = ['#4f46e5','#6366f1','#4338ca','#3730a3']
+const RANGLAR = ['#7c3aed','#8b5cf6','#6d28d9','#5b21b6']
 const rang = (id: number) => RANGLAR[id % RANGLAR.length]
 const rangNom = (s: string) => RANGLAR[[...String(s)].reduce((a, c) => a + c.charCodeAt(0), 0) % RANGLAR.length]
 
@@ -287,7 +287,7 @@ onMounted(yukla)
   --surface:#fff; --sunken:#f8fafc; --border:rgba(15,23,42,.09);
   --shadow:0 1px 2px rgba(15,23,42,.04), 0 2px 8px rgba(15,23,42,.05);
   --ink:#0f172a; --ink2:#334155; --muted:#5d6b7f;
-  --accent:#4338ca; --accent-wash:rgba(15,118,110,.08);
+  --accent:#6d28d9; --accent-wash:rgba(15,118,110,.08);
   --good:#047857; --warning:#b45309; --critical:#be123c;
   display:flex; flex-direction:column; gap:14px; padding:2px 0 40px; color:var(--ink);
 }
@@ -296,7 +296,7 @@ onMounted(yukla)
   --surface:#212836; --sunken:#181e29; --border:rgba(255,255,255,.09);
   --shadow:0 1px 2px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.28);
   --ink:#e8eaf0; --ink2:#a8b0c0; --muted:#8b93a7;
-  --accent:#818cf8; --accent-wash:rgba(129,140,248,.14);
+  --accent:#a78bfa; --accent-wash:rgba(167,139,250,.14);
   --good:#34d399; --warning:#fbbf24; --critical:#fb7185;
 }
 
@@ -305,11 +305,12 @@ onMounted(yukla)
 .qq-title { font-size:19px; font-weight:800; margin:0; letter-spacing:-.02em; }
 .qq-sub { font-size:12px; color:var(--muted); margin:3px 0 0; }
 .qq-hd-r { margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.qq-tabs { display:flex; background:var(--sunken); border-radius:10px; padding:3px; gap:2px; }
+.qq-tabs { display:flex; background:var(--seg-track); box-shadow:inset 0 0 0 1px var(--seg-brd); border-radius:10px; padding:3px; gap:2px; }
 .qq-tab { display:flex; align-items:center; gap:7px; padding:7px 14px; border:none;
           background:none; border-radius:7px; font-size:12.5px; font-weight:600;
-          color:var(--muted); cursor:pointer; font-family:inherit; }
-.qq-tab.on { background:var(--surface); color:var(--accent); box-shadow:var(--shadow); }
+          color:var(--seg-ink); cursor:pointer; font-family:inherit; transition:color .15s; }
+.qq-tab:hover:not(.on) { color:var(--seg-ink-h); }
+.qq-tab.on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); }
 .qq-badge { font-size:10px; font-weight:800; background:var(--accent); color:#fff;
             border-radius:9px; padding:1px 7px; }
 .qq-badge--warn { background:var(--warning); }

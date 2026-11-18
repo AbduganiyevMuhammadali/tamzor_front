@@ -40,18 +40,18 @@ const SVG = {
 // ── Modullar ─────────────────────────────────────────────
 // faqat — modul faqat shu biznes rejimida ruxsatlar jadvalida ko'rinadi (stores/rejim.ts)
 const BARCHA_MODULLAR = [
-  { module:'dashboard',        label:'Bosh sahifa',     svgPath:SVG.dashboard,   color:'#818cf8',
+  { module:'dashboard',        label:'Bosh sahifa',     svgPath:SVG.dashboard,   color:'#a78bfa',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye }] },
   { module:'supervayzer',      label:'Supervayzer',     svgPath:SVG.supervayzer, color:'#34d399', faqat:'distributsiya',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'manage',  label:'Boshqarish', svgPath:SVG.manage }] },
-  { module:'sotuvlar',         label:'Sotuvlar',        svgPath:SVG.sotuvlar,    color:'#818cf8',
+  { module:'sotuvlar',         label:'Sotuvlar',        svgPath:SVG.sotuvlar,    color:'#a78bfa',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'edit',    label:'Tahrirlash', svgPath:SVG.edit },
              { key:'delete',  label:"O'chirish",  svgPath:SVG.trash },
              { key:'export',  label:'Eksport',    svgPath:SVG.export }] },
-  { module:'ishlab',           label:'Ishlab chiqarish', svgPath:SVG.ishlab,     color:'#818cf8',
+  { module:'ishlab',           label:'Ishlab chiqarish', svgPath:SVG.ishlab,     color:'#a78bfa',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'approve', label:'Yakunlash',  svgPath:SVG.approve }] },
@@ -59,7 +59,7 @@ const BARCHA_MODULLAR = [
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'approve', label:'Tasdiqlash', svgPath:SVG.approve }] },
-  { module:'mijozlar',         label:'Mijozlar',        svgPath:SVG.mijozlar,    color:'#818cf8',
+  { module:'mijozlar',         label:'Mijozlar',        svgPath:SVG.mijozlar,    color:'#a78bfa',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'edit',    label:'Tahrirlash', svgPath:SVG.edit },
@@ -70,12 +70,12 @@ const BARCHA_MODULLAR = [
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'approve', label:'Tasdiqlash', svgPath:SVG.approve },
              { key:'export',  label:'Eksport',    svgPath:SVG.export }] },
-  { module:'ombor',            label:'Ombor',           svgPath:SVG.ombor,       color:'#818cf8',
+  { module:'ombor',            label:'Ombor',           svgPath:SVG.ombor,       color:'#a78bfa',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'edit',    label:'Tahrirlash', svgPath:SVG.edit },
              { key:'delete',  label:"O'chirish",  svgPath:SVG.trash }] },
-  { module:'foydalanuvchilar', label:'Foydalanuvchilar',svgPath:SVG.users_mgmt,  color:'#6366f1',
+  { module:'foydalanuvchilar', label:'Foydalanuvchilar',svgPath:SVG.users_mgmt,  color:'#8b5cf6',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'edit',    label:'Tahrirlash', svgPath:SVG.edit },
@@ -83,24 +83,24 @@ const BARCHA_MODULLAR = [
   { module:'sozlamalar',       label:'Sozlamalar',      svgPath:SVG.sozlamalar,  color:'#94a3b8',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'edit',    label:'Tahrirlash', svgPath:SVG.edit }] },
-  { module:'hisobotlar',       label:'Hisobotlar',      svgPath:SVG.hisobotlar,  color:'#6366f1',
+  { module:'hisobotlar',       label:'Hisobotlar',      svgPath:SVG.hisobotlar,  color:'#8b5cf6',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'export',  label:'Eksport',    svgPath:SVG.export }] },
 ]
 
 const MODULES     = BARCHA_MODULLAR.filter(m => rejimStore.mos(m.faqat))
 const MOD_MAP     = Object.fromEntries(MODULES.map(m => [m.module, m]))
-const ROLE_COLORS = ['#4f46e5','#059669','#d97706','#dc2626','#6366f1','#4338ca','#818cf8','#3730a3']
+const ROLE_COLORS = ['#7c3aed','#059669','#d97706','#dc2626','#8b5cf6','#6d28d9','#a78bfa','#5b21b6']
 
 // ── Rollar (local — backendda rol jadvali yo'q) ───────────
 const roles = ref([
   { id:'r1', name:'Super Admin', color:'#ef4444', description:"Tizimning to'liq nazorati", isSystem:true, userCount:1,
     perms: Object.fromEntries(MODULES.map(m => [m.module, m.actions.map(a => a.key)])) },
-  { id:'r2', name:'Menejer',     color:'#6366f1', description:'Savdo va mijozlarni boshqarish', userCount:3,
+  { id:'r2', name:'Menejer',     color:'#8b5cf6', description:'Savdo va mijozlarni boshqarish', userCount:3,
     perms:{ dashboard:['view'], supervayzer:['view','manage'], sotuvlar:['view','create','edit','export'], mijozlar:['view','create','edit','map'], moliya:['view'], ombor:['view'], foydalanuvchilar:[], sozlamalar:[], hisobotlar:['view','export'] } },
   { id:'r4', name:'Kassir',      color:'#f59e0b', description:'Moliyaviy operatsiyalar', userCount:2,
     perms:{ dashboard:['view'], supervayzer:[], sotuvlar:['view'], mijozlar:['view'], moliya:['view','create','approve'], ombor:['view'], foydalanuvchilar:[], sozlamalar:[], hisobotlar:['view','export'] } },
-  { id:'r5', name:'Omborchi',    color:'#6366f1', description:'Ombor va inventar boshqaruvi', userCount:2,
+  { id:'r5', name:'Omborchi',    color:'#8b5cf6', description:'Ombor va inventar boshqaruvi', userCount:2,
     perms:{ dashboard:['view'], supervayzer:[], sotuvlar:['view'], mijozlar:[], moliya:[], ombor:['view','create','edit','delete'], foydalanuvchilar:[], sozlamalar:[], hisobotlar:['view'] } },
 ])
 
@@ -112,7 +112,7 @@ const apiError   = ref('')
 // Backend rollar (backendda faqat shu 3 ta rol bor)
 const BACKEND_ROLES = [
   { value: 'Admin',       label: 'Admin',       color: '#ef4444' },
-  { value: 'Programmer',  label: 'Programmer',  color: '#6366f1' },
+  { value: 'Programmer',  label: 'Programmer',  color: '#8b5cf6' },
   { value: 'User',        label: 'User',        color: '#10b981' },
 ]
 const BACKEND_ROLE_COLOR = Object.fromEntries(BACKEND_ROLES.map(r => [r.value, r.color]))
@@ -390,7 +390,7 @@ function getInitials(name) {
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
-        <span class="sic" style="background:rgba(99,102,241,.12);color:#818cf8">
+        <span class="sic" style="background:rgba(139,92,246,.12);color:#a78bfa">
           <svg viewBox="0 0 20 20" fill="currentColor" v-html="SVG.mijozlar"/>
         </span>
         <div><div class="sv">{{ stats.total }}</div><div class="sl">Jami foydalanuvchi</div></div>
@@ -402,7 +402,7 @@ function getInitials(name) {
         <div><div class="sv">{{ stats.active }}</div><div class="sl">Faol</div></div>
       </div>
       <div class="stat-card">
-        <span class="sic" style="background:rgba(99,102,241,.12);color:#6366f1">
+        <span class="sic" style="background:rgba(139,92,246,.12);color:#8b5cf6">
           <svg viewBox="0 0 20 20" fill="currentColor" v-html="SVG.shield"/>
         </span>
         <div><div class="sv">{{ stats.roles }}</div><div class="sl">Rollar</div></div>
@@ -603,7 +603,7 @@ function getInitials(name) {
           <div class="modal modal--user">
             <div class="mhd">
               <div class="mhd-title">
-                <span class="mhd-ic" style="background:rgba(99,102,241,.12);color:#818cf8">
+                <span class="mhd-ic" style="background:rgba(139,92,246,.12);color:#a78bfa">
                   <svg viewBox="0 0 20 20" fill="currentColor" v-html="SVG.users_add"/>
                 </span>
                 {{ modalMode==='edit-user' ? 'Foydalanuvchini tahrirlash' : "Foydalanuvchi qo'shish" }}
@@ -750,7 +750,7 @@ function getInitials(name) {
           <div class="modal modal--role">
             <div class="mhd">
               <div class="mhd-title">
-                <span class="mhd-ic" style="background:rgba(99,102,241,.12);color:#6366f1">
+                <span class="mhd-ic" style="background:rgba(139,92,246,.12);color:#8b5cf6">
                   <svg viewBox="0 0 20 20" fill="currentColor" v-html="SVG.shield"/>
                 </span>
                 {{ modalMode==='edit-role' ? 'Rolni tahrirlash' : 'Yangi rol yaratish' }}
@@ -894,8 +894,8 @@ function getInitials(name) {
 .spin--sm { width:13px; height:13px; }
 
 /* API states */
-.api-loading { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; background:rgba(99,102,241,.08); color:#818cf8; font-size:13px; }
-.api-loading .spin { border-color:rgba(99,102,241,.25); border-top-color:#6366f1; }
+.api-loading { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; background:rgba(139,92,246,.08); color:#a78bfa; font-size:13px; }
+.api-loading .spin { border-color:rgba(139,92,246,.25); border-top-color:#8b5cf6; }
 .api-err { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.18); color:#ef4444; font-size:13px; }
 .api-err svg { width:15px; height:15px; flex-shrink:0; }
 .api-err button { margin-left:auto; height:26px; padding:0 10px; border-radius:6px; border:1px solid rgba(239,68,68,.3); background:transparent; color:#ef4444; font-size:11px; cursor:pointer; }
@@ -911,12 +911,13 @@ function getInitials(name) {
 
 /* Tabs */
 .tabs-bar { display:flex; }
-.tabs-inner { display:inline-flex; gap:4px; background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; padding:5px; }
-.tab { display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 16px; border-radius:10px; border:none; background:transparent; color:var(--muted); font-size:13px; font-weight:500; cursor:pointer; transition:.15s; white-space:nowrap; }
+.tabs-inner { display:inline-flex; gap:2px; background:var(--seg-track); border:1px solid var(--seg-brd); border-radius:12px; padding:3px; }
+.tab { display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 16px; border-radius:10px; border:none; background:transparent; color:var(--seg-ink); font-size:13px; font-weight:500; cursor:pointer; transition:.15s; white-space:nowrap; }
+.tab:hover:not(.tab--on) { color:var(--seg-ink-h); }
 .tab svg { width:16px; height:16px; flex-shrink:0; }
-.tab--on { background:linear-gradient(135deg,#818cf8,#6366f1); color:#fff; box-shadow:0 2px 8px rgba(99,102,241,.3); }
+.tab--on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); font-weight:600; }
 .tab-n { min-width:20px; height:18px; padding:0 5px; border-radius:99px; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; }
-.tab--on .tab-n { background:rgba(255,255,255,.25); color:#fff; }
+.tab--on .tab-n { background:var(--cnt-on-bg); color:var(--seg-on-ink); }
 .tab:not(.tab--on) .tab-n { background:var(--card-border); color:var(--muted); }
 
 /* Toolbar */
@@ -927,8 +928,8 @@ function getInitials(name) {
 .srch-in { border:none; background:transparent; outline:none; font-size:13px; color:var(--body); width:100%; }
 .srch-in::placeholder { color:var(--muted); }
 .flt { height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--body); font-size:12px; cursor:pointer; outline:none; }
-.add-btn { display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 16px; border-radius:10px; border:none; background:linear-gradient(135deg,#818cf8,#6366f1); color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(99,102,241,.28); white-space:nowrap; transition:.15s; }
-.add-btn:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(99,102,241,.4); }
+.add-btn { display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 16px; border-radius:10px; border:none; background:linear-gradient(135deg,#a78bfa,#8b5cf6); color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(139,92,246,.28); white-space:nowrap; transition:.15s; }
+.add-btn:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(139,92,246,.4); }
 .add-btn svg { width:16px; height:16px; }
 
 /* User cards */
@@ -966,7 +967,7 @@ function getInitials(name) {
 .ua-btn { display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 10px; border-radius:8px; border:1px solid var(--card-border); background:transparent; font-size:11px; font-weight:500; cursor:pointer; transition:.14s; color:var(--body); }
 .ua-btn svg { width:13px; height:13px; flex-shrink:0; }
 .ua-btn--edit  { flex:1; justify-content:center; }
-.ua-btn--edit:hover  { background:rgba(99,102,241,.08); color:#6366f1; border-color:rgba(99,102,241,.25); }
+.ua-btn--edit:hover  { background:rgba(139,92,246,.08); color:#8b5cf6; border-color:rgba(139,92,246,.25); }
 .ua-btn--block { color:#ef4444; border-color:rgba(239,68,68,.2); }
 .ua-btn--block:hover { background:rgba(239,68,68,.08); }
 .ua-btn--open  { color:#10b981; border-color:rgba(16,185,129,.2); }
@@ -994,7 +995,7 @@ function getInitials(name) {
 .rcard-acts { display:flex; gap:6px; }
 .rb { display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 10px; border-radius:8px; border:1px solid var(--card-border); background:transparent; color:var(--body); font-size:12px; cursor:pointer; transition:.14s; white-space:nowrap; }
 .rb svg { width:13px; height:13px; }
-.rb:hover:not(:disabled) { background:rgba(99,102,241,.08); color:#6366f1; border-color:rgba(99,102,241,.2); }
+.rb:hover:not(:disabled) { background:rgba(139,92,246,.08); color:#8b5cf6; border-color:rgba(139,92,246,.2); }
 .rb--del { padding:0 8px; }
 .rb--del:hover:not(:disabled) { background:rgba(239,68,68,.08); color:#ef4444; border-color:rgba(239,68,68,.2); }
 .rb:disabled { opacity:.3; cursor:not-allowed; }
@@ -1044,7 +1045,7 @@ function getInitials(name) {
 .fl { font-size:11px; font-weight:600; color:var(--body); }
 .req { color:#ef4444; }
 .fi { height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--title); font-size:13px; outline:none; font-family:inherit; }
-.fi:focus { border-color:#818cf8; box-shadow:0 0 0 3px rgba(129,140,248,.1); }
+.fi:focus { border-color:#a78bfa; box-shadow:0 0 0 3px rgba(167,139,250,.1); }
 .fsel { height:36px; padding:0 9px; border-radius:8px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--title); font-size:12px; outline:none; cursor:pointer; font-family:inherit; }
 
 /* Color picker */
@@ -1058,7 +1059,7 @@ function getInitials(name) {
 
 .fgroup { background:var(--mini-bg); border:1px solid var(--card-border); border-radius:12px; padding:13px 14px; display:flex; flex-direction:column; gap:10px; }
 .fg-ttl { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:var(--title); text-transform:uppercase; letter-spacing:.05em; }
-.fg-ttl svg { width:13px; height:13px; color:#6366f1; }
+.fg-ttl svg { width:13px; height:13px; color:#8b5cf6; }
 .f2 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; }
 
 /* Role grid in user modal */
@@ -1074,7 +1075,7 @@ function getInitials(name) {
 
 /* Preview panel */
 .prev-ttl { display:flex; align-items:center; gap:5px; font-size:10px; font-weight:700; color:var(--title); text-transform:uppercase; letter-spacing:.05em; }
-.prev-ttl svg { width:13px; height:13px; color:#6366f1; }
+.prev-ttl svg { width:13px; height:13px; color:#8b5cf6; }
 .prev-role { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; }
 .prev-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .prev-list { display:flex; flex-direction:column; gap:2px; overflow-y:auto; flex:1; }
@@ -1096,7 +1097,7 @@ function getInitials(name) {
 .sw-row { display:flex; align-items:center; gap:9px; cursor:pointer; font-size:13px; color:var(--body); }
 .sw-row input { display:none; }
 .sw-t { width:38px; height:22px; background:var(--muted); border-radius:99px; position:relative; transition:.2s; flex-shrink:0; }
-.sw-row input:checked + .sw-t { background:#6366f1; }
+.sw-row input:checked + .sw-t { background:#8b5cf6; }
 .sw-th { position:absolute; top:2px; left:2px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 4px rgba(0,0,0,.2); }
 .sw-row input:checked + .sw-t .sw-th { left:18px; }
 
@@ -1105,8 +1106,8 @@ function getInitials(name) {
 .re-bar { display:flex; gap:8px; padding:9px 22px; background:var(--mini-bg); border-bottom:1px solid var(--card-border); flex-shrink:0; }
 .gbl { display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px; border-radius:7px; font-size:11px; font-weight:600; cursor:pointer; border:1px solid; transition:.14s; }
 .gbl svg { width:13px; height:13px; }
-.gbl--all { background:rgba(99,102,241,.08); color:#6366f1; border-color:rgba(99,102,241,.22); }
-.gbl--all:hover  { background:rgba(99,102,241,.15); }
+.gbl--all { background:rgba(139,92,246,.08); color:#8b5cf6; border-color:rgba(139,92,246,.22); }
+.gbl--all:hover  { background:rgba(139,92,246,.15); }
 .gbl--no  { background:rgba(239,68,68,.07); color:#ef4444; border-color:rgba(239,68,68,.18); }
 .gbl--no:hover   { background:rgba(239,68,68,.13); }
 
@@ -1114,14 +1115,14 @@ function getInitials(name) {
 .re-left  { overflow-y:auto; border-right:1px solid var(--card-border); padding:5px 0; }
 .remod { display:flex; align-items:center; gap:8px; padding:8px 13px; cursor:pointer; transition:.12s; border-right:2.5px solid transparent; }
 .remod:hover { background:var(--row-hover); }
-.remod--on { background:rgba(99,102,241,.06) !important; border-right-color:#6366f1; }
+.remod--on { background:rgba(139,92,246,.06) !important; border-right-color:#8b5cf6; }
 .remod-ic  { width:15px; height:15px; flex-shrink:0; color:var(--muted); transition:.15s; }
 .remod-lbl { font-size:12px; color:var(--body); font-weight:500; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .remod-badge { font-size:10px; font-weight:700; padding:1px 6px; border-radius:99px; flex-shrink:0; }
 .remod-badge--full    { background:rgba(16,185,129,.12); color:#10b981; }
 .remod-badge--partial { background:rgba(245,158,11,.12);  color:#f59e0b; }
 .remod-badge--none    { background:rgba(239,68,68,.09);   color:#ef4444; }
-.remod-arr { width:11px; height:11px; color:#818cf8; flex-shrink:0; }
+.remod-arr { width:11px; height:11px; color:#a78bfa; flex-shrink:0; }
 
 .re-right { overflow-y:auto; padding:16px 18px; display:flex; flex-direction:column; gap:12px; }
 .rer-hd { display:flex; align-items:center; gap:10px; padding-bottom:12px; border-bottom:1px solid var(--card-border); flex-shrink:0; }
@@ -1130,13 +1131,13 @@ function getInitials(name) {
 .rer-title { font-size:14px; font-weight:700; }
 .rer-sub   { font-size:11px; color:var(--muted); margin-top:1px; }
 .tog-all { margin-left:auto; height:28px; padding:0 11px; border-radius:7px; border:1px solid; font-size:11px; font-weight:600; cursor:pointer; transition:.14s; white-space:nowrap; flex-shrink:0; }
-.tog-all--on  { background:rgba(99,102,241,.08); color:#6366f1; border-color:rgba(99,102,241,.22); }
+.tog-all--on  { background:rgba(139,92,246,.08); color:#8b5cf6; border-color:rgba(139,92,246,.22); }
 .tog-all--off { background:rgba(239,68,68,.07); color:#ef4444; border-color:rgba(239,68,68,.18); }
 
 .act-list { display:flex; flex-direction:column; gap:5px; }
 .act-row { display:flex; align-items:center; gap:12px; padding:11px 13px; border-radius:10px; border:1px solid var(--card-border); background:var(--mini-bg); cursor:pointer; transition:.14s; }
-.act-row:hover { border-color:#818cf8; }
-.act-row--on { background:rgba(99,102,241,.06); border-color:rgba(99,102,241,.25); }
+.act-row:hover { border-color:#a78bfa; }
+.act-row--on { background:rgba(139,92,246,.06); border-color:rgba(139,92,246,.25); }
 .act-ic { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .act-ic svg { width:15px; height:15px; }
 .act-info { flex:1; }
@@ -1158,8 +1159,8 @@ function getInitials(name) {
 /* Buttons */
 .btn-c { height:36px; padding:0 16px; border-radius:9px; border:1px solid var(--card-border); background:transparent; color:var(--body); font-size:13px; cursor:pointer; }
 .btn-c:hover { background:var(--row-hover); }
-.btn-s { display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 18px; border-radius:9px; border:none; background:#6366f1; color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(99,102,241,.28); }
-.btn-s:hover { background:#4f46e5; }
+.btn-s { display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 18px; border-radius:9px; border:none; background:#8b5cf6; color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(139,92,246,.28); }
+.btn-s:hover { background:#7c3aed; }
 .btn-s svg { width:15px; height:15px; }
 
 /* Transition */
@@ -1173,12 +1174,12 @@ function getInitials(name) {
 
 .perm-hd { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-shrink:0; margin-bottom:4px; }
 .perm-hd-l { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:var(--title); text-transform:uppercase; letter-spacing:.05em; }
-.perm-hd-l svg { width:13px; height:13px; color:#6366f1; }
-.perm-counter { min-width:32px; height:18px; padding:0 6px; border-radius:99px; background:rgba(99,102,241,.12); color:#818cf8; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.perm-hd-l svg { width:13px; height:13px; color:#8b5cf6; }
+.perm-counter { min-width:32px; height:18px; padding:0 6px; border-radius:99px; background:rgba(139,92,246,.12); color:#a78bfa; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; }
 .perm-hd-r { display:flex; gap:4px; }
 .perm-all-btn { height:22px; padding:0 8px; border-radius:6px; border:1px solid; font-size:10px; font-weight:600; cursor:pointer; transition:.14s; white-space:nowrap; }
-.perm-all-btn--grant  { background:rgba(99,102,241,.08); color:#6366f1; border-color:rgba(99,102,241,.25); }
-.perm-all-btn--grant:hover  { background:rgba(99,102,241,.16); }
+.perm-all-btn--grant  { background:rgba(139,92,246,.08); color:#8b5cf6; border-color:rgba(139,92,246,.25); }
+.perm-all-btn--grant:hover  { background:rgba(139,92,246,.16); }
 .perm-all-btn--revoke { background:rgba(239,68,68,.07); color:#ef4444; border-color:rgba(239,68,68,.2); }
 .perm-all-btn--revoke:hover { background:rgba(239,68,68,.13); }
 
@@ -1222,7 +1223,7 @@ function getInitials(name) {
   position:relative;
 }
 .perm-act-btn svg { width:12px; height:12px; flex-shrink:0; }
-.perm-act-btn:hover { border-color:#818cf8; color:#6366f1; background:rgba(99,102,241,.06); }
+.perm-act-btn:hover { border-color:#a78bfa; color:#8b5cf6; background:rgba(139,92,246,.06); }
 
 .perm-act-btn--on { font-weight:700; }
 .perm-act-btn--off { opacity:.55; }
@@ -1238,7 +1239,7 @@ function getInitials(name) {
 
 /* Eski label (rol modal uchun) */
 .perm-act-lbl { display:inline-flex; align-items:center; gap:4px; height:24px; padding:0 8px; border-radius:6px; border:1px solid var(--card-border); background:var(--mini-bg); font-size:11px; font-weight:500; color:var(--muted); cursor:pointer; transition:.14s; user-select:none; }
-.perm-act-lbl:hover { border-color:#818cf8; color:#6366f1; }
+.perm-act-lbl:hover { border-color:#a78bfa; color:#8b5cf6; }
 .perm-act-lbl svg { width:11px; height:11px; flex-shrink:0; }
 .perm-act-lbl--on { font-weight:600; }
 

@@ -184,7 +184,7 @@ async function saqla() {
 @keyframes ry-sh { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 .ry-err { font-size:12.5px; color:#dc2626; }
 .ry-kicker { font-size:11.5px; font-weight:700; color:#334155; text-transform:uppercase; letter-spacing:.05em; }
-.ry-link { border:none; background:transparent; color:#4f46e5; font-size:12px; font-weight:600; cursor:pointer; padding:0; }
+.ry-link { border:none; background:transparent; color:#7c3aed; font-size:12px; font-weight:600; cursor:pointer; padding:0; }
 .ry-link:hover { text-decoration:underline; }
 .ry-link--blok { align-self:center; padding:4px 10px; }
 
@@ -205,7 +205,7 @@ async function saqla() {
 /* Intizom kartalari */
 .ry-qism { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .ry-q { display:flex; gap:10px; padding:10px 12px; border-radius:12px; background:#f8fafc; border:1px solid #eef2f7; }
-.ry-q-ic { width:30px; height:30px; border-radius:9px; background:#eef2ff; color:#4f46e5; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ry-q-ic { width:30px; height:30px; border-radius:9px; background:#f5f3ff; color:#7c3aed; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .ry-q-ic svg { width:16px; height:16px; }
 .ry-q-mat { display:flex; flex-direction:column; min-width:0; }
 .ry-q-k { font-size:11.5px; color:#64748b; font-weight:600; }
@@ -220,19 +220,19 @@ async function saqla() {
 .ry-note.qizil { background:rgba(220,38,38,.08); color:#b91c1c; }
 
 /* Admin formasi */
-.ry-form { display:flex; flex-direction:column; gap:8px; padding:12px; border-radius:12px; border:1px solid #c7d2fe; background:rgba(99,102,241,.04); }
+.ry-form { display:flex; flex-direction:column; gap:8px; padding:12px; border-radius:12px; border:1px solid #ddd6fe; background:rgba(139,92,246,.04); }
 .ry-form-row { display:flex; align-items:center; gap:8px; }
 .ry-form-u { font-size:12px; color:#64748b; }
-.ry-seg { display:inline-flex; background:#eef2f7; border-radius:9px; padding:3px; gap:2px; }
-.ry-seg button { border:none; background:transparent; padding:6px 10px; border-radius:7px; font-size:12px; font-weight:600; color:#64748b; cursor:pointer; }
-.ry-seg button.on { background:#fff; color:#4f46e5; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.ry-seg { display:inline-flex; background:var(--seg-track); box-shadow:inset 0 0 0 1px var(--seg-brd); border-radius:10px; padding:3px; gap:2px; }
+.ry-seg button { border:none; background:transparent; padding:6px 10px; border-radius:7px; font-size:12px; font-weight:600; color:var(--seg-ink); cursor:pointer; transition:color .15s; }
+.ry-seg button.on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); }
 .ry-seg button.on.salbiy { color:#dc2626; }
 .ry-seg--keng { display:flex; } .ry-seg--keng button { flex:1; }
 .ry-in { height:34px; padding:0 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; background:#fff; color:#0f172a; outline:none; width:100%; }
-.ry-in:focus { border-color:#6366f1; }
+.ry-in:focus { border-color:#8b5cf6; }
 .ry-in--ball { width:72px; text-align:center; font-weight:700; }
 .ry-form-ft { display:flex; justify-content:flex-end; gap:6px; }
-.ry-btn { height:32px; padding:0 14px; border:none; border-radius:8px; background:#4f46e5; color:#fff; font-size:12.5px; font-weight:700; cursor:pointer; }
+.ry-btn { height:32px; padding:0 14px; border:none; border-radius:8px; background:#7c3aed; color:#fff; font-size:12.5px; font-weight:700; cursor:pointer; }
 .ry-btn--ghost { background:transparent; color:#64748b; border:1px solid #e2e8f0; }
 .ry-btn:disabled { opacity:.6; cursor:default; }
 
@@ -260,8 +260,8 @@ async function saqla() {
 .shell.dark .ry-tavsif, .shell.dark .ry-tl-iz { color:#cbd5e1; }
 .shell.dark .ry-tl-dot { background:#0f172a; }
 .shell.dark .ry-in { background:transparent; color:#e2e8f0; border-color:rgba(255,255,255,.12); }
-.shell.dark .ry-seg { background:rgba(255,255,255,.06); }
-.shell.dark .ry-seg button.on { background:rgba(255,255,255,.12); }
+.shell.dark .ry-seg { background:var(--seg-track); }
+.shell.dark .ry-seg button.on { background:var(--seg-on-bg); }
 .shell.dark .ry-note.sariq { color:#fcd34d; }
 .shell.dark .ry-note.qizil { color:#fca5a5; }
 </style>

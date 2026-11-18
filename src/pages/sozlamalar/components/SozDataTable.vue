@@ -231,13 +231,13 @@ defineExpose({ selected })
 .sdt-th:last-child  { border-radius: 0 14px 0 0; }
 
 .sdt-th--sort { cursor: pointer; transition: .12s; }
-.sdt-th--sort:hover { color: #6366f1; background: rgba(99,102,241,.04); }
-.sdt-th--active { color: #6366f1; }
+.sdt-th--sort:hover { color: #8b5cf6; background: rgba(139,92,246,.04); }
+.sdt-th--active { color: #8b5cf6; }
 
 .sdt-th-inner { display: inline-flex; align-items: center; gap: 6px; }
 .sdt-th-txt   { line-height: 1; }
 .sdt-sort-ic  { display: inline-flex; color: var(--muted); opacity: .35; transition: .15s; }
-.sdt-sort-ic--on { opacity: 1; color: #6366f1; }
+.sdt-sort-ic--on { opacity: 1; color: #8b5cf6; }
 .sdt-sort-ic svg { width: 13px; height: 13px; }
 .sdt-th--sort:hover .sdt-sort-ic { opacity: .7; }
 
@@ -257,15 +257,15 @@ defineExpose({ selected })
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: 3px;
-  background: #6366f1;
+  background: #8b5cf6;
   border-radius: 0 2px 2px 0;
   opacity: 0;
   transition: opacity .15s;
 }
 
-.sdt-row:hover { background: rgba(99,102,241,.03); }
+.sdt-row:hover { background: rgba(139,92,246,.03); }
 .sdt-row:hover::after { opacity: 1; }
-.sdt-row--sel { background: rgba(99,102,241,.05); }
+.sdt-row--sel { background: rgba(139,92,246,.05); }
 .sdt-row--sel::after { opacity: 1; }
 
 /* ── Cells ────────────────────────────────────────────────────────────────── */
@@ -304,15 +304,15 @@ defineExpose({ selected })
 .sdt-btn svg { width: 14px; height: 14px; }
 
 .sdt-btn--view {
-  color: #6366f1;
-  border-color: rgba(99,102,241,.2);
-  background: rgba(99,102,241,.06);
+  color: #8b5cf6;
+  border-color: rgba(139,92,246,.2);
+  background: rgba(139,92,246,.06);
 }
 .sdt-btn--view:hover {
-  background: rgba(99,102,241,.14);
-  border-color: rgba(99,102,241,.4);
+  background: rgba(139,92,246,.14);
+  border-color: rgba(139,92,246,.4);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(99,102,241,.2);
+  box-shadow: 0 3px 8px rgba(139,92,246,.2);
 }
 
 .sdt-btn--edit {
@@ -368,11 +368,11 @@ defineExpose({ selected })
   display: flex; align-items: center; justify-content: center;
   transition: all .14s;
 }
-.sdt-cb:hover .sdt-cb-box { border-color: #818cf8; }
+.sdt-cb:hover .sdt-cb-box { border-color: #a78bfa; }
 .sdt-cb input:checked + .sdt-cb-box {
-  background: linear-gradient(135deg, #818cf8, #6366f1);
-  border-color: #6366f1;
-  box-shadow: 0 2px 6px rgba(99,102,241,.3);
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+  border-color: #8b5cf6;
+  box-shadow: 0 2px 6px rgba(139,92,246,.3);
 }
 .sdt-cb-box svg { width: 10px; height: 8px; }
 </style>

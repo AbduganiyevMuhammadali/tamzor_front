@@ -172,7 +172,7 @@ onMounted(load)
           <div class="hz-modal">
             <div class="hz-modal-hd">
               <div class="hz-modal-title">
-                <div class="hz-modal-ic" :style="mode==='add' ? {background:'rgba(16,185,129,.12)',color:'#10b981'} : {background:'rgba(99,102,241,.12)',color:'#6366f1'}">
+                <div class="hz-modal-ic" :style="mode==='add' ? {background:'rgba(16,185,129,.12)',color:'#10b981'} : {background:'rgba(139,92,246,.12)',color:'#8b5cf6'}">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
                 {{ mode === 'add' ? "Hudud qo'shish" : 'Hududni tahrirlash' }}
@@ -231,7 +231,7 @@ onMounted(load)
 
 .hz-add-btn { display:inline-flex; align-items:center; gap:7px; height:38px; padding:0 18px; border-radius:11px; border:none; background:linear-gradient(135deg,#10b981,#059669); color:#fff; font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,.3); transition:.15s; white-space:nowrap; }
 .hz-add-btn:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(16,185,129,.4); }
-.hz-add-btn--sm { background:linear-gradient(135deg,#6366f1,#6366f1); box-shadow:0 4px 14px rgba(99,102,241,.3); margin-top:8px; }
+.hz-add-btn--sm { background:linear-gradient(135deg,#8b5cf6,#8b5cf6); box-shadow:0 4px 14px rgba(139,92,246,.3); margin-top:8px; }
 
 /* Toolbar */
 .hz-toolbar { display:flex; align-items:center; gap:10px; }
@@ -271,8 +271,8 @@ onMounted(load)
 .hz-card-id { font-size:11px; color:#94a3b8; }
 .hz-card-acts { display:flex; gap:5px; }
 .hz-act { width:28px; height:28px; border-radius:8px; border:1.5px solid; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.13s; background:transparent; }
-.hz-act--edit { border-color:#e0e7ff; color:#6366f1; }
-.hz-act--edit:hover { background:#e0e7ff; border-color:#c7d2fe; }
+.hz-act--edit { border-color:#ede9fe; color:#8b5cf6; }
+.hz-act--edit:hover { background:#ede9fe; border-color:#ddd6fe; }
 .hz-act--del { border-color:#fee2e2; color:#ef4444; }
 .hz-act--del:hover { background:#fef2f2; border-color:#fecaca; }
 
@@ -302,7 +302,7 @@ onMounted(load)
 
 .hz-modal-ft { display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:16px 24px; border-top:1px solid #f1f5f9; }
 .hz-btn-cancel { height:38px; padding:0 16px; border-radius:10px; border:1.5px solid #e2e8f0; background:#fff; font-size:13.5px; font-weight:600; color:#64748b; cursor:pointer; transition:.13s; }
-.hz-btn-cancel:hover { border-color:#c7d2fe; color:#6366f1; }
+.hz-btn-cancel:hover { border-color:#ddd6fe; color:#8b5cf6; }
 .hz-btn-save { display:inline-flex; align-items:center; gap:7px; height:38px; padding:0 20px; border-radius:10px; border:none; background:linear-gradient(135deg,#10b981,#059669); color:#fff; font-size:13.5px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,.3); transition:.15s; }
 .hz-btn-save:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 18px rgba(16,185,129,.4); }
 .hz-btn-save:disabled { opacity:.6; cursor:not-allowed; }

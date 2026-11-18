@@ -15,7 +15,7 @@
     <!-- ═══ TABS ═══ -->
     <div class="yg-tabs">
       <button class="yg-tab" :class="{ on: tab === 'tasdiqlangan' }" @click="tab = 'tasdiqlangan'">
-        <span class="yg-tab-dot" style="background:#4f46e5"/>
+        <span class="yg-tab-dot" style="background:#7c3aed"/>
         Navbatda
         <span class="yg-tab-cnt">{{ rows.filter(r => r.holat === 'tasdiqlangan').length }}</span>
       </button>
@@ -123,7 +123,7 @@ import { ref, computed, reactive, onMounted } from 'vue'
 import { arizaApi } from '@/api/api'
 import DostavchiTayinlashModal from '@/components/DostavchiTayinlashModal.vue'
 
-const COLORS = ['#4f46e5','#6366f1','#4338ca','#3730a3']
+const COLORS = ['#7c3aed','#8b5cf6','#6d28d9','#5b21b6']
 const avatarColor = (id) => COLORS[id % COLORS.length]
 
 const rows     = ref([])
@@ -203,17 +203,18 @@ onMounted(load)
 .yg-title { font-size:20px; font-weight:900; color:#1e293b; margin:0 0 3px; }
 .yg-sub { font-size:12.5px; color:#94a3b8; margin:0; }
 .yg-ref { width:36px; height:36px; border-radius:10px; border:1.5px solid #e2e8f0; background:#fff; color:#64748b; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.13s; flex-shrink:0; }
-.yg-ref:hover:not(:disabled) { border-color:#6366f1; color:#6366f1; }
+.yg-ref:hover:not(:disabled) { border-color:#8b5cf6; color:#8b5cf6; }
 
 .yg-tabs { display:flex; gap:8px; }
-.yg-tab { display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:12px; border:1.5px solid #e2e8f0; background:#fff; font-size:13.5px; font-weight:700; color:#64748b; cursor:pointer; transition:.13s; }
-.yg-tab.on { border-color:#6366f1; background:#eef2ff; color:#6366f1; }
+.yg-tab { display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:12px; border:1.5px solid var(--line, #e6e3ef); background:var(--surface, #fff); font-size:13.5px; font-weight:600; color:var(--seg-ink); cursor:pointer; transition:.13s; }
+.yg-tab:hover:not(.on) { border-color:var(--chip-on-brd); color:var(--seg-ink-h); }
+.yg-tab.on { border-color:var(--chip-on-brd); background:var(--chip-on-bg); color:var(--chip-on-ink); }
 .yg-tab-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .yg-tab-cnt { font-size:11px; font-weight:700; padding:1px 8px; border-radius:20px; background:rgba(0,0,0,.06); }
-.yg-tab.on .yg-tab-cnt { background:rgba(99,102,241,.15); color:#6366f1; }
+.yg-tab.on .yg-tab-cnt { background:var(--cnt-on-bg); color:var(--chip-on-ink); }
 
 .yg-search { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid #e2e8f0; border-radius:12px; padding:0 14px; height:42px; max-width:420px; transition:.12s; }
-.yg-search:focus-within { border-color:#6366f1; }
+.yg-search:focus-within { border-color:#8b5cf6; }
 .yg-search svg { color:#94a3b8; flex-shrink:0; }
 .yg-si { flex:1; border:none; outline:none; font-size:14px; color:#1e293b; background:transparent; }
 
@@ -225,7 +226,7 @@ onMounted(load)
 .yg-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; padding-bottom:16px; }
 
 .yg-card { background:#fff; border:1.5px solid #e8ecf8; border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:12px; transition:.13s; }
-.yg-card:hover { box-shadow:0 4px 16px rgba(99,102,241,.08); }
+.yg-card:hover { box-shadow:0 4px 16px rgba(139,92,246,.08); }
 
 .yg-card-hd { display:flex; align-items:center; gap:11px; }
 .yg-av { width:40px; height:40px; border-radius:11px; color:#fff; font-size:15px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -233,18 +234,18 @@ onMounted(load)
 .yg-card-name { font-size:14.5px; font-weight:800; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .yg-card-sub { font-size:11.5px; color:#94a3b8; margin-top:2px; }
 .yg-chip { font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
-.yg-chip.tasdiqlangan { background:rgba(55,48,163,.1); color:#3730a3; }
+.yg-chip.tasdiqlangan { background:rgba(91,33,182,.1); color:#5b21b6; }
 .yg-chip.yigilmoqda { background:rgba(245,158,11,.1); color:#f59e0b; }
 
 .yg-card-tovlist { display:flex; flex-direction:column; gap:5px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:11px; padding:9px 12px; max-height:150px; overflow-y:auto; }
 .yg-tov-row { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12.5px; }
 .yg-tov-name { color:#334155; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .yg-tov-qty { display:flex; gap:5px; flex-shrink:0; }
-.yg-pill { display:inline-flex; padding:1px 7px; background:rgba(99,102,241,.09); color:#6366f1; border-radius:6px; font-size:11px; font-weight:700; white-space:nowrap; }
+.yg-pill { display:inline-flex; padding:1px 7px; background:rgba(139,92,246,.09); color:#8b5cf6; border-radius:6px; font-size:11px; font-weight:700; white-space:nowrap; }
 .yg-pill--g { background:rgba(16,185,129,.09); color:#10b981; }
 
-.yg-card-dostavchi { display:flex; align-items:center; gap:8px; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; padding:0 11px; height:38px; color:#6366f1; transition:.12s; }
-.yg-card-dostavchi:focus-within { border-color:#6366f1; }
+.yg-card-dostavchi { display:flex; align-items:center; gap:8px; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; padding:0 11px; height:38px; color:#8b5cf6; transition:.12s; }
+.yg-card-dostavchi:focus-within { border-color:#8b5cf6; }
 .yg-dostavchi-sel { flex:1; border:none; outline:none; background:transparent; font-size:12.5px; color:#334155; font-weight:600; }
 
 .yg-card-ft { display:flex; align-items:center; justify-content:space-between; gap:10px; }

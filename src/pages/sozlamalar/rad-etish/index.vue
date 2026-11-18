@@ -124,18 +124,19 @@ function save() {
 .page-title { font-size:20px; font-weight:700; color:var(--title); margin:0; }
 .toolbar { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
 .tl { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.add-btn { display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 14px; border-radius:9px; border:none; background:linear-gradient(135deg,#818cf8,#6366f1); color:#fff; font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(99,102,241,.28); }
+.add-btn { display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 14px; border-radius:9px; border:none; background:linear-gradient(135deg,#a78bfa,#8b5cf6); color:#fff; font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(139,92,246,.28); }
 .add-btn svg { width:14px; height:14px; }
-.tur-tabs { display:inline-flex; gap:2px; border:1px solid var(--card-border); border-radius:9px; padding:3px; background:var(--card-bg); }
-.tur-tab { padding:4px 12px; border-radius:6px; border:none; background:transparent; color:var(--muted); font-size:12px; cursor:pointer; transition:.12s; }
-.tur-tab--on { background:linear-gradient(135deg,#818cf8,#6366f1); color:#fff; }
+.tur-tabs { display:inline-flex; gap:2px; border:1px solid var(--seg-brd); border-radius:10px; padding:3px; background:var(--seg-track); }
+.tur-tab { padding:4px 12px; border-radius:7px; border:none; background:transparent; color:var(--seg-ink); font-size:12px; font-weight:500; cursor:pointer; transition:.12s; }
+.tur-tab:hover:not(.tur-tab--on) { color:var(--seg-ink-h); }
+.tur-tab--on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); font-weight:600; }
 .srch-box { display:flex; align-items:center; gap:7px; height:34px; padding:0 11px; background:var(--card-bg); border:1px solid var(--card-border); border-radius:9px; min-width:180px; }
 .srch-box svg { width:14px; height:14px; color:var(--muted); flex-shrink:0; }
 .srch-in { border:none; background:transparent; outline:none; font-size:12px; color:var(--body); width:100%; }
 .srch-in::placeholder { color:var(--muted); }
 .row-count { font-size:12px; color:var(--muted); }
 .tur-badge { display:inline-flex; padding:2px 9px; border-radius:99px; font-size:11px; font-weight:600; }
-.tur-badge--buy { background:rgba(99,102,241,.1); color:#6366f1; }
+.tur-badge--buy { background:rgba(139,92,246,.1); color:#8b5cf6; }
 .tur-badge--ret { background:rgba(245,158,11,.1); color:#f59e0b; }
 .faol-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:99px; font-size:11px; font-weight:600; }
 .faol-badge--on { background:rgba(16,185,129,.1); color:#10b981; border:1px solid rgba(16,185,129,.2); }
@@ -147,14 +148,14 @@ function save() {
 .fm-lbl { font-size:12px; font-weight:600; color:var(--muted); }
 .req { color:#ef4444; }
 .fm-in,.fm-sel { height:38px; padding:0 12px; border-radius:9px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--body); font-size:13px; outline:none; transition:.15s; width:100%; }
-.fm-in:focus,.fm-sel:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.12); }
+.fm-in:focus,.fm-sel:focus { border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.12); }
 .fm-toggle { display:inline-flex; align-items:center; gap:10px; cursor:pointer; }
 .fm-toggle input { display:none; }
 .fm-toggle-t { display:block; width:40px; height:22px; background:var(--card-border); border-radius:99px; position:relative; transition:.2s; }
-.fm-toggle input:checked + .fm-toggle-t { background:#6366f1; }
+.fm-toggle input:checked + .fm-toggle-t { background:#8b5cf6; }
 .fm-toggle-th { position:absolute; top:2px; left:2px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; }
 .fm-toggle input:checked + .fm-toggle-t .fm-toggle-th { left:20px; }
 .fm-toggle-lbl { font-size:13px; color:var(--body); }
 .fm-btn-cancel { height:36px; padding:0 16px; border-radius:9px; border:1px solid var(--card-border); background:transparent; color:var(--muted); font-size:13px; cursor:pointer; }
-.fm-btn-save { height:36px; padding:0 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#818cf8,#6366f1); color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(99,102,241,.3); }
+.fm-btn-save { height:36px; padding:0 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#a78bfa,#8b5cf6); color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(139,92,246,.3); }
 </style>

@@ -14,22 +14,22 @@ button { font-family: inherit; cursor: pointer; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
-/* ── BREND: butun dastur bitta rang — indigo — atrofida qurilgan ──
+/* ── BREND: butun dastur bitta rang — logo binafshasi (violet, #7C3AED = 600) — atrofida qurilgan ──
    Yangi kodda shu tokenlardan foydalaning; sahifalardagi hex qiymatlar ham
-   aynan shu shkaladan (#6366f1 = 500, #4f46e5 = 600 ...). Faqat semantik
+   aynan shu Tailwind violet shkalasidan (#8b5cf6 = 500, #7c3aed = 600 ...). Faqat semantik
    signallar (yashil = muvaffaqiyat, sariq = kutish, qizil = xato) boshqa rangda. */
 :root {
-  --brand-50:  #eef2ff;
-  --brand-100: #e0e7ff;
-  --brand-200: #c7d2fe;
-  --brand-300: #a5b4fc;
-  --brand-400: #818cf8;
-  --brand-500: #6366f1;
-  --brand-600: #4f46e5;
-  --brand-700: #4338ca;
-  --brand-800: #3730a3;
-  --brand-900: #312e81;
-  --brand-950: #1e1b4b;
+  --brand-50:  #f5f3ff;
+  --brand-100: #ede9fe;
+  --brand-200: #ddd6fe;
+  --brand-300: #c4b5fd;
+  --brand-400: #a78bfa;
+  --brand-500: #8b5cf6;
+  --brand-600: #7c3aed;
+  --brand-700: #6d28d9;
+  --brand-800: #5b21b6;
+  --brand-900: #4c1d95;
+  --brand-950: #2e1065;
   --brand:       var(--brand-600);
   --brand-hover: var(--brand-700);
   --brand-soft:  var(--brand-50);
@@ -39,41 +39,77 @@ button { font-family: inherit; cursor: pointer; }
 [data-theme="dark"] {
   --brand:       var(--brand-500);
   --brand-hover: var(--brand-400);
-  --brand-soft:  rgba(99,102,241,.16);
+  --brand-soft:  rgba(139,92,246,.16);
   --brand-ink:   var(--brand-300);
   --ok: #34d399; --warn: #fbbf24; --err: #f87171;
 }
 
+/* ── TABLAR — butun tizimda yagona uslub, sahifalar shu tokenlardan oladi ──
+   seg:  yo'lakcha ichidagi oq "pill" — davr / filtr / ko'rinish tanlash
+   tab:  tagida chiziq — sahifa yoki oyna bo'limlari
+   chip: chegarali, sonli — holat bo'yicha ro'yxat filtrlari
+   Faol holat — logo binafshasi (violet-700 matn), nofaol — binafsha tusli kulrang. */
+:root, [data-theme="light"] {
+  --seg-track:   #f1eff8;
+  --seg-brd:     #e7e3f2;
+  --seg-ink:     #6b6485;
+  --seg-ink-h:   #231d38;
+  --seg-on-bg:   #ffffff;
+  --seg-on-ink:  #6d28d9;
+  --seg-on-sh:   0 1px 2px rgba(46,16,101,.10), 0 0 0 1px rgba(124,58,237,.16);
+  --tab-line:    #7c3aed;
+  --tab-on-ink:  #6d28d9;
+  --chip-on-bg:  #f5f3ff;
+  --chip-on-brd: #c4b5fd;
+  --chip-on-ink: #6d28d9;
+  --cnt-on-bg:   rgba(124,58,237,.14);
+}
+[data-theme="dark"] {
+  --seg-track:   rgba(255,255,255,.05);
+  --seg-brd:     rgba(255,255,255,.07);
+  --seg-ink:     #9a93b2;
+  --seg-ink-h:   #eeeaf8;
+  --seg-on-bg:   #2a2342;
+  --seg-on-ink:  #ddd6fe;
+  --seg-on-sh:   0 1px 2px rgba(0,0,0,.45), 0 0 0 1px rgba(167,139,250,.28);
+  --tab-line:    #a78bfa;
+  --tab-on-ink:  #c4b5fd;
+  --chip-on-bg:  rgba(139,92,246,.16);
+  --chip-on-brd: rgba(167,139,250,.5);
+  --chip-on-ink: #ddd6fe;
+  --cnt-on-bg:   rgba(167,139,250,.22);
+}
+
 /* ── Dashboard card/page variables: light ── */
 :root, [data-theme="light"] {
-  --dash-bg:      #f5f6fa;
+  --dash-bg:      #f6f5fa;
   --card-bg:      #ffffff;
-  --card-border:  #f0f2f9;
+  --card-border:  #efecf7;
   --title:        #111827;
   --sub:          #9ca3af;
   --body:         #374151;
   --muted:        #9ca3af;
-  --row-hover:    #fafbff;
+  --row-hover:    #fbfaff;
   --tbl-border:   #f3f4f6;
   --tbl-row:      #f9fafb;
   --period-bg:    #ffffff;
-  --period-brd:   #e9ecf3;
+  --period-brd:   #ebe8f3;
   --period-c:     #6b7280;
-  --period-hbg:   #f4f6fb;
+  --period-hbg:   #f5f3fb;
   --period-hc:    #374151;
   --track-bg:     #f3f4f6;
-  --mini-bg:      #fafbff;
-  --mini-brd:     #f0f2f9;
+  --mini-bg:      #fbfaff;
+  --mini-brd:     #efecf7;
   --strip-brd:    #f3f4f6;
   --kbd-c:        #9ca3af;
-  --kbd-bg:       #eef0f7;
-  --kbd-brd:      #dde1ee;
+  --kbd-bg:       #f0eef7;
+  --kbd-brd:      #e1ddee;
 }
 
 /* ── Dashboard variables: dark ── */
 [data-theme="dark"] {
-  --dash-bg:      #0e1118;
-  --card-bg:      #141925;
+  --dash-bg:      #0f0d16;
+  --card-bg:      #16131f;
   --card-border:  rgba(255,255,255,.06);
   --title:        #f1f5f9;
   --sub:          #4b5563;
@@ -82,17 +118,17 @@ button { font-family: inherit; cursor: pointer; }
   --row-hover:    rgba(255,255,255,.03);
   --tbl-border:   rgba(255,255,255,.05);
   --tbl-row:      rgba(255,255,255,.02);
-  --period-bg:    #1c2232;
+  --period-bg:    #1e1a2b;
   --period-brd:   rgba(255,255,255,.07);
   --period-c:     #6b7280;
   --period-hbg:   rgba(255,255,255,.05);
   --period-hc:    #e2e8f0;
   --track-bg:     rgba(255,255,255,.07);
-  --mini-bg:      #1c2232;
+  --mini-bg:      #1e1a2b;
   --mini-brd:     rgba(255,255,255,.06);
   --strip-brd:    rgba(255,255,255,.06);
   --kbd-c:        #4b5563;
-  --kbd-bg:       #1c2232;
+  --kbd-bg:       #1e1a2b;
   --kbd-brd:      rgba(255,255,255,.07);
 }
 

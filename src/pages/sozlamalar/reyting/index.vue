@@ -99,7 +99,7 @@ const HODISALAR = [
 <style scoped>
 .rs-page { display:flex; flex-direction:column; gap:14px; }
 .rs-hd { display:flex; align-items:center; gap:12px; }
-.rs-hd-ic { width:40px; height:40px; border-radius:11px; background:rgba(99,102,241,.12); color:#6366f1; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.rs-hd-ic { width:40px; height:40px; border-radius:11px; background:rgba(139,92,246,.12); color:#8b5cf6; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .rs-title { margin:0; font-size:17px; font-weight:700; color:var(--ink,#0f172a); }
 .rs-sub { margin:2px 0 0; font-size:12px; color:var(--mut,#64748b); }
 .rs-grid { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:14px; align-items:start; }
@@ -115,11 +115,11 @@ const HODISALAR = [
 .rs-row-in > span:first-child { font-size:18px; font-weight:800; width:14px; text-align:center; }
 .rs-plus > span:first-child { color:#16a34a; } .rs-minus > span:first-child { color:#dc2626; }
 .rs-in { width:72px; height:36px; padding:0 10px; border:1.5px solid var(--line,#e2e8f0); border-radius:9px; font-size:15px; font-weight:700; text-align:center; background:var(--surface,#fff); color:var(--ink,#0f172a); outline:none; }
-.rs-in:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+.rs-in:focus { border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.15); }
 .rs-mark { font-size:12px; color:var(--mut,#64748b); }
 .rs-actions { display:flex; justify-content:flex-end; margin-top:12px; }
-.rs-btn { padding:9px 16px; border-radius:9px; border:none; background:#4f46e5; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
-.rs-btn:hover:not(:disabled) { background:#4338ca; } .rs-btn:disabled { opacity:.55; cursor:default; }
+.rs-btn { padding:9px 16px; border-radius:9px; border:none; background:#7c3aed; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+.rs-btn:hover:not(:disabled) { background:#6d28d9; } .rs-btn:disabled { opacity:.55; cursor:default; }
 .rs-dar { display:flex; align-items:center; justify-content:space-between; padding:6px 0; }
 .rs-dar-chip { padding:3px 11px; border-radius:999px; font-size:12.5px; font-weight:700; }
 .rs-dar-or { font-size:12.5px; color:var(--ink2,#334155); font-variant-numeric:tabular-nums; }

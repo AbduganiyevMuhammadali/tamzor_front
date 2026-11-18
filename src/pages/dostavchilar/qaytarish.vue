@@ -135,7 +135,7 @@ onMounted(async () => {
 .hp-sub { font-size:13px; color:#94a3b8; margin:0; }
 .hp-filters { display:flex; gap:8px; flex-wrap:wrap; }
 .hp-select, .hp-date { border:1.5px solid #e2e8f0; background:#fff; border-radius:10px; padding:8px 12px; font-size:13px; color:#1e293b; }
-.hp-select:focus, .hp-date:focus { outline:none; border-color:#6366f1; }
+.hp-select:focus, .hp-date:focus { outline:none; border-color:#8b5cf6; }
 .hp-empty { text-align:center; padding:60px 20px; color:#94a3b8; font-size:14px; }
 .hp-card { background:#fff; border:1.5px solid #e8ecf8; border-radius:16px; }
 .hp-skel { border-radius:12px; height:60px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200% 100%; animation:hp-shim 1.4s ease infinite; }
@@ -155,5 +155,5 @@ onMounted(async () => {
 
 .ts-badge { font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; white-space:nowrap; }
 .ts-badge--danger { background:#fef2f2; color:#dc2626; }
-.ts-badge--info { background:#eef2ff; color:#4f46e5; }
+.ts-badge--info { background:#f5f3ff; color:#7c3aed; }
 </style>

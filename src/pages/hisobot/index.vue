@@ -210,7 +210,7 @@ const HISOBOTLAR = computed(() => [
 .hu-oqim { display:flex; align-items:stretch; gap:6px; }
 .hu-q { flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; padding:14px; border:1px solid var(--line); border-radius:11px; background:var(--bg);
   text-decoration:none; color:inherit; transition:border-color .12s, background .12s, box-shadow .12s; }
-.hu-q:hover { border-color:var(--brand-300); background:var(--surface); box-shadow:0 8px 22px -14px rgba(79,70,229,.6); }
+.hu-q:hover { border-color:var(--brand-300); background:var(--surface); box-shadow:0 8px 22px -14px rgba(124,58,237,.6); }
 .hu-q-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
 .hu-q-ic { width:34px; height:34px; border-radius:9px; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center; }
 .hu-q-ic svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
@@ -236,7 +236,7 @@ const HISOBOTLAR = computed(() => [
 .hu-hisobotlar { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:10px; }
 .hu-h { display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--surface); border:1px solid var(--line); border-radius:12px; text-decoration:none; color:inherit;
   transition:border-color .12s, box-shadow .12s; }
-.hu-h:hover { border-color:var(--brand-300); box-shadow:0 8px 22px -14px rgba(79,70,229,.6); }
+.hu-h:hover { border-color:var(--brand-300); box-shadow:0 8px 22px -14px rgba(124,58,237,.6); }
 .hu-h-ic { width:40px; height:40px; flex-shrink:0; border-radius:10px; background:var(--acc-soft); color:var(--acc); display:flex; align-items:center; justify-content:center; }
 .hu-h-ic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
 .hu-h-t { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }

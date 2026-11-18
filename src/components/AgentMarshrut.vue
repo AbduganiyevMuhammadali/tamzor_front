@@ -136,7 +136,7 @@ const props = defineProps({
   agentId: { type: [Number, String], default: '' },
 })
 
-const COLORS = ['#4f46e5','#059669','#d97706','#e11d48','#475569','#818cf8','#047857','#b45309']
+const COLORS = ['#7c3aed','#059669','#d97706','#e11d48','#475569','#a78bfa','#047857','#b45309']
 const rang = (id) => COLORS[id % COLORS.length]
 const RING = 2 * Math.PI * 13
 
@@ -336,7 +336,7 @@ onBeforeUnmount(() => { if (map) { map.remove(); map = null } })
 .mr-btn { padding:7px 14px; border:1px solid #e2e8f0; border-radius:8px; background:#fff;
           font-size:12.5px; font-weight:600; color:#475569; cursor:pointer; transition:.14s; }
 .mr-btn:hover { background:#f8fafc; }
-.mr-btn.on { background:#eef2ff; border-color:#c7d2fe; color:#4f46e5; }
+.mr-btn.on { background:#f5f3ff; border-color:#ddd6fe; color:#7c3aed; }
 .mr-date { padding:6px 10px; border:1px solid #e2e8f0; border-radius:8px; font-size:12px; color:#334155; outline:none; }
 
 /* ── Tana ── */
@@ -348,7 +348,7 @@ onBeforeUnmount(() => { if (map) { map.remove(); map = null } })
 .mr-arow { display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:10px;
            cursor:pointer; transition:.14s; }
 .mr-arow:hover { background:#f8fafc; }
-.mr-arow.on { background:#eef2ff; }
+.mr-arow.on { background:#f5f3ff; }
 .mr-adot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .mr-ainfo { flex:1; min-width:0; }
 .mr-aname { font-size:12.5px; font-weight:700; color:#1e293b; overflow:hidden;
@@ -383,7 +383,7 @@ onBeforeUnmount(() => { if (map) { map.remove(); map = null } })
 .mr-stop-line { flex:1; width:2px; background:#e2e8f0; margin:3px 0; border-radius:1px; }
 .mr-stop:last-child .mr-stop-line { display:none; }
 .mr-stop-r { flex:1; min-width:0; padding-bottom:15px; border-radius:8px; transition:.14s; }
-.mr-stop.on .mr-stop-r { background:#eef2ff; padding:5px 8px 12px; margin:-5px -8px 0; }
+.mr-stop.on .mr-stop-r { background:#f5f3ff; padding:5px 8px 12px; margin:-5px -8px 0; }
 .mr-stop-t { font-size:12.5px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px; }
 .mr-stop-m { font-size:10.5px; color:#94a3b8; margin-top:2px; }
 .mr-stop-b { display:flex; align-items:center; gap:7px; margin-top:5px; }
@@ -398,7 +398,7 @@ onBeforeUnmount(() => { if (map) { map.remove(); map = null } })
 .mr-load { display:flex; align-items:center; justify-content:center; gap:10px;
            padding:60px; color:#94a3b8; font-size:13px; }
 .mr-spin { display:inline-block; width:18px; height:18px; border:2.5px solid rgba(0,0,0,.08);
-           border-top-color:#6366f1; border-radius:50%; animation:mr-rot .7s linear infinite; }
+           border-top-color:#8b5cf6; border-radius:50%; animation:mr-rot .7s linear infinite; }
 @keyframes mr-rot { to { transform:rotate(360deg) } }
 
 @media(max-width:1100px) {

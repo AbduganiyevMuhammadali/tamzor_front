@@ -24,7 +24,7 @@ const IZOH = [
   { nom: 'Davr', matn: 'Bu hisobot hozirgi holatni ko\'rsatadi — davr tanlanmaydi.' },
 ]
 
-const BOSQ_RANG: Record<string, string> = { b7: '#a5b4fc', b30: '#6366f1', b60: '#d97706', b61: '#dc2626' }
+const BOSQ_RANG: Record<string, string> = { b7: '#c4b5fd', b30: '#8b5cf6', b60: '#d97706', b61: '#dc2626' }
 const filtr = ref<'' | 'otgan' | 'limit' | 'b61'>('')
 const qidir = ref('')
 const rows = computed(() => {

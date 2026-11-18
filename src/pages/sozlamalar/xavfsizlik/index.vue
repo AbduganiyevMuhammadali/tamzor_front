@@ -92,7 +92,7 @@ onMounted(load)
 <style scoped>
 .xv-page { display:flex; flex-direction:column; gap:14px; }
 .xv-hd { display:flex; align-items:center; gap:12px; }
-.xv-hd-ic { width:40px; height:40px; border-radius:11px; background:rgba(99,102,241,.12); color:#6366f1; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.xv-hd-ic { width:40px; height:40px; border-radius:11px; background:rgba(139,92,246,.12); color:#8b5cf6; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .xv-title { margin:0; font-size:17px; font-weight:700; color:var(--ink,#0f172a); }
 .xv-sub { margin:2px 0 0; font-size:12px; color:var(--mut,#64748b); }
 .xv-grid { display:grid; grid-template-columns:minmax(0,420px) 1fr; gap:14px; align-items:start; }
@@ -104,13 +104,13 @@ onMounted(load)
 .xv-lbl { color:var(--mut,#64748b); }
 .xv-val { display:flex; align-items:center; gap:10px; color:var(--ink,#0f172a); }
 .xv-parol { font-size:15px; letter-spacing:.15em; font-variant-numeric:tabular-nums; }
-.xv-link { border:none; background:transparent; color:#4f46e5; font-size:12px; font-weight:600; cursor:pointer; padding:0; }
+.xv-link { border:none; background:transparent; color:#7c3aed; font-size:12px; font-weight:600; cursor:pointer; padding:0; }
 .xv-field { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
 .xv-field label { font-size:12px; font-weight:600; color:var(--mut,#475569); }
 .xv-in { height:38px; padding:0 11px; border:1px solid var(--line,#e2e8f0); border-radius:9px; font-size:14px; letter-spacing:.15em; background:var(--surface,#fff); color:var(--ink,#0f172a); outline:none; }
-.xv-in:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+.xv-in:focus { border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.15); }
 .xv-actions { display:flex; justify-content:flex-end; }
-.xv-btn { padding:9px 16px; border-radius:9px; border:none; background:#4f46e5; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
-.xv-btn:hover:not(:disabled) { background:#4338ca; } .xv-btn:disabled { opacity:.55; cursor:default; }
+.xv-btn { padding:9px 16px; border-radius:9px; border:none; background:#7c3aed; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+.xv-btn:hover:not(:disabled) { background:#6d28d9; } .xv-btn:disabled { opacity:.55; cursor:default; }
 .xv-list { margin:0; padding-left:18px; font-size:12.5px; color:var(--ink2,#334155); line-height:1.7; }
 </style>

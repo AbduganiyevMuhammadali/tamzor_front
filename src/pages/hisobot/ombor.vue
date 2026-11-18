@@ -25,7 +25,7 @@ const IZOH = [
 const j = computed(() => d.value?.jami || {})
 const h = computed(() => d.value?.harakat || {})
 const TUR_NOM: Record<string, string> = { asosiy: 'Asosiy ombor', xom_ashyo: 'Xom ashyo (sotilmaydi)', mashina: 'Won Sell mashinasi', brak: 'Brak (yaroqsiz)' }
-const omborRang = (t: string, i: number) => (t === 'asosiy' ? RANG.brand : t === 'brak' ? RANG.err : ['#818cf8', '#a5b4fc', '#6366f1', '#c7d2fe'][i % 4])
+const omborRang = (t: string, i: number) => (t === 'asosiy' ? RANG.brand : t === 'brak' ? RANG.err : ['#a78bfa', '#c4b5fd', '#8b5cf6', '#ddd6fe'][i % 4])
 const balans = computed(() => (h.value.kirim || 0) - (h.value.sotuv_tannarx || 0))
 
 function eksport(tur: 'harakatsiz' | 'tugayapti') {

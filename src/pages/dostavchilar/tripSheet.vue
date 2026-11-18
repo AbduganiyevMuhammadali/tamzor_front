@@ -219,7 +219,7 @@ watch(selected, () => {}, { deep: false })
 .hp-sub { font-size:13px; color:#94a3b8; margin:0; }
 .hp-filters { display:flex; gap:8px; flex-wrap:wrap; }
 .hp-select, .hp-date { border:1.5px solid #e2e8f0; background:#fff; border-radius:10px; padding:8px 12px; font-size:13px; color:#1e293b; }
-.hp-select:focus, .hp-date:focus { outline:none; border-color:#6366f1; }
+.hp-select:focus, .hp-date:focus { outline:none; border-color:#8b5cf6; }
 .hp-empty { text-align:center; padding:60px 20px; color:#94a3b8; font-size:14px; background:#fff; border:1.5px solid #e8ecf8; border-radius:16px; }
 .hp-skel-list { display:flex; flex-direction:column; gap:12px; }
 .hp-skel { border-radius:16px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200% 100%; animation:hp-shim 1.4s ease infinite; }
@@ -229,28 +229,28 @@ watch(selected, () => {}, { deep: false })
 .hp-card-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
 .hp-card-title { font-size:14px; font-weight:800; color:#1e293b; }
 
-.ts-btn { padding:9px 18px; border:none; border-radius:10px; background:#6366f1; color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
-.ts-btn:hover { background:#4f46e5; }
+.ts-btn { padding:9px 18px; border:none; border-radius:10px; background:#8b5cf6; color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
+.ts-btn:hover { background:#7c3aed; }
 .ts-btn:disabled { opacity:.5; cursor:not-allowed; }
 .ts-btn--sm { padding:8px 14px; white-space:nowrap; }
 
 .ts-layout { display:grid; grid-template-columns:340px 1fr; gap:16px; align-items:start; }
 .ts-list { display:flex; flex-direction:column; gap:10px; }
 .ts-card { background:#fff; border:1.5px solid #e8ecf8; border-radius:14px; padding:13px; cursor:pointer; transition:.15s; }
-.ts-card:hover { border-color:#c7d2fe; }
-.ts-card--on { border-color:#6366f1; background:#f5f5ff; }
+.ts-card:hover { border-color:#ddd6fe; }
+.ts-card--on { border-color:#8b5cf6; background:#f9f5ff; }
 .ts-card-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
 .ts-raqam { font-size:13.5px; font-weight:800; color:#1e293b; }
 .ts-badge { font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; white-space:nowrap; }
 .ts-badge--yangi { background:#f1f5f9; color:#64748b; }
-.ts-badge--yolda { background:#eef2ff; color:#4f46e5; }
+.ts-badge--yolda { background:#f5f3ff; color:#7c3aed; }
 .ts-badge--yakunlandi { background:#f0fdf4; color:#16a34a; }
 .ts-card-meta { display:flex; flex-direction:column; gap:2px; font-size:11.5px; color:#94a3b8; }
 
 .ts-detail { min-height:200px; }
 .ts-doc-list { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
 .ts-doc-item { display:flex; align-items:center; gap:10px; padding:10px 11px; background:#f8fafc; border-radius:11px; }
-.ts-doc-order { width:22px; height:22px; border-radius:7px; background:#eef2ff; color:#6366f1; font-size:11.5px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ts-doc-order { width:22px; height:22px; border-radius:7px; background:#f5f3ff; color:#8b5cf6; font-size:11.5px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .ts-doc-body { flex:1; min-width:0; }
 .ts-doc-name { font-size:13px; font-weight:700; color:#1e293b; }
 .ts-doc-meta { font-size:11px; color:#94a3b8; }

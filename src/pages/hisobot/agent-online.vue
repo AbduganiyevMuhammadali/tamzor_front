@@ -115,7 +115,7 @@ interface Javob {
 const TONE: Record<string, string> = {
   online: '--good', kutish: '--warning', oflayn: '--muted', malumot_yoq: '--muted',
 }
-const RANGLAR = ['#4f46e5','#059669','#d97706','#e11d48','#475569','#818cf8','#047857','#b45309']
+const RANGLAR = ['#7c3aed','#059669','#d97706','#e11d48','#475569','#a78bfa','#047857','#b45309']
 const rang = (id: number) => RANGLAR[id % RANGLAR.length]
 
 const d = ref<Javob | null>(null)
@@ -281,7 +281,7 @@ onUnmounted(() => {
   --surface:#fff; --sunken:#f8fafc; --border:rgba(15,23,42,.09);
   --shadow:0 1px 2px rgba(15,23,42,.04), 0 2px 8px rgba(15,23,42,.05);
   --ink:#0f172a; --ink2:#334155; --muted:#5d6b7f;
-  --accent:#4338ca; --accent-wash:rgba(15,118,110,.08);
+  --accent:#6d28d9; --accent-wash:rgba(15,118,110,.08);
   --good:#047857; --warning:#b45309; --critical:#be123c;
   display:flex; flex-direction:column; gap:12px; padding:2px 0 24px;
   color:var(--ink); height:calc(100vh - 92px);
@@ -291,7 +291,7 @@ onUnmounted(() => {
   --surface:#212836; --sunken:#181e29; --border:rgba(255,255,255,.09);
   --shadow:0 1px 2px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.28);
   --ink:#e8eaf0; --ink2:#a8b0c0; --muted:#8b93a7;
-  --accent:#818cf8; --accent-wash:rgba(129,140,248,.14);
+  --accent:#a78bfa; --accent-wash:rgba(167,139,250,.14);
   --good:#34d399; --warning:#fbbf24; --critical:#fb7185;
 }
 

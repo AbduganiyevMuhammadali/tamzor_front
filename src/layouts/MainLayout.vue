@@ -548,26 +548,26 @@ onUnmounted(() => {
    brend bilan uyg'un va sahifalardagi kulranglar bilan bir xil.
    Sahifalar shu nomlarni meros oladi: --bg --surface --line --ink --ink2 --mut --sub --hov --act --acc. */
 .shell {
-  --bg:#f5f6fa; --surface:#ffffff; --line:#e3e6ee; --line2:#eef0f5;
+  --bg:#f6f5fa; --surface:#ffffff; --line:#e6e3ef; --line2:#f0eef6;
   --ink:#0f172a; --ink2:#334155; --mut:#64748b; --sub:#94a3b8;
-  --hov:#f1f3f9; --act:#e8ebf5; --acc:var(--brand-600); --acc-soft:var(--brand-50); --acc-ink:var(--brand-700);
+  --hov:#f3f1f9; --act:#ebe7f6; --acc:var(--brand-600); --acc-soft:var(--brand-50); --acc-ink:var(--brand-700);
   /* sidebar — logodan olingan: to'q binafsha "siyoh" fon, faollik — logo plitkasi rangi (#7C3AED) + oq.
      t: asosiy matn, t2: ichki sahifalar, t3: yorliqlar, ic: ikonlar, acc: logo binafshasi */
   --sb-g1:#1e1536; --sb-g2:#160f2b; --sb-edge:transparent;
   --sb-line:rgba(255,255,255,.07); --sb-line2:rgba(196,181,253,.16);
   --sb-t:#e4ddf9; --sb-t2:#bdb1e6; --sb-t3:#9b8ecd; --sb-ic:#ab9edc;
   --sb-hov:rgba(255,255,255,.06); --sb-acc:#7C3AED; --sb-acc2:#a78bfa; --sb-acc3:#c4b5fd;
-  --main-bg:var(--bg); --page-bg:var(--bg); --page-scroll:#cfd4e1;
+  --main-bg:var(--bg); --page-bg:var(--bg); --page-scroll:#d5d0e3;
   --sb-w:248px; --sb-wy:60px;
   display:flex; height:100vh; width:100vw; overflow:hidden; background:var(--bg); color:var(--ink);
   -webkit-font-smoothing:antialiased;
 }
 .shell.dark {
-  --bg:#0e1118; --surface:#141925; --line:#242b3b; --line2:#1c2230;
+  --bg:#0f0d16; --surface:#16131f; --line:#29243a; --line2:#1f1b2c;
   --ink:#e8eaf0; --ink2:#c3c9d6; --mut:#8b93a7; --sub:#5f6a7e;
-  --hov:#1a2030; --act:#20283a; --acc:var(--brand-400); --acc-soft:rgba(99,102,241,.16); --acc-ink:var(--brand-300);
+  --hov:#1c1828; --act:#251f35; --acc:var(--brand-400); --acc-soft:rgba(139,92,246,.16); --acc-ink:var(--brand-300);
   --sb-g1:#181029; --sb-g2:#110b1f; --sb-edge:rgba(255,255,255,.06);
-  --page-scroll:#2e3648;
+  --page-scroll:#352e4a;
 }
 
 /* ═══ SIDEBAR ═══
@@ -667,7 +667,7 @@ onUnmounted(() => {
 /* Yig'ilgan menyuning suzuvchi paneli */
 .fly { position:fixed; z-index:60; left:calc(var(--sb-wy) + 6px); min-width:210px; max-width:280px; padding:4px; border-radius:10px;
   color:var(--sb-t); background:var(--sb-g1); border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 12px 32px -8px rgba(10,9,30,.55), 0 2px 6px rgba(10,9,30,.3); }
+  box-shadow:0 12px 32px -8px rgba(18,9,30,.55), 0 2px 6px rgba(18,9,30,.3); }
 .fly-hd { display:flex; flex-direction:column; gap:1px; padding:7px 10px 8px; border-radius:7px; text-decoration:none; }
 .fly-hd b { font-size:13px; font-weight:600; color:#fff; }
 .fly-hd small { font-size:11.5px; line-height:1.35; color:var(--sb-t3); }
@@ -716,17 +716,17 @@ kbd { font:500 11px/1 ui-sans-serif, system-ui, sans-serif; padding:3px 5px; bor
 .tb-son { position:absolute; top:3px; right:3px; min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:#ef4444; color:#fff; font-size:10px; font-weight:700; line-height:17px; text-align:center; box-shadow:0 0 0 2px var(--surface); animation:tbPuls 2s ease-in-out 3; }
 @keyframes tbPuls { 50% { transform:scale(1.18); } }
 /* Bildirishnoma ranglari — ma'no bo'yicha: amber kutish, yashil bajarildi, indigo brend */
-.r-amber   { --c:#d97706; } .r-green, .r-emerald { --c:#059669; } .r-indigo, .r-violet, .r-blue { --c:#4f46e5; } .r-rose { --c:#dc2626; }
+.r-amber   { --c:#d97706; } .r-green, .r-emerald { --c:#059669; } .r-indigo, .r-violet, .r-blue { --c:#7c3aed; } .r-rose { --c:#dc2626; }
 .nr-ic[class*='r-'] { background:color-mix(in srgb, var(--c) 12%, transparent); color:var(--c); }
 .bp-wrap { position:fixed; top:68px; right:18px; z-index:200; display:flex; flex-direction:column; gap:10px; width:360px; max-width:calc(100vw - 32px); pointer-events:none; }
-.bp { pointer-events:auto; display:flex; gap:12px; align-items:flex-start; padding:14px 14px 14px 16px; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--c, #4f46e5); border-radius:14px; box-shadow:0 18px 40px -12px rgba(15,23,42,.35); cursor:pointer; }
+.bp { pointer-events:auto; display:flex; gap:12px; align-items:flex-start; padding:14px 14px 14px 16px; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--c, #7c3aed); border-radius:14px; box-shadow:0 18px 40px -12px rgba(15,23,42,.35); cursor:pointer; }
 .bp:hover { transform:translateY(-1px); }
-.bp-ic { width:36px; height:36px; flex-shrink:0; border-radius:10px; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--c, #4f46e5) 13%, transparent); color:var(--c, #4f46e5); }
+.bp-ic { width:36px; height:36px; flex-shrink:0; border-radius:10px; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--c, #7c3aed) 13%, transparent); color:var(--c, #7c3aed); }
 .bp-ic svg { width:19px; height:19px; }
 .bp-t { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
 .bp-t b { font-size:13.5px; font-weight:700; color:var(--ink); }
 .bp-t span { font-size:12.5px; color:var(--ink2); line-height:1.4; }
-.bp-t em { font-style:normal; font-size:12px; font-weight:600; color:var(--c, #4f46e5); margin-top:2px; }
+.bp-t em { font-style:normal; font-size:12px; font-weight:600; color:var(--c, #7c3aed); margin-top:2px; }
 .bp-x { width:26px; height:26px; border:none; background:none; color:var(--sub); border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .bp-x:hover { background:var(--hov); color:var(--ink); }
 .bp-x svg { width:14px; height:14px; }

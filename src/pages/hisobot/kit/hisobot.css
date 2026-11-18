@@ -71,7 +71,7 @@
 .hs-belgi--warn { background:color-mix(in srgb, #d97706 13%, transparent); color:#b45309; }
 .hs-belgi--err { background:color-mix(in srgb, #dc2626 11%, transparent); color:#dc2626; }
 .hs-belgi--n { background:var(--hov); color:var(--mut); }
-.shell.dark .hs-belgi--B { background:rgba(99,102,241,.2); color:var(--brand-300); }
+.shell.dark .hs-belgi--B { background:rgba(139,92,246,.2); color:var(--brand-300); }
 .hs-ok { color:#059669; } .hs-warn { color:#b45309; } .hs-err { color:#dc2626; } .hs-mut { color:var(--mut); }
 .shell.dark .hs-ok { color:#34d399; } .shell.dark .hs-warn { color:#fbbf24; } .shell.dark .hs-err { color:#f87171; }
 

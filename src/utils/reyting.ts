@@ -5,7 +5,7 @@ export interface Daraja { kod: string; nom: string; min: number; rang: string; f
 export const REYTING_MAX = 200
 export const DARAJALAR: Daraja[] = [
   { kod: 'alo',    nom: "A'lo",   min: 150, rang: '#16a34a', fon: 'rgba(22,163,74,.12)' },
-  { kod: 'yaxshi', nom: 'Yaxshi', min: 110, rang: '#4f46e5', fon: 'rgba(79,70,229,.12)' },
+  { kod: 'yaxshi', nom: 'Yaxshi', min: 110, rang: '#7c3aed', fon: 'rgba(124,58,237,.12)' },
   { kod: 'orta',   nom: "O'rta",  min: 70,  rang: '#64748b', fon: 'rgba(100,116,139,.13)' },
   { kod: 'past',   nom: 'Past',   min: 30,  rang: '#d97706', fon: 'rgba(217,119,6,.13)' },
   { kod: 'kritik', nom: 'Kritik', min: 0,   rang: '#dc2626', fon: 'rgba(220,38,38,.12)' },

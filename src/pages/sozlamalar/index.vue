@@ -7,33 +7,33 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: 'Kompaniya',
     items: [
-      { key: 'kompaniya',    label: 'Kompaniya profili', icon: 'building', accent: '#4f46e5' },
-      { key: 'tolov-usuli', label: "To'lov usuli",       icon: 'credit',   accent: '#4f46e5' },
-      { key: 'kurs',        label: 'Valyuta kursi',      icon: 'currency', accent: '#4f46e5' },
-      { key: 'chek',        label: 'Chek — 80 mm printer', icon: 'printer',  accent: '#4f46e5' },
-      { key: 'xavfsizlik',  label: 'Xavfsizlik',           icon: 'lock',     accent: '#4f46e5' },
+      { key: 'kompaniya',    label: 'Kompaniya profili', icon: 'building', accent: '#7c3aed' },
+      { key: 'tolov-usuli', label: "To'lov usuli",       icon: 'credit',   accent: '#7c3aed' },
+      { key: 'kurs',        label: 'Valyuta kursi',      icon: 'currency', accent: '#7c3aed' },
+      { key: 'chek',        label: 'Chek — 80 mm printer', icon: 'printer',  accent: '#7c3aed' },
+      { key: 'xavfsizlik',  label: 'Xavfsizlik',           icon: 'lock',     accent: '#7c3aed' },
     ],
   },
   {
     title: 'Tovar',
     items: [
-      { key: 'olchov',           label: "O'lchov birliklari",       icon: 'scale',    accent: '#4f46e5' },
-      { key: 'hudud',            label: 'Hudud',                    icon: 'map',      accent: '#4f46e5' },
-      { key: 'mijoz-kategoriya', label: 'Mijoz kategoriyasi',       icon: 'tag',      accent: '#4f46e5' },
-      { key: 'mijoz-turi',       label: 'Mijoz turi',               icon: 'users',    accent: '#4f46e5' },
-      { key: 'reyting',          label: 'Mijoz reytingi',           icon: 'star',     accent: '#4f46e5' },
-      { key: 'kategoriya',       label: 'Turkumlar',                icon: 'folder',   accent: '#4f46e5' },
-      { key: 'tovar',            label: 'Tovar',                    icon: 'box',      accent: '#4f46e5' },
-      { key: 'narx',             label: 'Narx turi / Narx',         icon: 'currency', accent: '#4f46e5' },
+      { key: 'olchov',           label: "O'lchov birliklari",       icon: 'scale',    accent: '#7c3aed' },
+      { key: 'hudud',            label: 'Hudud',                    icon: 'map',      accent: '#7c3aed' },
+      { key: 'mijoz-kategoriya', label: 'Mijoz kategoriyasi',       icon: 'tag',      accent: '#7c3aed' },
+      { key: 'mijoz-turi',       label: 'Mijoz turi',               icon: 'users',    accent: '#7c3aed' },
+      { key: 'reyting',          label: 'Mijoz reytingi',           icon: 'star',     accent: '#7c3aed' },
+      { key: 'kategoriya',       label: 'Turkumlar',                icon: 'folder',   accent: '#7c3aed' },
+      { key: 'tovar',            label: 'Tovar',                    icon: 'box',      accent: '#7c3aed' },
+      { key: 'narx',             label: 'Narx turi / Narx',         icon: 'currency', accent: '#7c3aed' },
     ],
   },
   {
     title: 'Jarayonlar',
     items: [
-      { key: 'rad-etish',   label: 'Rad etish sabablari',        icon: 'ban',       accent: '#4f46e5' },
-      { key: 'foto-hisobot',label: 'Foto-hisobot kategoriyasi',  icon: 'camera',    accent: '#4f46e5' },
-      { key: 'inventar',    label: 'Inventar turi',              icon: 'clipboard', accent: '#4f46e5' },
-      { key: 'bonus',       label: 'Bonuslar va chegirmalar',    icon: 'gift',      accent: '#4f46e5' },
+      { key: 'rad-etish',   label: 'Rad etish sabablari',        icon: 'ban',       accent: '#7c3aed' },
+      { key: 'foto-hisobot',label: 'Foto-hisobot kategoriyasi',  icon: 'camera',    accent: '#7c3aed' },
+      { key: 'inventar',    label: 'Inventar turi',              icon: 'clipboard', accent: '#7c3aed' },
+      { key: 'bonus',       label: 'Bonuslar va chegirmalar',    icon: 'gift',      accent: '#7c3aed' },
     ],
   },
 ]
@@ -213,13 +213,13 @@ const collapsed       = ref(false)
 .sz-hd-ic {
   width: 34px; height: 34px;
   border-radius: 10px;
-  background: linear-gradient(135deg, rgba(99,102,241,.18), rgba(99,102,241,.12));
-  border: 1px solid rgba(99,102,241,.2);
+  background: linear-gradient(135deg, rgba(139,92,246,.18), rgba(139,92,246,.12));
+  border: 1px solid rgba(139,92,246,.2);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(99,102,241,.12);
+  box-shadow: 0 2px 8px rgba(139,92,246,.12);
 }
-.sz-hd-ic svg { width: 16px; height: 16px; color: #6366f1; }
+.sz-hd-ic svg { width: 16px; height: 16px; color: #8b5cf6; }
 
 .sz-hd-title {
   font-size: 14px;
@@ -241,7 +241,7 @@ const collapsed       = ref(false)
   flex-shrink: 0;
   transition: background .15s, color .15s, border-color .15s;
 }
-.sz-toggle:hover { background: rgba(99,102,241,.1); color: #6366f1; border-color: rgba(99,102,241,.25); }
+.sz-toggle:hover { background: rgba(139,92,246,.1); color: #8b5cf6; border-color: rgba(139,92,246,.25); }
 .sz-toggle svg { width: 13px; height: 13px; }
 
 /* Nav */
@@ -373,7 +373,7 @@ const collapsed       = ref(false)
 .sz-spin {
   width: 26px; height: 26px;
   border: 2.5px solid var(--card-border);
-  border-top-color: #6366f1;
+  border-top-color: #8b5cf6;
   border-radius: 50%;
   animation: spin .7s linear infinite;
 }

@@ -14,12 +14,12 @@ const router = useRouter()
 
 const BOSQICH = [
   { nom: 'Yuklash kutilmoqda', rang: '#94a3b8' },
-  { nom: 'Savdoda', rang: '#4f46e5' },
+  { nom: 'Savdoda', rang: '#7c3aed' },
   { nom: 'Topshirmoqda', rang: '#d97706' },
   { nom: 'Kun yopildi', rang: '#059669' },
 ]
 const KAMOMAD = '#dc2626'
-const HOLAT_RANG: Record<string, string> = { ochiq: '#4f46e5', topshirilmoqda: '#d97706', yopiq: '#059669', kamomad: KAMOMAD }
+const HOLAT_RANG: Record<string, string> = { ochiq: '#7c3aed', topshirilmoqda: '#d97706', yopiq: '#059669', kamomad: KAMOMAD }
 const HOLAT_NOM: Record<string, string> = { bosh: 'Chiqmagan', ochiq: 'Savdoda', topshirilmoqda: 'Topshirilmoqda', yopiq: 'Yopiq', kamomad: 'Kamomad' }
 const S0 = 7, S1 = 20                     // kun yo'li: 07:00 → 20:00
 
@@ -378,7 +378,7 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 .al-head { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
 .al-head-l { display:flex; align-items:center; gap:14px; min-width:0; }
 .al-head-ic { width:44px; height:44px; flex-shrink:0; border-radius:11px; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center;
-  box-shadow:0 6px 16px -6px rgba(79,70,229,.55); }
+  box-shadow:0 6px 16px -6px rgba(124,58,237,.55); }
 .al-head-ic svg, .al-k-ic svg, .al-h2-ic svg, .al-btn svg { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
 .al-head-ic svg { width:22px; height:22px; }
 .al-h1 { font-size:22px; font-weight:600; letter-spacing:-.02em; margin:0; color:var(--ink); }
@@ -445,10 +445,10 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 .al-st i { width:7px; height:7px; border-radius:50%; background:var(--holat); }
 .al-flags { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
 .al-flag { font-size:11px; font-weight:500; padding:2px 7px; border-radius:5px; background:var(--hov); color:var(--ink2); white-space:nowrap; }
-.al-flag.sorov { background:color-mix(in srgb, #4f46e5 12%, transparent); color:#4338ca; }
+.al-flag.sorov { background:color-mix(in srgb, #7c3aed 12%, transparent); color:#6d28d9; }
 .al-flag.keldi { background:color-mix(in srgb, #d97706 14%, transparent); color:#b45309; }
 .al-flag.uzoq  { background:color-mix(in srgb, #dc2626 10%, transparent); color:#b91c1c; }
-:root[data-theme="dark"] .al-flag.sorov, .shell.dark .al-flag.sorov { color:#a5b4fc; }
+:root[data-theme="dark"] .al-flag.sorov, .shell.dark .al-flag.sorov { color:#c4b5fd; }
 :root[data-theme="dark"] .al-flag.keldi, .shell.dark .al-flag.keldi { color:#fcd34d; }
 :root[data-theme="dark"] .al-flag.uzoq,  .shell.dark .al-flag.uzoq  { color:#fca5a5; }
 .al-name { font-size:14px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -468,7 +468,7 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 .al-ticks span { position:absolute; transform:translateX(-50%); font-size:10.5px; line-height:1; color:var(--sub); font-variant-numeric:tabular-nums; }
 .al-track { position:absolute; left:-4px; right:-4px; top:27px; height:4px; border-radius:2px; background:var(--act); }
 .al-trail { position:absolute; top:27px; height:4px; border-radius:2px; background:color-mix(in srgb, var(--ink2) 28%, transparent); }
-.al-row.b1 .al-trail { background:color-mix(in srgb, #4f46e5 45%, transparent); }
+.al-row.b1 .al-trail { background:color-mix(in srgb, #7c3aed 45%, transparent); }
 .al-now { position:absolute; top:16px; bottom:2px; width:0; border-left:1px dashed var(--sub); }
 .al-road-msg { position:absolute; left:0; right:0; top:22px; text-align:center; font-size:12px; color:var(--mut); }
 .al-road.bosh .al-track { opacity:0; }
@@ -478,12 +478,12 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 .ev.sotuv { background:#059669; box-shadow:0 0 0 2px var(--surface); }
 .ev.sotuv.qarz { background:var(--surface); border:1.5px solid #059669; }
 .ev.sotmaslik { width:6px; height:6px; background:var(--sub); box-shadow:0 0 0 2px var(--surface); }
-.ev.mijozda { width:10px; height:10px; background:var(--surface); border:2px solid #4f46e5; }
+.ev.mijozda { width:10px; height:10px; background:var(--surface); border:2px solid #7c3aed; }
 .ev.tolov { width:7px; height:7px; border-radius:1px; transform:translate(-50%, -50%) rotate(45deg); background:#d97706; box-shadow:0 0 0 2px var(--surface); }
 .ev.yuklash, .ev.qabul, .ev.kassa { width:16px; height:16px; border-radius:4px; background:var(--ink2); color:var(--surface); box-shadow:0 0 0 2px var(--surface);
   display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; line-height:1; }
 .ev.yuklash::before { content:'↓'; }
-.ev.sorov { width:10px; height:10px; background:var(--surface); border:2px dashed #4f46e5; }
+.ev.sorov { width:10px; height:10px; background:var(--surface); border:2px dashed #7c3aed; }
 .ev.agent_qabul { width:8px; height:8px; background:#059669; box-shadow:0 0 0 2px var(--surface); }
 .ev.kun_yopish { width:12px; height:12px; border-radius:3px; background:#d97706; box-shadow:0 0 0 2px var(--surface); }
 .ev.sotuv.uzoq { box-shadow:0 0 0 2px var(--surface), 0 0 0 4px #dc2626; }
@@ -509,7 +509,7 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 .al-btn { height:38px; padding:0 14px; border-radius:9px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; transition:background .12s, border-color .12s;
   display:inline-flex; align-items:center; justify-content:center; gap:8px; }
 .al-btn svg { width:16px; height:16px; flex-shrink:0; }
-.al-btn.p { border:1px solid var(--brand); background:var(--brand); color:#fff; box-shadow:0 4px 12px -4px rgba(79,70,229,.5); }
+.al-btn.p { border:1px solid var(--brand); background:var(--brand); color:#fff; box-shadow:0 4px 12px -4px rgba(124,58,237,.5); }
 .al-btn.p:hover { background:var(--brand-hover); }
 .al-btn.s { border:1px solid var(--line); background:var(--surface); color:var(--ink); }
 .al-btn.s:hover { background:var(--hov); border-color:var(--brand-300); color:var(--acc); }

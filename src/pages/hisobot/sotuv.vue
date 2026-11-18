@@ -224,7 +224,7 @@ function eksport() {
 .ss-hk-k:hover i { background:var(--brand-400); }
 .ss-hk-k b { font-size:12px; font-weight:600; color:var(--mut); }
 .ss-hk-v { font-size:10.5px; color:var(--sub); font-variant-numeric:tabular-nums; white-space:nowrap; }
-.shell.dark .ss-hk-k i { background:rgba(99,102,241,.35); }
+.shell.dark .ss-hk-k i { background:rgba(139,92,246,.35); }
 .shell.dark .ss-hk-k i.top { background:var(--brand-500); }
 .ss-hk-iz { margin:12px 0 0; }
 </style>

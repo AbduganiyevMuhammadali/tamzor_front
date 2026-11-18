@@ -239,7 +239,7 @@ function eksport() {
 .ry-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
 .ry-list li { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line, #f1f5f9); cursor:pointer; }
 .ry-list li:last-child { border-bottom:none; }
-.ry-list li:hover .ry-list-n b { color:#4f46e5; }
+.ry-list li:hover .ry-list-n b { color:#7c3aed; }
 .ry-list-n { flex:1; min-width:0; display:flex; flex-direction:column; }
 .ry-list-n b { font-size:13px; color:var(--ink, #0f172a); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .ry-list-n small { font-size:11.5px; color:var(--mut, #94a3b8); }

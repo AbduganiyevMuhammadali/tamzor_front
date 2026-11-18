@@ -203,9 +203,10 @@ const mijozga = (id: number) => router.push(`/mijozlar/oldi-berdi?mijoz=${id}`)
 .mr-dist-leg em { font-style:normal; color:var(--ink-muted); font-weight:500; }
 
 /* O'ng karta */
-.mr-tabs { display:flex; background:var(--surface-sunken); border-radius:10px; padding:3px; gap:2px; }
-.mr-tabs button { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; background:transparent; padding:6px 8px; border-radius:8px; font-size:12px; font-weight:600; color:var(--ink-muted); cursor:pointer; }
-.mr-tabs button.on { background:var(--surface); color:var(--accent); box-shadow:0 1px 3px rgba(15,23,42,.08); }
+.mr-tabs { display:flex; background:var(--seg-track); box-shadow:inset 0 0 0 1px var(--seg-brd); border-radius:10px; padding:3px; gap:2px; }
+.mr-tabs button { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; background:transparent; padding:6px 8px; border-radius:8px; font-size:12px; font-weight:600; color:var(--seg-ink); cursor:pointer; transition:color .15s; }
+.mr-tabs button:hover:not(.on) { color:var(--seg-ink-h); }
+.mr-tabs button.on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); }
 .mr-tabs i { font-style:normal; font-size:10.5px; font-weight:800; padding:0 6px; border-radius:999px; background:var(--accent-wash); color:var(--accent); }
 .mr-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
 .mr-list li { display:flex; align-items:center; gap:10px; padding:8px 2px; border-bottom:1px solid var(--border); cursor:pointer; }

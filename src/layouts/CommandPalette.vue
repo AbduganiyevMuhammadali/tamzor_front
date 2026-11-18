@@ -87,10 +87,10 @@ function bajar(b?: Buyruq) {
 
 <style scoped>
 .cp-ov { position:fixed; inset:0; z-index:200; background:rgba(15,23,42,.4); display:flex; justify-content:center; align-items:flex-start; padding-top:14vh; }
-.cp { --cp-bg:#ffffff; --cp-ink:#0f172a; --cp-mut:#64748b; --cp-sub:#94a3b8; --cp-line:#e3e6ee; --cp-sel:var(--brand-50); --cp-tile:#f1f3f9; --cp-acc:var(--brand-600);
+.cp { --cp-bg:#ffffff; --cp-ink:#0f172a; --cp-mut:#64748b; --cp-sub:#94a3b8; --cp-line:#e6e3ef; --cp-sel:var(--brand-50); --cp-tile:#f3f1f9; --cp-acc:var(--brand-600);
   width:min(600px, calc(100vw - 32px)); max-height:64vh; display:flex; flex-direction:column; border-radius:12px; overflow:hidden;
   background:var(--cp-bg); color:var(--cp-ink); border:1px solid var(--cp-line); box-shadow:0 24px 64px rgba(0,0,0,.18); }
-.shell.dark .cp, :root[data-theme="dark"] .cp { --cp-bg:#141925; --cp-ink:#e8eaf0; --cp-mut:#8b93a7; --cp-sub:#5f6a7e; --cp-line:#242b3b; --cp-sel:rgba(99,102,241,.16); --cp-tile:#1e2536; --cp-acc:var(--brand-400); box-shadow:0 24px 64px rgba(0,0,0,.6); }
+.shell.dark .cp, :root[data-theme="dark"] .cp { --cp-bg:#16131f; --cp-ink:#e8eaf0; --cp-mut:#8b93a7; --cp-sub:#5f6a7e; --cp-line:#29243a; --cp-sel:rgba(139,92,246,.16); --cp-tile:#1e2536; --cp-acc:var(--brand-400); box-shadow:0 24px 64px rgba(0,0,0,.6); }
 .cp-hd { flex-shrink:0; display:flex; align-items:center; gap:10px; padding:0 14px; height:52px; border-bottom:1px solid var(--cp-line); }
 .cp-hd svg { width:19px; height:19px; color:var(--cp-acc); flex-shrink:0; }
 .cp-hd input { flex:1; border:none; outline:none; background:transparent; color:inherit; font-family:inherit; font-size:15px; }

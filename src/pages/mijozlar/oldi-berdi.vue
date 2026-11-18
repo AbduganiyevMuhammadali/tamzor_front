@@ -207,7 +207,7 @@ const TURLAR = [
   { key: 'oldi',  label: 'Oldi' },
   { key: 'berdi', label: 'Berdi' },
 ]
-const RANGLAR = ['#4f46e5','#6366f1','#4338ca','#3730a3']
+const RANGLAR = ['#7c3aed','#8b5cf6','#6d28d9','#5b21b6']
 const rang = (id: number) => RANGLAR[id % RANGLAR.length]
 
 interface Qator {
@@ -360,8 +360,8 @@ onMounted(async () => {
   --surface:#fff; --sunken:#f8fafc; --border:rgba(15,23,42,.09);
   --shadow:0 1px 2px rgba(15,23,42,.04), 0 2px 8px rgba(15,23,42,.05);
   --ink:#0f172a; --ink2:#334155; --muted:#5d6b7f;
-  --accent:#4338ca; --accent-wash:rgba(15,118,110,.08);
-  --oldi:#b45309; --berdi:#047857; --qarz:#be123c; --avans:#4338ca;
+  --accent:#6d28d9; --accent-wash:rgba(15,118,110,.08);
+  --oldi:#b45309; --berdi:#047857; --qarz:#be123c; --avans:#6d28d9;
   display:flex; flex-direction:column; gap:12px; padding:2px 0 40px; color:var(--ink);
 }
 :global(:root[data-theme="dark"]) .ob,
@@ -369,8 +369,8 @@ onMounted(async () => {
   --surface:#212836; --sunken:#181e29; --border:rgba(255,255,255,.09);
   --shadow:0 1px 2px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.28);
   --ink:#e8eaf0; --ink2:#a8b0c0; --muted:#8b93a7;
-  --accent:#818cf8; --accent-wash:rgba(129,140,248,.14);
-  --oldi:#fbbf24; --berdi:#34d399; --qarz:#fb7185; --avans:#818cf8;
+  --accent:#a78bfa; --accent-wash:rgba(167,139,250,.14);
+  --oldi:#fbbf24; --berdi:#34d399; --qarz:#fb7185; --avans:#a78bfa;
 }
 
 /* ── HEADER ── */
@@ -488,7 +488,7 @@ onMounted(async () => {
           border-radius:6px; margin-right:7px; }
 .ob-tag.is-oldi  { background:color-mix(in oklab,var(--oldi) 14%,transparent);  color:var(--oldi); }
 .ob-tag.is-berdi { background:color-mix(in oklab,var(--berdi) 14%,transparent); color:var(--berdi); }
-.ob-tag.is-bosh  { background:#eef2ff; color:#4338ca; }
+.ob-tag.is-bosh  { background:#f5f3ff; color:#6d28d9; }
 .ob-hj { font-size:11px; color:var(--muted); }
 .ob-iz { color:var(--ink2); }
 .ob-usul { display:inline-block; font-size:10px; padding:1px 6px; border-radius:5px;

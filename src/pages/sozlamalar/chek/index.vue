@@ -90,7 +90,7 @@ onMounted(load)
 .ck-page { display:flex; flex-direction:column; gap:14px; }
 .ck-hd { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .ck-hd-left { display:flex; align-items:center; gap:12px; }
-.ck-hd-ic { width:40px; height:40px; border-radius:11px; background:rgba(99,102,241,.12); color:#6366f1; display:flex; align-items:center; justify-content:center; }
+.ck-hd-ic { width:40px; height:40px; border-radius:11px; background:rgba(139,92,246,.12); color:#8b5cf6; display:flex; align-items:center; justify-content:center; }
 .ck-title { margin:0; font-size:17px; font-weight:700; color:var(--ink,#0f172a); }
 .ck-sub { margin:2px 0 0; font-size:12px; color:var(--mut,#64748b); }
 .ck-grid { display:grid; grid-template-columns:1fr 360px; gap:14px; align-items:start; }
@@ -100,12 +100,12 @@ onMounted(load)
 .ck-field { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
 .ck-field label { font-size:12px; font-weight:600; color:var(--mut,#475569); }
 .ck-in { height:38px; padding:0 11px; border:1px solid var(--line,#e2e8f0); border-radius:9px; font-size:13px; background:var(--surface,#fff); color:var(--ink,#0f172a); outline:none; }
-.ck-in:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+.ck-in:focus { border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.15); }
 .ck-actions { display:flex; justify-content:flex-end; }
-.ck-btn { padding:9px 16px; border-radius:9px; border:none; background:#4f46e5; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
-.ck-btn:hover:not(:disabled) { background:#4338ca; } .ck-btn:disabled { opacity:.55; cursor:default; }
-.ck-btn--ghost { background:transparent; color:#4f46e5; border:1px solid rgba(99,102,241,.4); }
-.ck-btn--ghost:hover { background:rgba(99,102,241,.08); }
+.ck-btn { padding:9px 16px; border-radius:9px; border:none; background:#7c3aed; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+.ck-btn:hover:not(:disabled) { background:#6d28d9; } .ck-btn:disabled { opacity:.55; cursor:default; }
+.ck-btn--ghost { background:transparent; color:#7c3aed; border:1px solid rgba(139,92,246,.4); }
+.ck-btn--ghost:hover { background:rgba(139,92,246,.08); }
 .ck-steps { margin:0; padding-left:18px; font-size:12.5px; color:var(--ink2,#334155); line-height:1.6; }
 .ck-steps code { font-size:11.5px; background:var(--hov,#f1f5f9); padding:1px 5px; border-radius:4px; }
 .ck-paper { background:#e5e7eb; border-radius:10px; padding:14px; display:flex; justify-content:center; }

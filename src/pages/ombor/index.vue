@@ -241,32 +241,32 @@ function formatOy(str) {
 const kpiCards = computed(() => [
   {
     key: 'summa', label: 'Jami kirim summasi', value: fmtSumShort(umumiy.value.jami_summa),
-    color: '#6366f1', bg: 'rgba(99,102,241,.1)',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.1)',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
   },
   {
     key: 'dona', label: 'Jami qabul qilingan', value: (umumiy.value.jami_dona || 0) + ' kg',
-    color: '#4f46e5', bg: 'rgba(79,70,229,.1)',
+    color: '#7c3aed', bg: 'rgba(124,58,237,.1)',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
   },
   {
     key: 'prixod', label: 'Prixodlar soni', value: (umumiy.value.prixod_son || 0) + ' ta',
-    color: '#6366f1', bg: 'rgba(99,102,241,.1)', route: '/ombor/prixod',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.1)', route: '/ombor/prixod',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
   },
   {
     key: 'tovar', label: 'Tovar turlari', value: (umumiy.value.qator_son || 0) + ' xil',
-    color: '#6366f1', bg: 'rgba(99,102,241,.1)', route: '/ombor/qoldiqlar',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.1)', route: '/ombor/qoldiqlar',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
   },
   {
     key: 'oylik_summa', label: 'Oylik kirim', value: fmtSumShort(umumiy.value.oylik_summa),
-    color: '#6366f1', bg: 'rgba(99,102,241,.1)',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.1)',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
   },
   {
     key: 'oylik_dona', label: 'Oylik kg', value: (umumiy.value.oylik_dona || 0) + ' kg',
-    color: '#6366f1', bg: 'rgba(99,102,241,.08)',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.08)',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
   },
 ])
@@ -274,22 +274,22 @@ const kpiCards = computed(() => [
 const navCards = [
   {
     path: '/ombor/prixod', title: 'Kirim (Prixod)', desc: 'Tovar qabul qilish va tasdiqlash',
-    color: '#6366f1', bg: 'rgba(99,102,241,.1)',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.1)',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
   },
   {
     path: '/ombor/qoldiqlar', title: 'Qoldiqlar', desc: "Joriy zaxira holati",
-    color: '#6366f1', bg: 'rgba(99,102,241,.1)',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.1)',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
   },
   {
     path: '/ombor/partiya', title: 'Partiya qoldiqlari', desc: "Partiya bo'yicha tahlil",
-    color: '#6366f1', bg: 'rgba(99,102,241,.1)',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.1)',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
   },
   {
     path: '/yetkazuvchilar', title: 'Yetkazuvchilar', desc: "Ta'minotchilar va qarz holati",
-    color: '#6366f1', bg: 'rgba(99,102,241,.1)',
+    color: '#8b5cf6', bg: 'rgba(139,92,246,.1)',
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
   },
 ]
@@ -306,12 +306,12 @@ const navCards = [
 .od-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 10px; border: none; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all .15s; }
 .od-btn--ghost   { background: #f1f5f9; color: #334155; }
 .od-btn--ghost:hover { background: #e2e8f0; }
-.od-btn--primary { background: #6366f1; color: #fff; box-shadow: 0 2px 8px rgba(99,102,241,.3); }
-.od-btn--primary:hover { background: #4f46e5; }
+.od-btn--primary { background: #8b5cf6; color: #fff; box-shadow: 0 2px 8px rgba(139,92,246,.3); }
+.od-btn--primary:hover { background: #7c3aed; }
 
 /* Loading */
 .od-loading { display: flex; justify-content: center; padding: 80px; }
-.od-spinner { width: 32px; height: 32px; border: 3px solid #e2e8f0; border-top-color: #6366f1; border-radius: 50%; animation: od-spin .7s linear infinite; }
+.od-spinner { width: 32px; height: 32px; border: 3px solid #e2e8f0; border-top-color: #8b5cf6; border-radius: 50%; animation: od-spin .7s linear infinite; }
 @keyframes od-spin { to { transform: rotate(360deg); } }
 
 /* KPI Grid */
@@ -339,7 +339,7 @@ const navCards = [
   padding: 16px; display: flex; align-items: center; gap: 13px;
   cursor: pointer; transition: box-shadow .15s, transform .15s, border-color .15s;
 }
-.od-nav-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-2px); border-color: #c7d2fe; }
+.od-nav-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-2px); border-color: #ddd6fe; }
 .od-nav-ic { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .od-nav-ic :deep(svg) { width: 20px; height: 20px; }
 .od-nav-body { flex: 1; min-width: 0; }
@@ -357,14 +357,14 @@ const navCards = [
 .od-box-head-left { display: flex; align-items: center; gap: 8px; }
 .od-box-title { font-size: 14px; font-weight: 700; color: #1e293b; }
 .od-box-cnt   { font-size: 12px; color: #94a3b8; background: #f1f5f9; padding: 2px 8px; border-radius: 20px; }
-.od-link-btn  { display: flex; align-items: center; gap: 4px; background: none; border: none; color: #6366f1; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 7px; transition: background .13s; }
-.od-link-btn:hover { background: rgba(99,102,241,.08); }
+.od-link-btn  { display: flex; align-items: center; gap: 4px; background: none; border: none; color: #8b5cf6; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 7px; transition: background .13s; }
+.od-link-btn:hover { background: rgba(139,92,246,.08); }
 
 /* Chips */
 .od-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 .od-chip { padding: 4px 12px; border-radius: 20px; border: 1.5px solid #e2e8f0; background: #fff; font-size: 12px; font-weight: 500; color: #64748b; cursor: pointer; transition: all .13s; }
-.od-chip--on { border-color: #6366f1; background: #eef2ff; color: #6366f1; font-weight: 700; }
-.od-chip:hover:not(.od-chip--on) { border-color: #c7d2fe; color: #4f46e5; }
+.od-chip--on { border-color: #8b5cf6; background: #f5f3ff; color: #8b5cf6; font-weight: 700; }
+.od-chip:hover:not(.od-chip--on) { border-color: #ddd6fe; color: #7c3aed; }
 
 /* Qoldiqlar */
 .od-qoldiq-list { display: flex; flex-direction: column; gap: 11px; }
@@ -386,11 +386,11 @@ const navCards = [
 .od-top-rank { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; background: #f1f5f9; color: #64748b; }
 .od-top-rank.rk1 { background: #fef3c7; color: #d97706; }
 .od-top-rank.rk2 { background: #f1f5f9; color: #475569; }
-.od-top-rank.rk3 { background: #e0e7ff; color: #4f46e5; }
+.od-top-rank.rk3 { background: #ede9fe; color: #7c3aed; }
 .od-top-info { flex: 1; min-width: 0; }
 .od-top-name { font-size: 13px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .od-top-bar-wrap { height: 4px; background: #f1f5f9; border-radius: 99px; overflow: hidden; margin-top: 5px; }
-.od-top-bar { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #6366f1, #6366f1); transition: width .5s ease; }
+.od-top-bar { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #8b5cf6, #8b5cf6); transition: width .5s ease; }
 .od-top-right { text-align: right; flex-shrink: 0; }
 .od-top-sum  { font-size: 13px; font-weight: 700; color: #1e293b; }
 .od-top-dona { font-size: 11px; color: #94a3b8; }
@@ -399,7 +399,7 @@ const navCards = [
 .od-trend-bars { display: flex; align-items: flex-end; gap: 8px; height: 90px; }
 .od-trend-item { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; height: 100%; }
 .od-trend-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
-.od-trend-bar { width: 100%; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, #6366f1, #6366f1); min-height: 6px; transition: height .5s ease; }
+.od-trend-bar { width: 100%; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, #8b5cf6, #8b5cf6); min-height: 6px; transition: height .5s ease; }
 .od-trend-lbl { font-size: 10px; color: #94a3b8; white-space: nowrap; }
 .od-trend-val { font-size: 10px; font-weight: 700; color: #334155; white-space: nowrap; }
 

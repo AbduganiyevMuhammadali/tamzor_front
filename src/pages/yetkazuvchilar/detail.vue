@@ -480,26 +480,26 @@ onMounted(async () => {
 
 /* Buttons */
 .yd-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; }
-.yd-btn--pay { background: #4338ca; color: #fff; }
-.yd-btn--pay:hover { background: #3730a3; }
+.yd-btn--pay { background: #6d28d9; color: #fff; }
+.yd-btn--pay:hover { background: #5b21b6; }
 .yd-btn--edit { background: #f1f5f9; color: #334155; }
 .yd-btn--edit:hover { background: #e2e8f0; }
 .yd-btn--cancel { background: #f1f5f9; color: #334155; }
 .yd-btn--cancel:hover { background: #e2e8f0; }
-.yd-btn--save { background: #4338ca; color: #fff; min-width: 80px; justify-content: center; }
-.yd-btn--save:hover:not(:disabled) { background: #3730a3; }
+.yd-btn--save { background: #6d28d9; color: #fff; min-width: 80px; justify-content: center; }
+.yd-btn--save:hover:not(:disabled) { background: #5b21b6; }
 .yd-btn--save:disabled { opacity: .6; cursor: not-allowed; }
 
 /* Loading */
 .yd-loading { display: flex; justify-content: center; padding: 60px; }
-.yd-spinner { width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #4338ca; border-radius: 50%; animation: yd-spin .7s linear infinite; }
+.yd-spinner { width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #6d28d9; border-radius: 50%; animation: yd-spin .7s linear infinite; }
 .yd-spinner--sm { width: 16px; height: 16px; border-width: 2px; }
 @keyframes yd-spin { to { transform: rotate(360deg); } }
 
 /* Info Card */
 .yd-card { display: flex; align-items: flex-start; justify-content: space-between; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px 28px; margin-bottom: 16px; gap: 24px; }
 .yd-card-left { display: flex; align-items: flex-start; gap: 16px; }
-.yd-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4338ca, #4f46e5); color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.yd-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #6d28d9, #7c3aed); color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .yd-info { display: flex; flex-direction: column; gap: 6px; }
 .yd-name { font-size: 20px; font-weight: 700; color: #1e293b; margin: 0; }
 .yd-meta { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: #64748b; }
@@ -552,8 +552,8 @@ onMounted(async () => {
 .yd-chip--green { background: #f0fdf4; color: #22c55e; }
 .yd-ttur { font-size: 12px; background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 6px; }
 .yd-dash { color: #cbd5e1; }
-.yd-prixod-link { color: #4338ca; cursor: pointer; font-weight: 500; text-decoration: underline; font-size: 13px; }
-.yd-prixod-link:hover { color: #3730a3; }
+.yd-prixod-link { color: #6d28d9; cursor: pointer; font-weight: 500; text-decoration: underline; font-size: 13px; }
+.yd-prixod-link:hover { color: #5b21b6; }
 
 /* Pagination */
 .yd-pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px; border-top: 1px solid #f1f5f9; }
@@ -587,7 +587,7 @@ onMounted(async () => {
 .yd-form-group label { font-size: 13px; font-weight: 500; color: #334155; }
 .yd-req { color: #ef4444; }
 .yd-input { padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #fff; outline: none; transition: border-color .15s; width: 100%; box-sizing: border-box; }
-.yd-input:focus { border-color: #4338ca; }
+.yd-input:focus { border-color: #6d28d9; }
 .yd-textarea { resize: vertical; min-height: 60px; }
 .yd-hint { font-size: 12px; color: #f59e0b; }
 
@@ -595,8 +595,8 @@ onMounted(async () => {
 .yd-radio-group { display: flex; gap: 8px; }
 .yd-radio { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 13.5px; color: #334155; transition: all .15s; user-select: none; }
 .yd-radio input { display: none; }
-.yd-radio--active { border-color: #4338ca; background: #eef2ff; color: #4338ca; font-weight: 600; }
-.yd-radio:hover:not(.yd-radio--active) { border-color: #a5b4fc; }
+.yd-radio--active { border-color: #6d28d9; background: #f5f3ff; color: #6d28d9; font-weight: 600; }
+.yd-radio:hover:not(.yd-radio--active) { border-color: #c4b5fd; }
 
 @media (max-width: 640px) {
   .yd-card { flex-direction: column; }

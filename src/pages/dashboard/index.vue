@@ -1655,20 +1655,20 @@ onUnmounted(() => {
   /* Izoh matni: oq fonda 5.42, --surface-sunken ustida 4.95 */
   --ink-muted:      #5d6b7f;
 
-  --accent:         #4f46e5;   /*  6.29:1 — brend (indigo-600) */
-  --accent-2:       #4338ca;   /*  7.94:1 */
-  --accent-wash:    rgba(79,70,229,.08);
+  --accent:         #7c3aed;   /*  6.29:1 — brend (indigo-600) */
+  --accent-2:       #6d28d9;   /*  7.94:1 */
+  --accent-wash:    rgba(124,58,237,.08);
 
   /* Bezak ranglari — KPI kartalar urg'usi, avatarlar (ma'lumot kodlamaydi) */
-  --s1: #4f46e5;  --s2: #4338ca;  --s3: #6366f1;
-  --s4: #b45309;  --s5: #be123c;  --s6: #3730a3;
+  --s1: #7c3aed;  --s2: #6d28d9;  --s3: #8b5cf6;
+  --s4: #b45309;  --s5: #be123c;  --s6: #5b21b6;
 
   /* Kategoriyali palitra — brend tuslari; c2 (nasiya/qarz) ataylab sariq signal.
      Och tuslar doim yozuvli legenda bilan chiqadi. */
-  --c1: #4f46e5;  --c2: #d97706;  --c3: #818cf8;
-  --c4: #312e81;  --c5: #c7d2fe;  --c6: #94a3b8;
+  --c1: #7c3aed;  --c2: #d97706;  --c3: #a78bfa;
+  --c4: #4c1d95;  --c5: #ddd6fe;  --c6: #94a3b8;
   /* Tartibli (ordinal) brend shkalasi — buyurtma bosqichlari, och → to'q */
-  --o1: #a5b4fc;  --o2: #6366f1;  --o3: #4f46e5;  --o4: #312e81;
+  --o1: #c4b5fd;  --o2: #8b5cf6;  --o3: #7c3aed;  --o4: #4c1d95;
   --neutral-mark: #94a0b2;
 
   --good:     #047857;
@@ -1707,18 +1707,18 @@ onUnmounted(() => {
   --ink-secondary:  #a8b0c0;
   --ink-muted:      #8b93a7;
 
-  --accent:         #818cf8;
-  --accent-2:       #a5b4fc;
-  --accent-wash:    rgba(129,140,248,.14);
+  --accent:         #a78bfa;
+  --accent-2:       #c4b5fd;
+  --accent-wash:    rgba(167,139,250,.14);
 
-  --s1: #818cf8;  --s2: #a5b4fc;  --s3: #818cf8;
-  --s4: #fbbf24;  --s5: #fb7185;  --s6: #c7d2fe;
+  --s1: #a78bfa;  --s2: #c4b5fd;  --s3: #a78bfa;
+  --s4: #fbbf24;  --s5: #fb7185;  --s6: #ddd6fe;
 
   /* Xuddi shu ranglar qorong'i sirt uchun */
-  --c1: #818cf8;  --c2: #fbbf24;  --c3: #4f46e5;
-  --c4: #c7d2fe;  --c5: #3730a3;  --c6: #64748b;
+  --c1: #a78bfa;  --c2: #fbbf24;  --c3: #7c3aed;
+  --c4: #ddd6fe;  --c5: #5b21b6;  --c6: #64748b;
   /* Ordinal shkala qorong'ida teskari: oldinga siljigan bosqich yorqinroq */
-  --o1: #3730a3;  --o2: #4f46e5;  --o3: #818cf8;  --o4: #c7d2fe;
+  --o1: #5b21b6;  --o2: #7c3aed;  --o3: #a78bfa;  --o4: #ddd6fe;
   --neutral-mark: #5f6a7e;
 
   --good:     #34d399;
@@ -1769,15 +1769,15 @@ onUnmounted(() => {
 .db-hd-r { margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 
 /* Davr tanlagich: oq "tabletka" tanlangan tugma ostiga sirpanadi */
-.db-seg { position:relative; display:grid; grid-template-columns:repeat(4, 1fr); background:var(--surface-sunken);
-          border-radius:11px; padding:3px; border:1px solid var(--border); }
+.db-seg { position:relative; display:grid; grid-template-columns:repeat(4, 1fr); background:var(--seg-track);
+          border-radius:11px; padding:3px; border:1px solid var(--seg-brd); }
 .db-seg-pill { position:absolute; top:3px; bottom:3px; left:3px; width:calc((100% - 6px) / 4);
-               border-radius:8px; background:var(--surface); box-shadow:var(--shadow);
+               border-radius:8px; background:var(--seg-on-bg); box-shadow:var(--seg-on-sh);
                transform:translateX(calc(var(--i) * 100%)); transition:transform .35s var(--ease); }
 .db-seg-b { position:relative; z-index:1; padding:6px 14px; border:none; background:none; border-radius:8px;
-            font-size:12.5px; font-weight:600; color:var(--ink-muted); cursor:pointer; transition:color .2s; }
-.db-seg-b:hover { color:var(--ink-secondary); }
-.db-seg-b.on { color:var(--accent); }
+            font-size:12.5px; font-weight:600; color:var(--seg-ink); cursor:pointer; transition:color .2s; }
+.db-seg-b:hover { color:var(--seg-ink-h); }
+.db-seg-b.on { color:var(--seg-on-ink); }
 
 .db-ib { width:36px; height:36px; border-radius:11px; border:1px solid var(--border);
          background:var(--surface); color:var(--ink-secondary); cursor:pointer;
@@ -1821,8 +1821,8 @@ onUnmounted(() => {
 .db-hero { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:12px; }
 .db-hero-main { position:relative; overflow:hidden; isolation:isolate; border-radius:var(--r-lg);
                 padding:18px 22px 14px; color:#fff; display:flex; flex-direction:column; min-height:250px;
-                background:linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #3730a3 100%);
-                box-shadow:0 18px 40px -18px rgba(55,48,163,.6); }
+                background:linear-gradient(135deg, #2e1065 0%, #4c1d95 55%, #5b21b6 100%);
+                box-shadow:0 18px 40px -18px rgba(91,33,182,.6); }
 /* Nozik nuqtali to'r */
 .db-hero-main::before { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
   background-image:radial-gradient(rgba(255,255,255,.13) 1px, transparent 1.2px); background-size:18px 18px;
@@ -1830,11 +1830,11 @@ onUnmounted(() => {
 /* Harakatlanuvchi yumshoq dog'lar */
 .db-hero-bg { position:absolute; inset:0; z-index:-2; pointer-events:none; }
 .db-hero-bg i { position:absolute; border-radius:50%; filter:blur(46px); }
-.db-hero-bg i:nth-child(1) { width:300px; height:300px; right:-80px; bottom:-150px; background:#6366f1; opacity:.45;
+.db-hero-bg i:nth-child(1) { width:300px; height:300px; right:-80px; bottom:-150px; background:#8b5cf6; opacity:.45;
                              animation:db-blob-a 16s ease-in-out infinite alternate; }
-.db-hero-bg i:nth-child(2) { width:220px; height:220px; left:35%; bottom:-140px; background:#818cf8; opacity:.28;
+.db-hero-bg i:nth-child(2) { width:220px; height:220px; left:35%; bottom:-140px; background:#a78bfa; opacity:.28;
                              animation:db-blob-b 20s ease-in-out infinite alternate; }
-.db-hero-bg i:nth-child(3) { width:180px; height:180px; left:-70px; top:-90px; background:#a5b4fc; opacity:.16;
+.db-hero-bg i:nth-child(3) { width:180px; height:180px; left:-70px; top:-90px; background:#c4b5fd; opacity:.16;
                              animation:db-blob-c 18s ease-in-out infinite alternate; }
 @keyframes db-blob-a { to { transform:translate(-70px,-40px) scale(1.15) } }
 @keyframes db-blob-b { to { transform:translate(60px,-30px) scale(.9) } }
@@ -1857,7 +1857,7 @@ onUnmounted(() => {
 .db-hero-cmp { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:6px;
                font-size:11.5px; color:rgba(255,255,255,.88); }
 .db-hero-pill { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:20px;
-                font-weight:800; font-variant-numeric:tabular-nums; background:#fff; color:#312e81; }
+                font-weight:800; font-variant-numeric:tabular-nums; background:#fff; color:#4c1d95; }
 .db-hero-pill svg { width:11px; height:11px; }
 
 .db-hero-chart { position:relative; margin-top:auto; padding-top:12px; }

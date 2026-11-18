@@ -18,8 +18,8 @@ const stats = [
     change: "+12.5%",
     positive: true,
     desc: "o'tgan oyga nisbatan",
-    color: "#6366f1",
-    bg: "rgba(99,102,241,0.08)",
+    color: "#8b5cf6",
+    bg: "rgba(139,92,246,0.08)",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
     </svg>`
@@ -161,9 +161,9 @@ const statusClass: Record<string, string> = {
             <p class="card-sub">Oylik savdo tahlili</p>
           </div>
           <div class="chart-legend">
-            <span class="legend-dot" style="background:#6366f1"></span>
+            <span class="legend-dot" style="background:#8b5cf6"></span>
             <span class="legend-label">Store Shox</span>
-            <span class="legend-dot" style="background:#818cf8"></span>
+            <span class="legend-dot" style="background:#a78bfa"></span>
             <span class="legend-label">Magazine1</span>
           </div>
         </div>
@@ -314,7 +314,7 @@ const statusClass: Record<string, string> = {
   transition: all 0.2s;
 }
 .period-btn.active {
-  background: #6366f1;
+  background: #8b5cf6;
   color: #fff;
 }
 .period-btn:hover:not(.active) {
@@ -474,8 +474,8 @@ const statusClass: Record<string, string> = {
   cursor: pointer;
 }
 .bar:hover .bar-tooltip { opacity: 1; transform: translateY(-4px); }
-.bar1 { background: linear-gradient(180deg, #6366f1, #818cf8); }
-.bar2 { background: linear-gradient(180deg, #818cf8, #a5b4fc); }
+.bar1 { background: linear-gradient(180deg, #8b5cf6, #a78bfa); }
+.bar2 { background: linear-gradient(180deg, #a78bfa, #c4b5fd); }
 .bar-tooltip {
   position: absolute;
   top: -26px;
@@ -509,11 +509,11 @@ const statusClass: Record<string, string> = {
 }
 .product-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #6366f1, #6366f1);
+  background: linear-gradient(90deg, #8b5cf6, #8b5cf6);
   border-radius: 4px;
   transition: width 0.8s ease;
 }
-.product-percent { font-size: 11px; font-weight: 600; color: #6366f1; width: 28px; text-align: right; }
+.product-percent { font-size: 11px; font-weight: 600; color: #8b5cf6; width: 28px; text-align: right; }
 
 /* ── Quick actions ── */
 .quick-actions { display: flex; gap: 10px; }
@@ -534,9 +534,9 @@ const statusClass: Record<string, string> = {
   transition: all 0.2s;
 }
 .quick-btn:hover {
-  background: #6366f1;
+  background: #8b5cf6;
   color: #fff;
-  border-color: #6366f1;
+  border-color: #8b5cf6;
 }
 .quick-btn svg { width: 16px; height: 16px; }
 
@@ -547,14 +547,14 @@ const statusClass: Record<string, string> = {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #fff;
-  color: #6366f1;
+  color: #8b5cf6;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
-.view-all-btn:hover { background: #6366f1; color: #fff; border-color: #6366f1; }
+.view-all-btn:hover { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
 .table-wrap { overflow-x: auto; }
 .orders-table {
   width: 100%;
@@ -579,7 +579,7 @@ const statusClass: Record<string, string> = {
 }
 .orders-table tbody tr:hover { background: #fafbfc; }
 .orders-table tbody tr:last-child td { border-bottom: none; }
-.order-id { font-family: monospace; font-weight: 700; color: #6366f1; }
+.order-id { font-family: monospace; font-weight: 700; color: #8b5cf6; }
 .product-cell { color: #0f172a; font-weight: 500; }
 .amount-cell { font-weight: 700; color: #0f172a; white-space: nowrap; }
 .date-cell { color: #94a3b8; white-space: nowrap; }
@@ -593,7 +593,7 @@ const statusClass: Record<string, string> = {
 }
 .badge-delivered { background: rgba(16,185,129,0.1); color: #059669; }
 .badge-pending { background: rgba(245,158,11,0.1); color: #d97706; }
-.badge-processing { background: rgba(99,102,241,0.1); color: #6366f1; }
+.badge-processing { background: rgba(139,92,246,0.1); color: #8b5cf6; }
 .badge-cancelled { background: rgba(239,68,68,0.1); color: #dc2626; }
 
 /* ── Responsive ── */

@@ -125,7 +125,7 @@
           <div class="hp-map-legend">
             <span><i style="background:#10b981"/>A — boshlanish · savdo</span>
             <span><i style="background:#ef4444"/>B — tugash · sotilmadi</span>
-            <span><i style="background:#6366f1"/>Bosib o'tilgan yo'l</span>
+            <span><i style="background:#8b5cf6"/>Bosib o'tilgan yo'l</span>
           </div>
         </div>
       </template>
@@ -270,8 +270,8 @@ async function renderMap() {
       : pts.map(p => [p.lat, p.lng])
 
     // Taksi-uslub: ostida to'q "casing", ustida asosiy chiziq
-    L.polyline(latlngs, { color: '#312e81', weight: 8, opacity: .85 }).addTo(leafletMap)
-    L.polyline(latlngs, { color: '#6366f1', weight: 4.5, opacity: 1 }).addTo(leafletMap)
+    L.polyline(latlngs, { color: '#4c1d95', weight: 8, opacity: .85 }).addTo(leafletMap)
+    L.polyline(latlngs, { color: '#8b5cf6', weight: 4.5, opacity: 1 }).addTo(leafletMap)
     bounds.push(...latlngs)
 
     pts.forEach((p, i) => {
@@ -288,7 +288,7 @@ async function renderMap() {
           .bindTooltip(tooltipHtml, { direction: 'top' })
       } else {
         L.circleMarker([p.lat, p.lng], {
-          radius: 4.5, color: '#fff', weight: 2, fillColor: '#6366f1', fillOpacity: 1,
+          radius: 4.5, color: '#fff', weight: 2, fillColor: '#8b5cf6', fillOpacity: 1,
         }).addTo(leafletMap)
           .bindTooltip(tooltipHtml, { direction: 'top', offset: [0, -6] })
       }
@@ -349,12 +349,13 @@ onMounted(async () => {
 .hp-sub { font-size:13px; color:#94a3b8; margin:0; }
 .hp-filters { display:flex; gap:8px; flex-wrap:wrap; }
 .hp-select, .hp-date { border:1.5px solid #e2e8f0; background:#fff; border-radius:10px; padding:8px 12px; font-size:13px; color:#1e293b; cursor:pointer; }
-.hp-select:focus, .hp-date:focus { outline:none; border-color:#6366f1; }
+.hp-select:focus, .hp-date:focus { outline:none; border-color:#8b5cf6; }
 
 /* Tabs */
-.hp-tabs { display:flex; gap:4px; background:#f1f5f9; border-radius:12px; padding:4px; width:fit-content; max-width:100%; overflow-x:auto; }
-.hp-tab { padding:8px 16px; border:none; background:transparent; border-radius:9px; font-size:13.5px; font-weight:600; color:#64748b; cursor:pointer; white-space:nowrap; transition:.15s; }
-.hp-tab--on { background:#fff; color:#6366f1; box-shadow:0 2px 6px rgba(0,0,0,.08); }
+.hp-tabs { display:flex; gap:2px; background:var(--seg-track); box-shadow:inset 0 0 0 1px var(--seg-brd); border-radius:12px; padding:3px; width:fit-content; max-width:100%; overflow-x:auto; }
+.hp-tab { padding:8px 16px; border:none; background:transparent; border-radius:9px; font-size:13.5px; font-weight:600; color:var(--seg-ink); cursor:pointer; white-space:nowrap; transition:.15s; }
+.hp-tab:hover:not(.hp-tab--on) { color:var(--seg-ink-h); }
+.hp-tab--on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); }
 
 .hp-panel { min-height:200px; }
 .hp-empty { text-align:center; padding:60px 20px; color:#94a3b8; font-size:14px; background:#fff; border:1.5px solid #e8ecf8; border-radius:16px; }
@@ -381,7 +382,7 @@ onMounted(async () => {
 .hp-audit-cell--bad b { color:#ef4444; }
 .hp-audit-goods { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
 .hp-goods-lbl { font-size:12px; color:#94a3b8; }
-.hp-goods-chip { font-size:11.5px; background:#eef2ff; color:#6366f1; border-radius:6px; padding:2px 7px; }
+.hp-goods-chip { font-size:11.5px; background:#f5f3ff; color:#8b5cf6; border-radius:6px; padding:2px 7px; }
 .hp-audit-notes { font-size:12.5px; color:#475569; display:flex; flex-direction:column; gap:3px; }
 .hp-audit-notes b { color:#1e293b; }
 .hp-card-ft { display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; color:#94a3b8; border-top:1px solid #f1f5f9; padding-top:9px; }
@@ -398,15 +399,15 @@ onMounted(async () => {
 /* Agent savdo */
 .hp-savdo-list { display:flex; flex-direction:column; gap:12px; }
 .hp-savdo-item { display:flex; align-items:flex-start; gap:12px; background:#fff; border:1.5px solid #e8ecf8; border-radius:14px; padding:14px 16px; }
-.hp-savdo-rank { width:28px; height:28px; border-radius:9px; background:#eef2ff; color:#6366f1; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.hp-savdo-rank { width:28px; height:28px; border-radius:9px; background:#f5f3ff; color:#8b5cf6; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .hp-savdo-body { flex:1; min-width:0; }
 .hp-savdo-top { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:7px; }
 .hp-savdo-name { font-size:14px; font-weight:700; color:#1e293b; }
 .hp-savdo-sum { font-size:13.5px; font-weight:800; color:#475569; }
 .hp-savdo-bar { height:8px; border-radius:999px; background:#f1f5f9; overflow:hidden; }
-.hp-savdo-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#6366f1,#6366f1); transition:width .5s; min-width:2px; }
+.hp-savdo-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#8b5cf6,#8b5cf6); transition:width .5s; min-width:2px; }
 .hp-savdo-meta { display:flex; justify-content:space-between; gap:8px; margin-top:6px; font-size:12px; color:#94a3b8; }
-.hp-savdo-foiz { font-weight:700; color:#6366f1; }
+.hp-savdo-foiz { font-weight:700; color:#8b5cf6; }
 
 /* Marshrut */
 .hp-marshrut-note { text-align:center; padding:50px 20px; color:#64748b; font-size:14px; background:#fff; border:1.5px solid #e8ecf8; border-radius:16px; }
@@ -436,7 +437,7 @@ onMounted(async () => {
 /* Audit rasmlari */
 .hp-audit-photos { display:flex; flex-wrap:wrap; gap:7px; }
 .hp-photo-thumb { width:64px; height:64px; object-fit:cover; border-radius:9px; border:1.5px solid #e8ecf8; cursor:pointer; transition:.15s; }
-.hp-photo-thumb:hover { transform:scale(1.05); border-color:#6366f1; }
+.hp-photo-thumb:hover { transform:scale(1.05); border-color:#8b5cf6; }
 
 /* Lightbox */
 .hp-lightbox { position:fixed; inset:0; background:rgba(15,23,42,.85); z-index:1000; display:flex; align-items:center; justify-content:center; padding:24px; cursor:zoom-out; }

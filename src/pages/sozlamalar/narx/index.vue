@@ -14,7 +14,7 @@ interface Ruyxat { id: number; nomi: string; tur: 'optom' | 'chakana' | 'maxsus'
 interface Tovar { tovar_id: number; tovar_nomi: string; turkum: string; narx: number; eski_chakana: number; eski_optom: number }
 
 const TUR_NOMI: Record<string, string> = { optom: 'Optom', chakana: 'Chakana', maxsus: 'Maxsus' }
-const TUR_RANG: Record<string, string> = { optom: '#4f46e5', chakana: '#059669', maxsus: '#d97706' }
+const TUR_RANG: Record<string, string> = { optom: '#7c3aed', chakana: '#059669', maxsus: '#d97706' }
 
 const ruyxatlar = ref<Ruyxat[]>([])
 const yuklanmoqda = ref(false)
@@ -291,15 +291,15 @@ onMounted(yukla)
 .np-side, .np-main { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; }
 .np-search { margin-bottom:10px; }
 .np-card { width:100%; text-align:left; display:flex; flex-direction:column; gap:6px; padding:12px; margin-bottom:8px; border:1.5px solid #e2e8f0; border-radius:12px; background:#fff; cursor:pointer; transition:border-color .15s, background .15s; }
-.np-card:hover { border-color:#c7d2fe; }
-.np-card--on { border-color:#6366f1; background:#eef2ff; }
+.np-card:hover { border-color:#ddd6fe; }
+.np-card--on { border-color:#8b5cf6; background:#f5f3ff; }
 .np-card--off { opacity:.55; }
 .np-card-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .np-name { font-weight:700; font-size:14px; }
 .np-card-meta { display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12px; color:#64748b; }
 .np-tur { display:inline-block; padding:2px 9px; border-radius:999px; font-size:11.5px; font-weight:700; }
 .np-badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; }
-.np-badge--std { background:#eef2ff; color:#4f46e5; }
+.np-badge--std { background:#f5f3ff; color:#7c3aed; }
 .np-off { color:#dc2626; font-weight:600; }
 .np-detal-hd { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
 .np-detal-title { font-size:17px; font-weight:800; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -307,14 +307,14 @@ onMounted(yukla)
 .np-tool { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0; border-top:1px solid #f1f5f9; border-bottom:1px solid #f1f5f9; margin-bottom:8px; }
 .np-count { font-size:12.5px; color:#64748b; margin-right:auto; }
 .np-in { height:36px; padding:0 10px; border:1.5px solid #e2e8f0; border-radius:9px; font-size:13.5px; background:#fff; color:#0f172a; min-width:0; }
-.np-in:focus { outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+.np-in:focus { outline:none; border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.15); }
 .np-in--grow { flex:1; min-width:180px; }
 .np-in--num { width:130px; text-align:right; font-variant-numeric:tabular-nums; }
 .np-btn { height:36px; padding:0 14px; border-radius:9px; border:1.5px solid #e2e8f0; background:#fff; color:#334155; font-size:13px; font-weight:600; cursor:pointer; }
-.np-btn:hover:not(:disabled) { border-color:#c7d2fe; color:#4338ca; }
+.np-btn:hover:not(:disabled) { border-color:#ddd6fe; color:#6d28d9; }
 .np-btn:disabled { opacity:.45; cursor:default; }
-.np-btn--primary { background:#4f46e5; border-color:#4f46e5; color:#fff; }
-.np-btn--primary:hover:not(:disabled) { background:#4338ca; color:#fff; }
+.np-btn--primary { background:#7c3aed; border-color:#7c3aed; color:#fff; }
+.np-btn--primary:hover:not(:disabled) { background:#6d28d9; color:#fff; }
 .np-btn--danger { color:#dc2626; }
 .np-tbl-wrap { overflow-x:auto; }
 .np-tbl { width:100%; border-collapse:collapse; font-size:13.5px; }

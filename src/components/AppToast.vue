@@ -100,7 +100,7 @@ const { toasts, remove } = useToast()
 .toast--success { border-color: #bbf7d0; background: #f0fdf4; }
 .toast--error   { border-color: #fecaca; background: #fef2f2; }
 .toast--warning { border-color: #fde68a; background: #fffbeb; }
-.toast--info    { border-color: #c7d2fe; background: #eef2ff; }
+.toast--info    { border-color: #ddd6fe; background: #f5f3ff; }
 
 /* Icon */
 .toast-icon {
@@ -116,7 +116,7 @@ const { toasts, remove } = useToast()
 .toast--success .toast-icon { background: rgba(16,185,129,.15); color: #10b981; }
 .toast--error   .toast-icon { background: rgba(239,68,68,.12);  color: #ef4444; }
 .toast--warning .toast-icon { background: rgba(245,158,11,.15); color: #f59e0b; }
-.toast--info    .toast-icon { background: rgba(79,70,229,.12); color: #4f46e5; }
+.toast--info    .toast-icon { background: rgba(124,58,237,.12); color: #7c3aed; }
 
 /* Body */
 .toast-body { flex: 1; min-width: 0; }
@@ -128,7 +128,7 @@ const { toasts, remove } = useToast()
 .toast--success .toast-title { color: #15803d; }
 .toast--error   .toast-title { color: #dc2626; }
 .toast--warning .toast-title { color: #92400e; }
-.toast--info    .toast-title { color: #3730a3; }
+.toast--info    .toast-title { color: #5b21b6; }
 
 .toast-msg {
   font-size: 12.5px;
@@ -139,7 +139,7 @@ const { toasts, remove } = useToast()
 .toast--success .toast-msg { color: #166534; }
 .toast--error   .toast-msg { color: #991b1b; }
 .toast--warning .toast-msg { color: #78350f; }
-.toast--info    .toast-msg { color: #312e81; }
+.toast--info    .toast-msg { color: #4c1d95; }
 
 /* Close */
 .toast-close {
@@ -180,7 +180,7 @@ const { toasts, remove } = useToast()
 .toast--success .toast-progress-fill { background: #10b981; }
 .toast--error   .toast-progress-fill { background: #ef4444; }
 .toast--warning .toast-progress-fill { background: #f59e0b; }
-.toast--info    .toast-progress-fill { background: #4f46e5; }
+.toast--info    .toast-progress-fill { background: #7c3aed; }
 
 @keyframes toast-progress {
   from { width: 100%; }

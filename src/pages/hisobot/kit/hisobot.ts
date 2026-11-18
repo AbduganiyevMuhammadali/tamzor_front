@@ -146,10 +146,10 @@ export const IKON = {
 
 /* Seriya ranglari — bitta brend (indigo) + ma'no bildiruvchi yashil/sariq/qizil */
 export const RANG = {
-  brand: '#4f46e5', brand2: '#818cf8', brand3: '#c7d2fe', brandTo: '#312e81',
+  brand: '#7c3aed', brand2: '#a78bfa', brand3: '#ddd6fe', brandTo: '#4c1d95',
   ok: '#059669', warn: '#d97706', err: '#dc2626', neytral: '#94a3b8',
 }
-export const RAMPA = ['#4f46e5', '#818cf8', '#3730a3', '#a5b4fc', '#6366f1', '#c7d2fe', '#312e81', '#94a3b8']
+export const RAMPA = ['#7c3aed', '#a78bfa', '#5b21b6', '#c4b5fd', '#8b5cf6', '#ddd6fe', '#4c1d95', '#94a3b8']
 
 /** Hisobot ma'lumotini davr (va qo'shimcha filtrlar) o'zgarganda qayta yuklash.
    Eski so'rov kechikib kelsa — yangisining ustiga yozilmaydi. */

@@ -163,7 +163,7 @@ import { fonQatlam } from '@/utils/xarita'
 import BoshHolat from '@/components/BoshHolat.vue'
 
 const KUNLAR = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh']
-const COLORS = ['#4f46e5','#059669','#d97706','#e11d48','#475569','#818cf8','#047857','#b45309']
+const COLORS = ['#7c3aed','#059669','#d97706','#e11d48','#475569','#a78bfa','#047857','#b45309']
 const agentRang = (id) => COLORS[id % COLORS.length]
 
 const loading  = ref(false)
@@ -317,7 +317,7 @@ onBeforeUnmount(() => { if (map) { map.remove(); map = null } })
 
 .xm-filters { display:flex; flex-wrap:wrap; gap:8px; padding:12px 20px; background:#fff; border-bottom:1px solid #e2e8f0; flex-shrink:0; }
 .xm-sel { flex:1; min-width:150px; max-width:220px; padding:8px 11px; border:1px solid #e2e8f0; border-radius:8px; font-size:12.5px; color:#334155; background:#fff; cursor:pointer; outline:none; }
-.xm-sel:focus { border-color:#6366f1; }
+.xm-sel:focus { border-color:#8b5cf6; }
 .xm-btn-filter { display:flex; align-items:center; gap:6px; padding:8px 22px; border:none; border-radius:8px; background:#10b981; color:#fff; font-size:12.5px; font-weight:700; cursor:pointer; }
 .xm-btn-filter:hover { background:#059669; }
 .xm-btn-clear { display:flex; align-items:center; gap:6px; padding:8px 16px; border:1px solid #e2e8f0; border-radius:8px; background:#fff; color:#475569; font-size:12.5px; font-weight:600; cursor:pointer; }
@@ -337,7 +337,7 @@ onBeforeUnmount(() => { if (map) { map.remove(); map = null } })
 
 .xm-arow { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; transition:.12s; }
 .xm-arow:hover { background:#f8fafc; }
-.xm-arow.on { background:#eef2ff; }
+.xm-arow.on { background:#f5f3ff; }
 .xm-adot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .xm-aname { flex:1; font-size:12.5px; font-weight:600; color:#334155; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .xm-aqam { font-size:11.5px; font-weight:800; color:#64748b; }
@@ -364,7 +364,7 @@ onBeforeUnmount(() => { if (map) { map.remove(); map = null } })
 .xm-map-ov { position:absolute; inset:0; z-index:500; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; background:rgba(248,250,252,.92); color:#94a3b8; font-size:13px; }
 
 .xm-empty-sm { padding:14px; text-align:center; font-size:12px; color:#94a3b8; }
-.xm-spin { display:inline-block; width:20px; height:20px; border:2.5px solid rgba(0,0,0,.08); border-top-color:#6366f1; border-radius:50%; animation:xm-rot .7s linear infinite; }
+.xm-spin { display:inline-block; width:20px; height:20px; border:2.5px solid rgba(0,0,0,.08); border-top-color:#8b5cf6; border-radius:50%; animation:xm-rot .7s linear infinite; }
 .xm-spin--sm { width:12px; height:12px; border-width:2px; border-color:rgba(255,255,255,.35); border-top-color:#fff; }
 @keyframes xm-rot { to { transform:rotate(360deg) } }
 

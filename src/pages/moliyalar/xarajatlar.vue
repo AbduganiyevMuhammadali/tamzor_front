@@ -443,12 +443,13 @@ onMounted(() => { turlarYukla(); yukla() })
 .xr-btn:disabled { opacity:.5; cursor:not-allowed; }
 .xr-btn.sm { height:32px; padding:0 11px; font-size:12px; }
 .xr-btn--p { background:var(--acc); border-color:var(--acc); color:#fff; }
-.xr-btn--p:hover:not(:disabled) { background:var(--brand-700, #4338ca); }
+.xr-btn--p:hover:not(:disabled) { background:var(--brand-700, #6d28d9); }
 
 .xr-davr { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-.xr-preset { display:flex; gap:4px; background:var(--surface); border:1px solid var(--line); border-radius:11px; padding:3px; }
-.xr-preset button { border:none; background:none; padding:6px 13px; border-radius:8px; font-size:12.5px; font-weight:700; color:var(--mut); cursor:pointer; }
-.xr-preset button.on { background:var(--acc); color:#fff; }
+.xr-preset { display:flex; gap:2px; background:var(--seg-track); border:1px solid var(--seg-brd); border-radius:11px; padding:3px; }
+.xr-preset button { border:none; background:none; padding:6px 13px; border-radius:8px; font-size:12.5px; font-weight:600; color:var(--seg-ink); cursor:pointer; transition:color .15s; }
+.xr-preset button:hover:not(.on) { color:var(--seg-ink-h); }
+.xr-preset button.on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); }
 .xr-sana { display:flex; align-items:center; gap:6px; color:var(--sub); }
 .xr-sana input { height:34px; padding:0 9px; border:1.5px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); font-size:12.5px; }
 .xr-ar { width:30px; height:30px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink2); font-size:18px; line-height:1; cursor:pointer; }
@@ -561,10 +562,10 @@ onMounted(() => { turlarYukla(); yukla() })
 .xr-tezsum button { height:28px; padding:0 10px; border-radius:14px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink2); font-size:12px; font-weight:700; cursor:pointer; }
 .xr-tezsum button:hover { border-color:var(--acc); color:var(--acc); }
 .xr-tezsum button.tozala { color:var(--sub); border-style:dashed; }
-.xr-seg { display:flex; border:1.5px solid var(--line); border-radius:9px; overflow:hidden; height:40px; }
-.xr-seg button { flex:1; border:none; background:var(--surface); color:var(--mut); font-size:12.5px; font-weight:700; cursor:pointer; }
-.xr-seg button + button { border-left:1px solid var(--line); }
-.xr-seg button.on { background:var(--acc); color:#fff; }
+.xr-seg { display:flex; gap:2px; padding:3px; background:var(--seg-track); border:1px solid var(--seg-brd); border-radius:10px; height:40px; }
+.xr-seg button { flex:1; border:none; border-radius:7px; background:transparent; color:var(--seg-ink); font-size:12.5px; font-weight:600; cursor:pointer; transition:color .15s; }
+.xr-seg button:hover:not(.on) { color:var(--seg-ink-h); }
+.xr-seg button.on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); }
 .xr-rasm { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .xr-rasm img { width:56px; height:56px; object-fit:cover; border-radius:9px; border:1px solid var(--line); }
 .xr-prev { padding:10px 14px; border-radius:11px; font-size:12.5px; background:rgba(239,68,68,.07); color:var(--ink2); line-height:1.5; }

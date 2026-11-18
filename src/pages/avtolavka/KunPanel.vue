@@ -17,7 +17,7 @@ const emit = defineEmits<{ (e: 'yop'): void; (e: 'ozgardi'): void }>()
 
 const BOSQICH = [
   { nom: 'Yuklash kutilmoqda', rang: '#94a3b8' },
-  { nom: 'Savdoda', rang: '#4f46e5' },
+  { nom: 'Savdoda', rang: '#7c3aed' },
   { nom: 'Topshirmoqda', rang: '#d97706' },
   { nom: 'Kun yopildi', rang: '#059669' },
 ]
@@ -271,8 +271,8 @@ const pulOqim = computed(() => {
 
 /* ── Kun hikoyasi ── */
 const VOQEA_RANG: Record<string, string> = {
-  yuklash: 'var(--ink2)', sotuv: '#059669', sotmaslik: '#94a3b8', mijozda: '#4f46e5', tolov: '#d97706', qabul: 'var(--ink2)', kassa: 'var(--ink2)',
-  sorov: '#4f46e5', agent_qabul: '#059669', kun_yopish: '#d97706', kun_ochildi: '#4f46e5',
+  yuklash: 'var(--ink2)', sotuv: '#059669', sotmaslik: '#94a3b8', mijozda: '#7c3aed', tolov: '#d97706', qabul: 'var(--ink2)', kassa: 'var(--ink2)',
+  sorov: '#7c3aed', agent_qabul: '#059669', kun_yopish: '#d97706', kun_ochildi: '#7c3aed',
 }
 const SOROV_HOLAT: Record<string, string> = { qoralama: 'omborchida', tasdiqlangan: 'tasdiqlandi', bekor: 'bekor' }
 function voqeaMatn(v: any) {
@@ -656,7 +656,7 @@ onMounted(yangila)
 .kp-cap { font-size:12px; color:var(--mut); }
 .kp-name { font-size:20px; font-weight:600; letter-spacing:-.015em; margin:10px 0 2px; }
 .kp-date { font-size:13px; color:var(--mut); }
-.kp-hl { color:var(--acc, #4f46e5); font-weight:600; text-decoration:none; }
+.kp-hl { color:var(--acc, #7c3aed); font-weight:600; text-decoration:none; }
 .kp-hl:hover { text-decoration:underline; }
 .kp-x { width:32px; height:32px; flex-shrink:0; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--mut); cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .kp-x:hover { background:var(--hov); color:var(--ink); }
@@ -719,10 +719,10 @@ onMounted(yangila)
 .kp-ghost:hover { background:var(--hov); }
 .kp-ghost--rad { color:#dc2626; }
 .kp-ghost--rad:hover:not(:disabled) { background:color-mix(in srgb, #dc2626 8%, transparent); border-color:color-mix(in srgb, #dc2626 35%, var(--line)); }
-.kp-act--sorov { border-color:color-mix(in srgb, #4f46e5 40%, var(--line)); background:linear-gradient(180deg, color-mix(in srgb, #4f46e5 7%, var(--surface)), var(--surface) 120px); }
-.kp-act--sorov .kp-act-k { color:#4f46e5; }
-.kp-act--sorov .kp-act-ic { background:color-mix(in srgb, #4f46e5 12%, transparent); }
-.kp-go { height:38px; padding:0 16px; border:1px solid var(--brand); border-radius:9px; background:var(--brand); color:#fff; box-shadow:0 4px 12px -4px rgba(79,70,229,.5); font-family:inherit; font-weight:500; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background .12s; }
+.kp-act--sorov { border-color:color-mix(in srgb, #7c3aed 40%, var(--line)); background:linear-gradient(180deg, color-mix(in srgb, #7c3aed 7%, var(--surface)), var(--surface) 120px); }
+.kp-act--sorov .kp-act-k { color:#7c3aed; }
+.kp-act--sorov .kp-act-ic { background:color-mix(in srgb, #7c3aed 12%, transparent); }
+.kp-go { height:38px; padding:0 16px; border:1px solid var(--brand); border-radius:9px; background:var(--brand); color:#fff; box-shadow:0 4px 12px -4px rgba(124,58,237,.5); font-family:inherit; font-weight:500; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background .12s; }
 .kp-go:hover:not(:disabled) { background:var(--brand-hover); }
 .kp-go:disabled { opacity:.45; cursor:not-allowed; }
 .kp-go--w { width:100%; }
@@ -787,9 +787,9 @@ onMounted(yangila)
 
 /* tablar va kun hikoyasi */
 .kp-tabs { display:flex; gap:4px; border-bottom:1px solid var(--line); }
-.kp-tabs button { border:none; background:none; padding:9px 10px; font-family:inherit; font-weight:500; font-size:13px; color:var(--mut); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
-.kp-tabs button:hover { color:var(--ink); }
-.kp-tabs button.on { color:var(--acc); border-bottom-color:var(--acc); }
+.kp-tabs button { border:none; background:none; padding:9px 10px; font-family:inherit; font-weight:500; font-size:13px; color:var(--seg-ink); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .15s; }
+.kp-tabs button:hover { color:var(--seg-ink-h); }
+.kp-tabs button.on { color:var(--tab-on-ink); border-bottom-color:var(--tab-line); font-weight:600; }
 .kp-tabs i { font-style:normal; font-size:11.5px; color:var(--sub); margin-left:4px; font-variant-numeric:tabular-nums; }
 .kp-story { list-style:none; margin:0; padding:0; position:relative; }
 .kp-story::before { content:''; position:absolute; left:63px; top:12px; bottom:12px; width:1px; background:var(--line); }

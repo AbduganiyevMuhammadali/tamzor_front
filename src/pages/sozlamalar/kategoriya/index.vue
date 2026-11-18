@@ -37,7 +37,7 @@ const tanlangan     = ref<Set<number>>(new Set())
 const ochirish = ref<Turkum | null>(null)
 const kochirId = ref<number | ''>('')
 
-const RANGLAR = ['#4f46e5', '#6366f1', '#4338ca', '#3730a3', '#818cf8', '#312e81']
+const RANGLAR = ['#7c3aed', '#8b5cf6', '#6d28d9', '#5b21b6', '#a78bfa', '#4c1d95']
 const rang = (id: number) => RANGLAR[id % RANGLAR.length]
 
 const filtered = computed(() => {
@@ -371,11 +371,11 @@ onMounted(load)
 .tk-page { display:flex; flex-direction:column; gap:14px; }
 .tk-hd { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .tk-hd-left { display:flex; align-items:center; gap:12px; }
-.tk-hd-ic { width:40px; height:40px; border-radius:11px; background:rgba(99,102,241,.12); color:#6366f1; display:flex; align-items:center; justify-content:center; }
+.tk-hd-ic { width:40px; height:40px; border-radius:11px; background:rgba(139,92,246,.12); color:#8b5cf6; display:flex; align-items:center; justify-content:center; }
 .tk-title { margin:0; font-size:17px; font-weight:700; color:var(--ink,#0f172a); }
 .tk-sub { margin:2px 0 0; font-size:12px; color:var(--mut,#64748b); }
-.tk-add-btn { display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border:none; border-radius:10px; background:#4f46e5; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
-.tk-add-btn:hover { background:#4338ca; }
+.tk-add-btn { display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border:none; border-radius:10px; background:#7c3aed; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+.tk-add-btn:hover { background:#6d28d9; }
 .tk-add-btn--sm { padding:7px 12px; font-size:12.5px; margin-top:10px; }
 .tk-add-btn--full { width:100%; justify-content:center; margin-top:10px; }
 
@@ -385,7 +385,7 @@ onMounted(load)
 .tk-search-in { flex:1; border:none; background:transparent; outline:none; font-size:13px; color:var(--ink,#0f172a); }
 .tk-chk { display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--mut,#64748b); cursor:pointer; }
 .tk-count { margin-left:auto; font-size:12.5px; color:var(--mut,#64748b); }
-.tk-count b { color:#4f46e5; }
+.tk-count b { color:#7c3aed; }
 
 .tk-body { display:grid; grid-template-columns:1fr; gap:14px; align-items:start; }
 .tk-body--panel { grid-template-columns:1fr 340px; }
@@ -397,14 +397,14 @@ onMounted(load)
 .tk-table td { padding:9px 12px; border-bottom:1px solid var(--line,#f1f5f9); color:var(--ink,#0f172a); vertical-align:middle; }
 .tk-row:last-child td { border-bottom:none; }
 .tk-row--off td { opacity:.55; }
-.tk-row--on td { background:rgba(99,102,241,.06); }
+.tk-row--on td { background:rgba(139,92,246,.06); }
 .tk-td-idx { color:var(--mut,#94a3b8); font-variant-numeric:tabular-nums; }
 .tk-td-mono { font-family:ui-monospace, monospace; font-size:12px; color:var(--mut,#64748b); }
 .tk-name-cell { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .tk-badge { display:inline-flex; padding:3px 10px; border-radius:999px; border:1px solid; font-size:12.5px; font-weight:600; }
 .tk-izoh { font-size:11.5px; color:var(--mut,#94a3b8); }
-.tk-tovar-btn { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:8px; border:1px solid rgba(99,102,241,.3); background:rgba(99,102,241,.08); color:#4f46e5; font-size:12px; font-weight:600; cursor:pointer; }
-.tk-tovar-btn:hover { background:rgba(99,102,241,.16); }
+.tk-tovar-btn { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:8px; border:1px solid rgba(139,92,246,.3); background:rgba(139,92,246,.08); color:#7c3aed; font-size:12px; font-weight:600; cursor:pointer; }
+.tk-tovar-btn:hover { background:rgba(139,92,246,.16); }
 .tk-tovar-btn--bosh { border-style:dashed; background:transparent; color:var(--mut,#94a3b8); }
 .tk-holat { font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; }
 .tk-holat--on { color:#047857; background:rgba(16,185,129,.12); }
@@ -413,7 +413,7 @@ onMounted(load)
 .tk-act { width:28px; height:28px; border-radius:7px; border:1px solid var(--line,#e2e8f0); background:var(--surface,#fff); color:var(--mut,#64748b); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .tk-act:hover:not(:disabled) { background:var(--hov,#f1f5f9); color:var(--ink,#0f172a); }
 .tk-act:disabled { opacity:.35; cursor:default; }
-.tk-act--edit:hover { color:#4f46e5; border-color:#c7d2fe; }
+.tk-act--edit:hover { color:#7c3aed; border-color:#ddd6fe; }
 .tk-act--del:hover { color:#dc2626; border-color:#fecaca; background:rgba(220,38,38,.06); }
 
 .tk-panel { border:1px solid var(--line,#e2e8f0); border-radius:12px; background:var(--surface,#fff); padding:14px; }
@@ -429,9 +429,9 @@ onMounted(load)
 .tk-li-btn { border:none; background:transparent; color:#dc2626; font-size:11.5px; font-weight:600; cursor:pointer; padding:4px 6px; border-radius:6px; }
 .tk-li-btn:hover { background:rgba(220,38,38,.08); }
 .tk-li--pick { cursor:pointer; border-radius:8px; }
-.tk-li--pick:hover, .tk-li--pick.on { background:rgba(99,102,241,.07); }
+.tk-li--pick:hover, .tk-li--pick.on { background:rgba(139,92,246,.07); }
 .tk-chkbox { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--line,#cbd5e1); display:inline-flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
-.tk-chkbox.on { background:#4f46e5; border-color:#4f46e5; }
+.tk-chkbox.on { background:#7c3aed; border-color:#7c3aed; }
 .tk-panel-ft { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
 .tk-x { width:28px; height:28px; border:none; border-radius:7px; background:transparent; color:var(--mut,#94a3b8); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
 .tk-x:hover { background:var(--hov,#f1f5f9); color:var(--ink,#0f172a); }
@@ -455,12 +455,12 @@ onMounted(load)
 .tk-lbl { font-size:12px; font-weight:600; color:var(--mut,#475569); }
 .tk-req { color:#dc2626; }
 .tk-input { height:38px; padding:0 11px; border:1px solid var(--line,#e2e8f0); border-radius:9px; font-size:13px; background:var(--surface,#fff); color:var(--ink,#0f172a); outline:none; }
-.tk-input:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+.tk-input:focus { border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.15); }
 .tk-textarea { height:auto; padding:8px 11px; resize:vertical; font-family:inherit; }
 .tk-hint { font-size:11.5px; color:var(--mut,#94a3b8); line-height:1.4; }
 .tk-btn-cancel { padding:8px 14px; border-radius:9px; border:1px solid var(--line,#e2e8f0); background:transparent; color:var(--mut,#64748b); font-size:13px; font-weight:600; cursor:pointer; }
-.tk-btn-save { padding:8px 16px; border-radius:9px; border:none; background:#4f46e5; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
-.tk-btn-save:hover:not(:disabled) { background:#4338ca; }
+.tk-btn-save { padding:8px 16px; border-radius:9px; border:none; background:#7c3aed; color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+.tk-btn-save:hover:not(:disabled) { background:#6d28d9; }
 .tk-btn-save:disabled { opacity:.55; cursor:default; }
 .tk-btn-save--del { background:#dc2626; }
 .tk-btn-save--del:hover:not(:disabled) { background:#b91c1c; }

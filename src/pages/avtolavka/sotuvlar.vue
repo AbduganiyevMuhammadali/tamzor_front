@@ -421,17 +421,17 @@ svg { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; s
 /* ═══ SARLAVHA ═══ */
 .as-head { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
 .as-head-l { display:flex; align-items:center; gap:14px; min-width:0; flex:1 1 380px; }
-.as-head-ic { width:44px; height:44px; flex-shrink:0; border-radius:11px; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px -6px rgba(79,70,229,.55); }
+.as-head-ic { width:44px; height:44px; flex-shrink:0; border-radius:11px; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px -6px rgba(124,58,237,.55); }
 .as-head-ic svg { width:22px; height:22px; }
 .as-head-ic.sm { width:36px; height:36px; border-radius:9px; box-shadow:none; }
 .as-head-ic.sm svg { width:18px; height:18px; }
 .as-h1 { font-size:22px; font-weight:600; letter-spacing:-.02em; margin:0; }
 .as-sub { font-size:13px; color:var(--mut); margin:4px 0 0; }
 .as-davr { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.as-seg { display:inline-flex; background:var(--hov); border-radius:9px; padding:3px; gap:2px; }
-.as-seg button { height:30px; padding:0 12px; border:0; border-radius:7px; background:transparent; color:var(--mut); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; }
-.as-seg button:hover { color:var(--ink); }
-.as-seg button.on { background:var(--surface); color:var(--acc); box-shadow:0 1px 3px rgba(15,23,42,.1); }
+.as-seg { display:inline-flex; background:var(--seg-track); box-shadow:inset 0 0 0 1px var(--seg-brd); border-radius:10px; padding:3px; gap:2px; }
+.as-seg button { height:30px; padding:0 12px; border:0; border-radius:8px; background:transparent; color:var(--seg-ink); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; transition:color .15s, background-color .15s; }
+.as-seg button:hover { color:var(--seg-ink-h); }
+.as-seg button.on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); }
 .as-seg.sm button { height:28px; padding:0 10px; }
 .as-sana { display:flex; align-items:center; gap:4px; height:36px; padding:0 4px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--sub); }
 .as-sana input { height:100%; border:0; background:none; color:var(--ink); font:inherit; font-size:12.5px; padding:0 4px; }
@@ -601,6 +601,6 @@ svg { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; s
 .shell.dark .as-bk h3, .shell.dark .as-bk-err, .shell.dark .as-btn.danger.ghost { color:#fca5a5; }
 
 /* Skladdan (xodimsiz) sotuvlar */
-.as-mash button.sklad svg { color:var(--brand-600, #4f46e5); }
-.as-sklad { display:inline-block; padding:2px 8px; border-radius:6px; font-size:11.5px; font-weight:700; color:var(--brand-700, #4338ca); background:rgba(99,102,241,.12); white-space:nowrap; }
+.as-mash button.sklad svg { color:var(--brand-600, #7c3aed); }
+.as-sklad { display:inline-block; padding:2px 8px; border-radius:6px; font-size:11.5px; font-weight:700; color:var(--brand-700, #6d28d9); background:rgba(139,92,246,.12); white-space:nowrap; }
 </style>

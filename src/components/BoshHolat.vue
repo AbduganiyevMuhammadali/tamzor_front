@@ -48,14 +48,14 @@ const ikona = computed(() => IKONKALAR[props.turi] || IKONKALAR.malumot)
 .bh-m { font-size:12px; color:#94a3b8; max-width:290px; line-height:1.55; }
 
 .bh-btn { margin-top:6px; padding:7px 16px; border:1px solid #e2e8f0; border-radius:9px;
-          background:#fff; font-size:12.5px; font-weight:600; color:#4f46e5;
+          background:#fff; font-size:12.5px; font-weight:600; color:#7c3aed;
           cursor:pointer; transition:.14s; }
-.bh-btn:hover { background:#eef2ff; border-color:#c7d2fe; }
+.bh-btn:hover { background:#f5f3ff; border-color:#ddd6fe; }
 
 /* Turlar bo'yicha ranglar */
 .bh--ok   .bh-ic { background:rgba(16,185,129,.1);  color:#10b981; }
 .bh--xato .bh-ic { background:rgba(239,68,68,.1);   color:#ef4444; }
-.bh--reja .bh-ic { background:rgba(99,102,241,.1);  color:#6366f1; }
+.bh--reja .bh-ic { background:rgba(139,92,246,.1);  color:#8b5cf6; }
 
 @keyframes bh-in { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:none } }
 @media (prefers-reduced-motion: reduce) { .bh { animation:none } }

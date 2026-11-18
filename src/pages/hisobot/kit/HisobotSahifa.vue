@@ -80,17 +80,17 @@ function sana(k: 'dan' | 'gacha', v: string) {
 .hs-hd { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
 .hs-hd-l { display:flex; align-items:center; gap:14px; min-width:0; }
 .hs-hd-ic { width:46px; height:46px; flex-shrink:0; border-radius:12px; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center;
-  box-shadow:0 6px 16px -6px rgba(79,70,229,.55); }
+  box-shadow:0 6px 16px -6px rgba(124,58,237,.55); }
 .hs-hd-ic svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
 .hs-hd-t h1 { font-size:22px; font-weight:650; letter-spacing:-.02em; margin:0; }
 .hs-hd-t p { font-size:13.5px; color:var(--mut); margin:3px 0 0; }
 .hs-hd-r { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 
 .hs-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px; background:var(--surface); border:1px solid var(--line); border-radius:12px; }
-.hs-seg { display:inline-flex; padding:3px; gap:2px; background:var(--bg); border:1px solid var(--line); border-radius:9px; }
-.hs-seg button { height:30px; padding:0 11px; border:none; border-radius:7px; background:none; color:var(--mut); font:inherit; font-size:12.5px; font-weight:500; cursor:pointer; white-space:nowrap; }
-.hs-seg button:hover { color:var(--ink); }
-.hs-seg button.on { background:var(--surface); color:var(--acc); font-weight:600; box-shadow:0 1px 2px rgba(15,23,42,.08), 0 0 0 1px var(--line); }
+.hs-seg { display:inline-flex; padding:3px; gap:2px; background:var(--seg-track); border:1px solid var(--seg-brd); border-radius:10px; }
+.hs-seg button { height:30px; padding:0 11px; border:none; border-radius:8px; background:none; color:var(--seg-ink); font:inherit; font-size:12.5px; font-weight:500; cursor:pointer; white-space:nowrap; transition:color .15s; }
+.hs-seg button:hover { color:var(--seg-ink-h); }
+.hs-seg button.on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); font-weight:600; }
 .hs-sana { display:inline-flex; align-items:center; gap:6px; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--mut); font-size:13px; }
 .hs-sana svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; }
 .hs-sana input { border:none; background:none; color:var(--ink); font:inherit; font-size:13px; width:118px; }

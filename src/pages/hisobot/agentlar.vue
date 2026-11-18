@@ -22,13 +22,13 @@
     <!-- Summary -->
     <div class="hap-summary" v-if="!loading">
       <div class="hap-scard">
-        <div class="hap-sc-ic" style="background:rgba(99,102,241,.1);color:#6366f1">
+        <div class="hap-sc-ic" style="background:rgba(139,92,246,.1);color:#8b5cf6">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <div><div class="hap-sc-val">{{ kpi.jami_agentlar || 0 }}</div><div class="hap-sc-lbl">Agentlar</div></div>
       </div>
       <div class="hap-scard">
-        <div class="hap-sc-ic" style="background:rgba(79,70,229,.1);color:#4f46e5">
+        <div class="hap-sc-ic" style="background:rgba(124,58,237,.1);color:#7c3aed">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>
         </div>
         <div><div class="hap-sc-val">{{ fmtShort(kpi.jami_plan_summa) }}</div><div class="hap-sc-lbl">Jami plan</div></div>
@@ -46,7 +46,7 @@
         <div><div class="hap-sc-val" style="color:#f59e0b">{{ fmtShort(kpi.jami_bonus_summa) }}</div><div class="hap-sc-lbl">Jami bonus</div></div>
       </div>
       <div class="hap-scard">
-        <div class="hap-sc-ic" style="background:rgba(99,102,241,.1);color:#6366f1">
+        <div class="hap-sc-ic" style="background:rgba(139,92,246,.1);color:#8b5cf6">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         </div>
         <div><div class="hap-sc-val">{{ kpi.orta_plan_foiz || 0 }}%</div><div class="hap-sc-lbl">O'rtacha plan</div></div>
@@ -105,7 +105,7 @@ import { ref, computed, onMounted } from 'vue'
 // @ts-ignore
 import { agentApi } from '@/api/api'
 
-const COLORS = ['#4f46e5','#6366f1','#4338ca','#3730a3']
+const COLORS = ['#7c3aed','#8b5cf6','#6d28d9','#5b21b6']
 const avatarColor = (id: number) => COLORS[id % COLORS.length]
 const PERIODS = [
   { key: 'today', label: 'Bugun' },
@@ -137,7 +137,7 @@ async function load() {
 
 function planColor(pct: number) {
   if (pct >= 100) return '#10b981'
-  if (pct >= 70)  return '#4f46e5'
+  if (pct >= 70)  return '#7c3aed'
   if (pct >= 40)  return '#f59e0b'
   return '#ef4444'
 }
@@ -176,15 +176,15 @@ onMounted(load)
 
 .hap-table-wrap { background:#fff; border:1.5px solid #e8ecf8; border-radius:16px; overflow:hidden; }
 .hap-loading { display:flex; justify-content:center; padding:50px; }
-.hap-spinner { width:32px; height:32px; border:3px solid #e2e8f0; border-top-color:#6366f1; border-radius:50%; animation:hap-rot .7s linear infinite; }
+.hap-spinner { width:32px; height:32px; border:3px solid #e2e8f0; border-top-color:#8b5cf6; border-radius:50%; animation:hap-rot .7s linear infinite; }
 @keyframes hap-rot { to { transform:rotate(360deg) } }
 .hap-table { width:100%; border-collapse:collapse; }
-.hap-table thead th { font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.04em; text-align:left; padding:11px 14px; border-bottom:1.5px solid #f1f5f9; background:#fafbff; }
+.hap-table thead th { font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.04em; text-align:left; padding:11px 14px; border-bottom:1.5px solid #f1f5f9; background:#fbfaff; }
 .hap-table thead th.r { text-align:right; }
 .hap-table tbody td { padding:11px 14px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#1e293b; }
 .hap-table tbody td.r { text-align:right; }
 .hap-table tbody tr:last-child td { border-bottom:none; }
-.hap-table tbody tr:hover { background:#fafbff; }
+.hap-table tbody tr:hover { background:#fbfaff; }
 .hap-num { color:#94a3b8; font-size:12px; }
 .hap-mono { font-variant-numeric:tabular-nums; }
 .hap-agent { display:flex; align-items:center; gap:10px; }

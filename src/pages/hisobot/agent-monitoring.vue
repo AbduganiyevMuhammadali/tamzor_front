@@ -213,7 +213,7 @@
                 <template v-if="t.davomiylik_daq != null">
                   <div class="am-dur">
                     <div class="am-dur-b" :style="{ width: Math.min(100, t.davomiylik_daq / 60 * 100) + '%',
-                      background: t.davomiylik_daq < 3 ? '#ef4444' : (t.davomiylik_daq > 90 ? '#6366f1' : '#818cf8') }"/>
+                      background: t.davomiylik_daq < 3 ? '#ef4444' : (t.davomiylik_daq > 90 ? '#8b5cf6' : '#a78bfa') }"/>
                   </div>
                   <span class="am-dur-t">{{ t.davomiylik_daq }} daq</span>
                 </template>
@@ -246,8 +246,8 @@
             <svg :viewBox="`0 0 ${CW} ${CH}`" class="am-svg" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="am-gt" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#818cf8" stop-opacity=".3"/>
-                  <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+                  <stop offset="0%" stop-color="#a78bfa" stop-opacity=".3"/>
+                  <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
                 </linearGradient>
                 <linearGradient id="am-gs" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="#10b981" stop-opacity=".28"/>
@@ -260,14 +260,14 @@
                 stroke="#f1f5f9" stroke-width="1"/>
 
               <path :d="area(dinTashrif)" fill="url(#am-gt)" class="am-area"/>
-              <path :d="line(dinTashrif)" fill="none" stroke="#818cf8" stroke-width="2.5"
+              <path :d="line(dinTashrif)" fill="none" stroke="#a78bfa" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round" class="am-line"/>
               <path :d="area(dinSavdo)" fill="url(#am-gs)" class="am-area"/>
               <path :d="line(dinSavdo)" fill="none" stroke="#10b981" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round" class="am-line"/>
 
               <g v-for="(k, i) in d.dinamika" :key="'p'+i">
-                <circle :cx="px(i)" :cy="py(k.tashrif)" r="3.5" fill="#fff" stroke="#818cf8" stroke-width="2" class="am-dot"/>
+                <circle :cx="px(i)" :cy="py(k.tashrif)" r="3.5" fill="#fff" stroke="#a78bfa" stroke-width="2" class="am-dot"/>
                 <circle :cx="px(i)" :cy="py(k.savdo)"   r="3.5" fill="#fff" stroke="#10b981" stroke-width="2" class="am-dot"/>
               </g>
             </svg>
@@ -276,7 +276,7 @@
             </div>
           </div>
           <div class="am-legend">
-            <span><i style="background:#818cf8"/> Tashrif</span>
+            <span><i style="background:#a78bfa"/> Tashrif</span>
             <span><i style="background:#10b981"/> Savdo</span>
           </div>
         </div>
@@ -413,7 +413,7 @@ const PERIODS = [
   { key: 'hafta',  label: '7 kun' },
   { key: 'oy',     label: '30 kun' },
 ]
-const COLORS = ['#4f46e5','#6366f1','#4338ca','#3730a3']
+const COLORS = ['#7c3aed','#8b5cf6','#6d28d9','#5b21b6']
 const rang = (id) => COLORS[id % COLORS.length]
 
 // SVG doimiylari
@@ -448,15 +448,15 @@ const ICONS = {
 
 // ── KPI kartalari (spark-chart va halqa bilan) ──
 const kartalar = computed(() => [
-  { key: 'tashrif', label: 'Tashrif', val: d.kpi.tashrif_soni, color: '#6366f1',
+  { key: 'tashrif', label: 'Tashrif', val: d.kpi.tashrif_soni, color: '#8b5cf6',
     icon: ICONS.pin, spark: d.dinamika.map(k => k.tashrif) },
-  { key: 'konv', label: 'Konversiya', val: d.kpi.konversiya_foiz + '%', color: '#6366f1',
+  { key: 'konv', label: 'Konversiya', val: d.kpi.konversiya_foiz + '%', color: '#8b5cf6',
     icon: ICONS.check, strong: true, ring: d.kpi.konversiya_foiz },
-  { key: 'vaqt', label: "O'rt. tashrif", val: d.kpi.ort_davomiylik_daq + ' daq', color: '#4f46e5',
+  { key: 'vaqt', label: "O'rt. tashrif", val: d.kpi.ort_davomiylik_daq + ' daq', color: '#7c3aed',
     icon: ICONS.clock },
-  { key: 'chek', label: "O'rt. chek", val: fmtShort(d.kpi.ort_chek), color: '#6366f1',
+  { key: 'chek', label: "O'rt. chek", val: fmtShort(d.kpi.ort_chek), color: '#8b5cf6',
     icon: ICONS.money },
-  { key: 'summa', label: 'Jami savdo', val: fmtShort(d.kpi.jami_summa), color: '#6366f1',
+  { key: 'summa', label: 'Jami savdo', val: fmtShort(d.kpi.jami_summa), color: '#8b5cf6',
     icon: ICONS.bolt, spark: d.dinamika.map(k => k.summa) },
   { key: 'anom', label: 'Anomaliya', val: d.anomaliyalar.length,
     color: d.anomaliyalar.length ? '#ef4444' : '#94a3b8',
@@ -467,7 +467,7 @@ const kartalar = computed(() => [
 const ANOM_META = {
   uzoq:  { label: 'Uzoqdan check-in', color: '#dc2626', icon: ICONS.pin },
   qisqa: { label: 'Juda qisqa',       color: '#d97706', icon: ICONS.clock },
-  uzun:  { label: 'Juda uzun',        color: '#4f46e5', icon: ICONS.clock },
+  uzun:  { label: 'Juda uzun',        color: '#7c3aed', icon: ICONS.clock },
   ochiq: { label: 'Check-out yo\'q',  color: '#475569', icon: ICONS.warn },
 }
 const anomTurlar = computed(() => {
@@ -630,12 +630,12 @@ onMounted(() => setPeriod('hafta'))
 .am-date { padding:6px 9px; border:1px solid #e2e8f0; border-radius:8px; font-size:12px; color:#334155; background:#fff; outline:none; }
 .am-period { display:flex; background:#f1f5f9; border-radius:9px; padding:2px; }
 .am-pbtn { padding:6px 13px; border:none; background:none; border-radius:7px; font-size:12px; font-weight:600; color:#64748b; cursor:pointer; transition:.15s; }
-.am-pbtn.on { background:#fff; color:#4f46e5; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.am-pbtn.on { background:#fff; color:#7c3aed; box-shadow:0 1px 3px rgba(0,0,0,.08); }
 
 /* ── KPI KARTALARI ── */
 .am-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr)); gap:11px; margin-bottom:16px; }
 .am-kpi { position:relative; display:flex; align-items:center; gap:11px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:14px 15px; overflow:hidden; transition:transform .18s, box-shadow .18s, border-color .18s; }
-.am-kpi:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(15,23,42,.09); border-color:#c7d2fe; }
+.am-kpi:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(15,23,42,.09); border-color:#ddd6fe; }
 .am-kpi--alert { border-color:#fecaca; background:#fef2f2; }
 .am-kpi-spark { position:absolute; left:0; right:0; bottom:0; width:100%; height:34px; opacity:.85; pointer-events:none; }
 .am-kpi-ic { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative; z-index:1; }
@@ -646,9 +646,9 @@ onMounted(() => setPeriod('hafta'))
 
 /* ── TABS ── */
 .am-tabs { display:flex; gap:6px; margin-bottom:14px; border-bottom:1px solid #e2e8f0; }
-.am-tab { display:flex; align-items:center; gap:6px; padding:9px 15px; border:none; background:none; font-size:13px; font-weight:700; color:#64748b; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:.15s; }
-.am-tab:hover { color:#4f46e5; }
-.am-tab.on { color:#4f46e5; border-bottom-color:#6366f1; }
+.am-tab { display:flex; align-items:center; gap:6px; padding:9px 15px; border:none; background:none; font-size:13px; font-weight:600; color:var(--seg-ink); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:.15s; }
+.am-tab:hover { color:var(--seg-ink-h); }
+.am-tab.on { color:var(--tab-on-ink); border-bottom-color:var(--tab-line); font-weight:600; }
 .am-tab-b { font-size:10px; font-weight:800; background:#ef4444; color:#fff; border-radius:8px; padding:1px 6px; }
 .am-tab-b--n { background:#cbd5e1; color:#475569; }
 
@@ -661,7 +661,7 @@ onMounted(() => setPeriod('hafta'))
 /* ── AGENT KARTALARI ── */
 .am-agrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:12px; margin-bottom:14px; }
 .am-acard { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; transition:transform .18s, box-shadow .18s, border-color .18s; }
-.am-acard:hover { transform:translateY(-3px); box-shadow:0 10px 26px rgba(15,23,42,.1); border-color:#c7d2fe; }
+.am-acard:hover { transform:translateY(-3px); box-shadow:0 10px 26px rgba(15,23,42,.1); border-color:#ddd6fe; }
 .am-acard-hd { display:flex; align-items:center; gap:10px; }
 .am-acard-n { flex:1; min-width:0; }
 .am-acard-name { font-size:13.5px; font-weight:800; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -696,7 +696,7 @@ onMounted(() => setPeriod('hafta'))
 /* ── JADVAL ── */
 .am-toolbar { display:flex; align-items:center; gap:9px; margin-bottom:12px; }
 .am-search { flex:1; max-width:280px; padding:7px 11px; border:1px solid #e2e8f0; border-radius:8px; font-size:12.5px; outline:none; }
-.am-search:focus { border-color:#6366f1; }
+.am-search:focus { border-color:#8b5cf6; }
 .am-cnt { margin-left:auto; font-size:12px; color:#94a3b8; }
 .am-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
 .am-tbl th { text-align:left; padding:9px 10px; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.03em; border-bottom:1px solid #f1f5f9; white-space:nowrap; }
@@ -778,14 +778,14 @@ onMounted(() => setPeriod('hafta'))
 .am-anom-b { font-size:11px; font-weight:600; padding:3px 9px; border-radius:8px; background:#f1f5f9; color:#475569; }
 .am-anom-b--uzoq  { background:rgba(239,68,68,.1); color:#dc2626; }
 .am-anom-b--qisqa { background:rgba(245,158,11,.12); color:#d97706; }
-.am-anom-b--uzun  { background:rgba(99,102,241,.1); color:#4f46e5; }
+.am-anom-b--uzun  { background:rgba(139,92,246,.1); color:#7c3aed; }
 .am-anom-b--ochiq { background:rgba(100,116,139,.1); color:#475569; }
 
 .am-note { margin-top:11px; font-size:11.5px; color:#d97706; background:rgba(245,158,11,.07); padding:8px 12px; border-radius:9px; }
 .am-empty { padding:36px 20px; text-align:center; color:#94a3b8; font-size:13px; display:flex; flex-direction:column; align-items:center; gap:10px; }
 .am-empty--ok { color:#10b981; }
 .am-loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:50px; color:#94a3b8; font-size:13px; }
-.am-spin { display:inline-block; width:18px; height:18px; border:2.5px solid rgba(0,0,0,.08); border-top-color:#6366f1; border-radius:50%; animation:am-rot .7s linear infinite; }
+.am-spin { display:inline-block; width:18px; height:18px; border:2.5px solid rgba(0,0,0,.08); border-top-color:#8b5cf6; border-radius:50%; animation:am-rot .7s linear infinite; }
 
 /* ══ ANIMATSIYALAR ══ */
 @keyframes am-rot { to { transform:rotate(360deg) } }

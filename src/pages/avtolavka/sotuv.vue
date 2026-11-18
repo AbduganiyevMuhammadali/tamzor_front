@@ -501,7 +501,7 @@ svg { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; s
 
 .ws-head { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
 .ws-head-l { display:flex; align-items:center; gap:14px; min-width:0; flex:1 1 380px; }
-.ws-head-ic { width:44px; height:44px; flex-shrink:0; border-radius:11px; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px -6px rgba(79,70,229,.55); }
+.ws-head-ic { width:44px; height:44px; flex-shrink:0; border-radius:11px; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px -6px rgba(124,58,237,.55); }
 .ws-head-ic svg { width:22px; height:22px; }
 .ws-h1 { font-size:22px; font-weight:600; letter-spacing:-.02em; margin:0; }
 .ws-sub { font-size:13px; color:var(--mut); margin:4px 0 0; max-width:760px; }
@@ -522,10 +522,10 @@ svg { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; s
 .ws-sec-t b { font-size:14.5px; font-weight:600; }
 .ws-sec-t small { font-size:12px; color:var(--mut); }
 
-.ws-seg { display:inline-flex; background:var(--hov); border-radius:9px; padding:3px; gap:2px; }
-.ws-seg button { height:30px; padding:0 12px; border:0; border-radius:7px; background:transparent; color:var(--mut); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; }
-.ws-seg button:hover:not(:disabled) { color:var(--ink); }
-.ws-seg button.on { background:var(--surface); color:var(--acc); box-shadow:0 1px 3px rgba(15,23,42,.1); }
+.ws-seg { display:inline-flex; background:var(--seg-track); box-shadow:inset 0 0 0 1px var(--seg-brd); border-radius:10px; padding:3px; gap:2px; }
+.ws-seg button { height:30px; padding:0 12px; border:0; border-radius:8px; background:transparent; color:var(--seg-ink); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; transition:color .15s, background-color .15s; }
+.ws-seg button:hover:not(:disabled) { color:var(--seg-ink-h); }
+.ws-seg button.on { background:var(--seg-on-bg); color:var(--seg-on-ink); box-shadow:var(--seg-on-sh); }
 .ws-seg button:disabled { opacity:.45; cursor:not-allowed; }
 .ws-seg.full { display:flex; }
 .ws-seg.full button { flex:1; height:34px; }
