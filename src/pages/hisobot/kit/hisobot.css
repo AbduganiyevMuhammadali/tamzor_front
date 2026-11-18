@@ -1,0 +1,90 @@
+/* Hisobotlar bo'limi — umumiy (global) uslublar, "hs-" prefiksi bilan.
+   Ranglar qobiq tokenlaridan: --surface --line --ink --mut --sub --acc --acc-soft. */
+
+.hs-grid { display:grid; gap:12px; }
+.hs-grid--kpi { grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); }
+.hs-grid--2 { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+.hs-grid--3 { grid-template-columns:repeat(3, minmax(0, 1fr)); }
+.hs-grid--21 { grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); }
+.hs-grid--12 { grid-template-columns:minmax(0, 1fr) minmax(0, 2fr); }
+@media (max-width:1100px) { .hs-grid--3, .hs-grid--21, .hs-grid--12 { grid-template-columns:minmax(0, 1fr); } }
+@media (max-width:760px) { .hs-grid--2 { grid-template-columns:minmax(0, 1fr); } }
+
+/* Karta */
+.hs-karta { background:var(--surface); border:1px solid var(--line); border-radius:12px; min-width:0; display:flex; flex-direction:column; }
+.hs-karta-hd { display:flex; align-items:center; gap:10px; padding:14px 16px 0; flex-wrap:wrap; }
+.hs-karta-hd h2 { font-size:14px; font-weight:600; margin:0; color:var(--ink); }
+.hs-karta-hd p { font-size:12px; color:var(--mut); margin:1px 0 0; }
+.hs-karta-hd .hs-kt { flex:1; min-width:0; }
+.hs-karta-hd .hs-kr { display:flex; align-items:center; gap:8px; }
+.hs-karta-ic { width:30px; height:30px; flex-shrink:0; border-radius:8px; background:var(--acc-soft); color:var(--acc); display:flex; align-items:center; justify-content:center; }
+.hs-karta-ic svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+.hs-karta-b { padding:14px 16px 16px; flex:1; min-width:0; }
+.hs-karta-b--0 { padding:10px 0 0; }
+
+/* Tugmalar va kirish maydonlari */
+.hs-btn { height:36px; padding:0 13px; display:inline-flex; align-items:center; gap:7px; border-radius:9px; font:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; text-decoration:none; transition:background .12s, border-color .12s, color .12s; }
+.hs-btn svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+.hs-btn--s { border:1px solid var(--line); background:var(--surface); color:var(--ink2); }
+.hs-btn--s:hover, .hs-btn--s.on { border-color:var(--brand-300); color:var(--acc); background:var(--acc-soft); }
+.hs-btn--p { border:1px solid var(--brand); background:var(--brand); color:#fff; }
+.hs-btn--p:hover { background:var(--brand-hover); }
+.hs-sel, .hs-inp { height:36px; padding:0 10px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); font:inherit; font-size:13px; }
+.hs-inp { min-width:200px; }
+.hs-sel:focus, .hs-inp:focus { outline:none; border-color:var(--acc); box-shadow:0 0 0 3px var(--acc-soft); }
+.hs-chiplar { display:flex; gap:6px; flex-wrap:wrap; }
+.hs-chip { height:32px; padding:0 12px; display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line); border-radius:16px; background:var(--surface);
+  color:var(--ink2); font:inherit; font-size:12.5px; cursor:pointer; white-space:nowrap; }
+.hs-chip:hover { border-color:var(--brand-300); }
+.hs-chip.on { border-color:var(--acc); background:var(--acc-soft); color:var(--acc); font-weight:600; }
+.hs-chip i { font-style:normal; min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:var(--hov); color:var(--mut); font-size:11px; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; }
+.hs-chip.on i { background:var(--acc); color:#fff; }
+
+/* Jadval */
+.hs-jw { overflow-x:auto; }
+.hs-jadval { width:100%; border-collapse:collapse; font-size:13px; }
+.hs-jadval th { position:sticky; top:0; z-index:1; background:var(--surface); text-align:left; font-size:11.5px; font-weight:600; color:var(--mut); padding:9px 12px;
+  border-bottom:1px solid var(--line); white-space:nowrap; }
+.hs-jadval th.r, .hs-jadval td.r { text-align:right; }
+.hs-jadval th.s { cursor:pointer; user-select:none; }
+.hs-jadval th.s:hover { color:var(--ink); }
+.hs-jadval th.on { color:var(--acc); }
+.hs-jadval td { padding:10px 12px; border-bottom:1px solid var(--line2); vertical-align:middle; font-variant-numeric:tabular-nums; }
+.hs-jadval tr:last-child td { border-bottom:none; }
+.hs-jadval tbody tr:hover td { background:var(--hov); }
+.hs-jadval tbody tr.bos { cursor:pointer; }
+.hs-jadval td b { font-weight:600; }
+.hs-jadval td .m { color:var(--mut); font-size:12px; }
+.hs-jadval tfoot td { font-weight:650; border-top:1px solid var(--line); background:var(--bg); }
+.hs-nom { display:flex; flex-direction:column; min-width:0; max-width:300px; }
+.hs-nom b { font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hs-nom small { font-size:11.5px; color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hs-mini { display:inline-block; width:64px; height:5px; border-radius:3px; background:var(--act); overflow:hidden; vertical-align:middle; margin-right:8px; }
+.hs-mini i { display:block; height:100%; background:var(--acc); border-radius:3px; }
+
+/* Belgilar */
+.hs-belgi { display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:20px; padding:0 7px; border-radius:6px; font-size:11px; font-weight:650; white-space:nowrap; }
+.hs-belgi--A { background:var(--brand-600); color:#fff; }
+.hs-belgi--B { background:var(--brand-100); color:var(--brand-700); }
+.hs-belgi--C { background:var(--hov); color:var(--mut); }
+.hs-belgi--ok { background:color-mix(in srgb, #059669 12%, transparent); color:#059669; }
+.hs-belgi--warn { background:color-mix(in srgb, #d97706 13%, transparent); color:#b45309; }
+.hs-belgi--err { background:color-mix(in srgb, #dc2626 11%, transparent); color:#dc2626; }
+.hs-belgi--n { background:var(--hov); color:var(--mut); }
+.shell.dark .hs-belgi--B { background:rgba(99,102,241,.2); color:var(--brand-300); }
+.hs-ok { color:#059669; } .hs-warn { color:#b45309; } .hs-err { color:#dc2626; } .hs-mut { color:var(--mut); }
+.shell.dark .hs-ok { color:#34d399; } .shell.dark .hs-warn { color:#fbbf24; } .shell.dark .hs-err { color:#f87171; }
+
+/* Bo'sh holat va yuklanish */
+.hs-bosh { padding:36px 16px; text-align:center; color:var(--sub); font-size:13px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.hs-bosh svg { width:30px; height:30px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.hs-skelet { border-radius:12px; background:linear-gradient(90deg, var(--hov) 0%, var(--act) 50%, var(--hov) 100%); background-size:200% 100%; animation:hs-sk 1.3s ease-in-out infinite; }
+@keyframes hs-sk { to { background-position:-200% 0 } }
+
+/* Izohli qator (insight) */
+.hs-tushuncha { display:flex; align-items:flex-start; gap:10px; padding:11px 14px; border-radius:10px; background:var(--bg); border:1px solid var(--line2); font-size:12.5px; color:var(--ink2); line-height:1.5; }
+.hs-tushuncha svg { width:17px; height:17px; flex-shrink:0; margin-top:1px; fill:none; stroke:var(--acc); stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+.hs-tushuncha b { color:var(--ink); font-weight:600; }
+
+.hs-sahifa { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 16px; border-top:1px solid var(--line2); font-size:12.5px; color:var(--mut); }
+.hs-sahifa div { display:flex; gap:6px; }

@@ -1,0 +1,102 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #app {
+  height: 100%; width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* ── BREND: butun dastur bitta rang — indigo — atrofida qurilgan ──
+   Yangi kodda shu tokenlardan foydalaning; sahifalardagi hex qiymatlar ham
+   aynan shu shkaladan (#6366f1 = 500, #4f46e5 = 600 ...). Faqat semantik
+   signallar (yashil = muvaffaqiyat, sariq = kutish, qizil = xato) boshqa rangda. */
+:root {
+  --brand-50:  #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+  --brand-950: #1e1b4b;
+  --brand:       var(--brand-600);
+  --brand-hover: var(--brand-700);
+  --brand-soft:  var(--brand-50);
+  --brand-ink:   var(--brand-700);
+  --ok: #059669; --warn: #d97706; --err: #dc2626;
+}
+[data-theme="dark"] {
+  --brand:       var(--brand-500);
+  --brand-hover: var(--brand-400);
+  --brand-soft:  rgba(99,102,241,.16);
+  --brand-ink:   var(--brand-300);
+  --ok: #34d399; --warn: #fbbf24; --err: #f87171;
+}
+
+/* ── Dashboard card/page variables: light ── */
+:root, [data-theme="light"] {
+  --dash-bg:      #f5f6fa;
+  --card-bg:      #ffffff;
+  --card-border:  #f0f2f9;
+  --title:        #111827;
+  --sub:          #9ca3af;
+  --body:         #374151;
+  --muted:        #9ca3af;
+  --row-hover:    #fafbff;
+  --tbl-border:   #f3f4f6;
+  --tbl-row:      #f9fafb;
+  --period-bg:    #ffffff;
+  --period-brd:   #e9ecf3;
+  --period-c:     #6b7280;
+  --period-hbg:   #f4f6fb;
+  --period-hc:    #374151;
+  --track-bg:     #f3f4f6;
+  --mini-bg:      #fafbff;
+  --mini-brd:     #f0f2f9;
+  --strip-brd:    #f3f4f6;
+  --kbd-c:        #9ca3af;
+  --kbd-bg:       #eef0f7;
+  --kbd-brd:      #dde1ee;
+}
+
+/* ── Dashboard variables: dark ── */
+[data-theme="dark"] {
+  --dash-bg:      #0e1118;
+  --card-bg:      #141925;
+  --card-border:  rgba(255,255,255,.06);
+  --title:        #f1f5f9;
+  --sub:          #4b5563;
+  --body:         #d1d5db;
+  --muted:        #4b5563;
+  --row-hover:    rgba(255,255,255,.03);
+  --tbl-border:   rgba(255,255,255,.05);
+  --tbl-row:      rgba(255,255,255,.02);
+  --period-bg:    #1c2232;
+  --period-brd:   rgba(255,255,255,.07);
+  --period-c:     #6b7280;
+  --period-hbg:   rgba(255,255,255,.05);
+  --period-hc:    #e2e8f0;
+  --track-bg:     rgba(255,255,255,.07);
+  --mini-bg:      #1c2232;
+  --mini-brd:     rgba(255,255,255,.06);
+  --strip-brd:    rgba(255,255,255,.06);
+  --kbd-c:        #4b5563;
+  --kbd-bg:       #1c2232;
+  --kbd-brd:      rgba(255,255,255,.07);
+}
+
+/* Xarita foni (utils/xarita.ts — OpenStreetMap): ranglar yumshatiladi, markerlar va yo'l izlari ajralib turadi.
+   Qorong'i mavzuda fon teskari ranglarda — oq xarita ko'zni qamashtirmaydi. Faqat fon qatlamiga ta'sir qiladi. */
+.leaflet-layer.sellz-fon { filter: saturate(.45) brightness(1.03) contrast(.96); }
+.shell.dark .leaflet-layer.sellz-fon { filter: invert(.92) hue-rotate(180deg) saturate(.35) brightness(.95) contrast(.9); }
