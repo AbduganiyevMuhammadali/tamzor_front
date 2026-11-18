@@ -55,10 +55,10 @@ const modullar = computed<Modul[]>(() => MODULLAR
   .map(m => ({ ...m, sahifalar: m.sahifalar.filter(s => rejimStore.mos(s.faqat) && authStore.canView(s.perm || m.perm)) }))
   .filter(m => m.sahifalar.length))
 const guruhlar = computed(() => [
-  { nom: 'Asosiy',         zanjir: false, items: modullar.value.filter(m => m.key === 'dashboard') },
-  { nom: 'Savdo jarayoni', zanjir: true,  items: modullar.value.filter(m => m.zanjir) },
-  { nom: 'Tahlil',         zanjir: false, items: modullar.value.filter(m => !m.zanjir && !m.tizim && m.key !== 'dashboard') },
-  { nom: 'Tizim',          zanjir: false, items: modullar.value.filter(m => m.tizim) },
+  { nom: 'Asosiy',         items: modullar.value.filter(m => m.key === 'dashboard') },
+  { nom: 'Savdo jarayoni', items: modullar.value.filter(m => m.zanjir) },
+  { nom: 'Tahlil',         items: modullar.value.filter(m => !m.zanjir && !m.tizim && m.key !== 'dashboard') },
+  { nom: 'Tizim',          items: modullar.value.filter(m => m.tizim) },
 ].filter(g => g.items.length))
 
 const joriy = computed<{ m: Modul | null; s: Sahifa | null }>(() => {
@@ -86,7 +86,7 @@ function flyOch(m: Modul, e: Event) {
   if (!yig.value) return
   if (flyT) clearTimeout(flyT)
   const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  const boy = 60 + (bitta(m) ? 0 : m.sahifalar.length * 35 + 12)   // panelning taxminiy balandligi
+  const boy = 52 + (bitta(m) ? 0 : m.sahifalar.length * 32 + 10)   // panelning taxminiy balandligi
   fly.value = { m, top: Math.max(10, Math.min(r.top - 6, window.innerHeight - boy - 10)) }
 }
 function flyYop() { if (flyT) clearTimeout(flyT); flyT = setTimeout(() => (fly.value = null), 160) }
@@ -330,45 +330,42 @@ onUnmounted(() => {
         </div>
 
         <nav class="sb-nav">
-          <section v-for="g in guruhlar" :key="g.nom" class="sb-g" :class="{ 'sb-g--zanjir': g.zanjir && g.items.length > 1 }">
-            <div v-if="!yig" class="sb-gt"><span>{{ g.nom }}</span></div>
+          <section v-for="g in guruhlar" :key="g.nom" class="sb-g">
+            <div v-if="!yig" class="sb-gt">{{ g.nom }}</div>
             <div v-else class="sb-gl"/>
 
-            <div class="sb-gi">
-              <template v-for="m in g.items" :key="m.key">
-                <!-- bitta sahifali modul -->
-                <router-link v-if="bitta(m)" :to="m.sahifalar[0]!.yol" class="ni"
-                  :class="{ on: joriy.m?.key === m.key }" :aria-label="yig ? m.nom : undefined"
+            <template v-for="m in g.items" :key="m.key">
+              <!-- bitta sahifali modul -->
+              <router-link v-if="bitta(m)" :to="m.sahifalar[0]!.yol" class="ni"
+                :class="{ on: joriy.m?.key === m.key }" :aria-label="yig ? m.nom : undefined"
+                @mouseenter="flyOch(m, $event)" @mouseleave="flyYop" @focus="flyOch(m, $event)" @blur="flyYop">
+                <span class="ni-tl"><svg class="ni-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="m.ikon"/></span>
+                <span v-if="!yig" class="ni-t">{{ m.nom }}</span>
+                <span v-if="modulSon(m)" class="ni-n" :class="{ dot: yig }">{{ yig ? '' : modulSon(m) }}</span>
+              </router-link>
+
+              <!-- ichki sahifali modul -->
+              <template v-else>
+                <button class="ni" :class="{ act: joriy.m?.key === m.key, on: yig && joriy.m?.key === m.key }"
+                  :aria-label="yig ? m.nom : undefined" :aria-expanded="yig ? undefined : !!ochiq[m.key]" @click="modulBos(m)"
                   @mouseenter="flyOch(m, $event)" @mouseleave="flyYop" @focus="flyOch(m, $event)" @blur="flyYop">
                   <span class="ni-tl"><svg class="ni-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="m.ikon"/></span>
                   <span v-if="!yig" class="ni-t">{{ m.nom }}</span>
-                  <span v-if="modulSon(m)" class="ni-n" :class="{ dot: yig }">{{ yig ? '' : modulSon(m) }}</span>
-                </router-link>
-
-                <!-- ichki sahifali modul -->
-                <template v-else>
-                  <button class="ni" :class="{ act: joriy.m?.key === m.key, on: yig && joriy.m?.key === m.key }"
-                    :aria-label="yig ? m.nom : undefined" :aria-expanded="yig ? undefined : !!ochiq[m.key]" @click="modulBos(m)"
-                    @mouseenter="flyOch(m, $event)" @mouseleave="flyYop" @focus="flyOch(m, $event)" @blur="flyYop">
-                    <span class="ni-tl"><svg class="ni-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="m.ikon"/></span>
-                    <span v-if="!yig" class="ni-t">{{ m.nom }}</span>
-                    <span v-if="modulSon(m) && (!ochiq[m.key] || yig)" class="ni-n" :class="{ dot: yig }">{{ yig ? '' : modulSon(m) }}</span>
-                    <svg v-if="!yig" class="ni-ch" :class="{ up: ochiq[m.key] }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
-                  </button>
-                  <div v-if="!yig" class="sub" :class="{ open: ochiq[m.key] }">
-                    <div class="sub-in" :inert="!ochiq[m.key] || undefined">
-                      <div class="sub-l">
-                        <router-link v-for="s in m.sahifalar" :key="s.yol" :to="s.yol" class="si" :class="{ on: joriy.s?.yol === s.yol }">
-                          <svg class="si-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="s.ikon"/>
-                          <span class="si-t">{{ s.nom }}</span>
-                          <span v-if="sahifaSon(s)" class="si-n" :class="{ ish: sahifaSon(s)?.ish }">{{ sahifaSon(s)?.matn }}</span>
-                        </router-link>
-                      </div>
+                  <span v-if="modulSon(m) && (!ochiq[m.key] || yig)" class="ni-n" :class="{ dot: yig }">{{ yig ? '' : modulSon(m) }}</span>
+                  <svg v-if="!yig" class="ni-ch" :class="{ up: ochiq[m.key] }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
+                </button>
+                <div v-if="!yig" class="sub" :class="{ open: ochiq[m.key] }">
+                  <div class="sub-in" :inert="!ochiq[m.key] || undefined">
+                    <div class="sub-l">
+                      <router-link v-for="s in m.sahifalar" :key="s.yol" :to="s.yol" class="si" :class="{ on: joriy.s?.yol === s.yol }">
+                        <span class="si-t">{{ s.nom }}</span>
+                        <span v-if="sahifaSon(s)" class="si-n" :class="{ ish: sahifaSon(s)?.ish }">{{ sahifaSon(s)?.matn }}</span>
+                      </router-link>
                     </div>
                   </div>
-                </template>
+                </div>
               </template>
-            </div>
+            </template>
           </section>
         </nav>
 
@@ -398,7 +395,6 @@ onUnmounted(() => {
           </router-link>
           <div v-if="!bitta(fly.m)" class="fly-l">
             <router-link v-for="s in fly.m.sahifalar" :key="s.yol" :to="s.yol" class="fs" :class="{ on: joriy.s?.yol === s.yol }" tabindex="-1">
-              <svg class="fs-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="s.ikon"/>
               <span class="fs-t">{{ s.nom }}</span>
               <span v-if="sahifaSon(s)" class="si-n" :class="{ ish: sahifaSon(s)?.ish }">{{ sahifaSon(s)?.matn }}</span>
             </router-link>
@@ -556,14 +552,13 @@ onUnmounted(() => {
   --bg:#f5f6fa; --surface:#ffffff; --line:#e3e6ee; --line2:#eef0f5;
   --ink:#0f172a; --ink2:#334155; --mut:#64748b; --sub:#94a3b8;
   --hov:#f1f3f9; --act:#e8ebf5; --acc:var(--brand-600); --acc-soft:var(--brand-50); --acc-ink:var(--brand-700);
-  /* sidebar — suzuvchi to'q indigo shisha panel */
-  --sb-g1:#201d52; --sb-g2:#171544; --sb-g3:#100e30;
-  --sb-glow:rgba(99,102,241,.42); --sb-glow2:rgba(67,56,202,.30);
-  --sb-line:rgba(255,255,255,.08); --sb-t:#d4d7fb; --sb-t2:#a5aaec; --sb-gt:#8d93de;
-  --sb-hov:rgba(255,255,255,.065); --sb-sel:rgba(255,255,255,.1);
-  --sb-tile:#2a2762; --sb-tile-h:#363275; --sb-rail:rgba(165,180,252,.24);
+  /* sidebar — to'q indigo; t: asosiy matn, t2: ichki sahifalar, t3: yorliqlar, ic: ikonlar */
+  --sb-g1:#1c1a46; --sb-g2:#171540; --sb-edge:transparent;
+  --sb-line:rgba(255,255,255,.07); --sb-line2:rgba(255,255,255,.11);
+  --sb-t:#d3d6f3; --sb-t2:#b0b4e3; --sb-t3:#8d92d0; --sb-ic:#9da2dc;
+  --sb-hov:rgba(255,255,255,.055); --sb-sel:rgba(255,255,255,.1);
   --main-bg:var(--bg); --page-bg:var(--bg); --page-scroll:#cfd4e1;
-  --sb-w:264px; --sb-wy:76px; --sb-m:10px;
+  --sb-w:248px; --sb-wy:60px;
   display:flex; height:100vh; width:100vw; overflow:hidden; background:var(--bg); color:var(--ink);
   -webkit-font-smoothing:antialiased;
 }
@@ -571,174 +566,120 @@ onUnmounted(() => {
   --bg:#0e1118; --surface:#141925; --line:#242b3b; --line2:#1c2230;
   --ink:#e8eaf0; --ink2:#c3c9d6; --mut:#8b93a7; --sub:#5f6a7e;
   --hov:#1a2030; --act:#20283a; --acc:var(--brand-400); --acc-soft:rgba(99,102,241,.16); --acc-ink:var(--brand-300);
-  --sb-g1:#1a1844; --sb-g2:#131134; --sb-g3:#0d0c26;
-  --sb-glow:rgba(99,102,241,.30); --sb-glow2:rgba(67,56,202,.22);
-  --sb-line:rgba(255,255,255,.07); --sb-tile:#232053; --sb-tile-h:#2d2a65;
+  --sb-g1:#15143a; --sb-g2:#111030; --sb-edge:rgba(255,255,255,.06);
   --page-scroll:#2e3648;
 }
 
-/* ═══ SIDEBAR — suzuvchi indigo shisha panel ═══
-   --rail: modul ikonkasi markazi (zanjir chizig'i shu yerdan o'tadi),
-   --sub-x: ichki sahifalar chap chekkasi, --row: modul qatori balandligi. */
+/* ═══ SIDEBAR ═══
+   Tinch va zich: to'q indigo, oddiy chiziqli ikonlar, faollik — yumshoq fon.
+   Ichki sahifalar matni ota modul matni bilan bir chiziqda; chapda
+   yo'naltiruvchi chiziq, faol sahifada shu chiziq ustida indigo belgi. */
 .sb {
-  --rail:24px; --sub-x:40px; --row:42px;
-  width:var(--sb-w); flex-shrink:0; height:calc(100vh - var(--sb-m) * 2);
-  margin:var(--sb-m) var(--sb-m) var(--sb-m) var(--sb-m);
-  display:flex; flex-direction:column; position:relative; z-index:40; isolation:isolate; overflow:hidden;
-  border-radius:20px; color:var(--sb-t);
-  background:
-    radial-gradient(130% 55% at 0% 0%, var(--sb-glow), transparent 62%),
-    radial-gradient(110% 45% at 100% 100%, var(--sb-glow2), transparent 60%),
-    linear-gradient(180deg, var(--sb-g1) 0%, var(--sb-g2) 52%, var(--sb-g3) 100%);
-  box-shadow:0 1px 2px rgba(15,23,42,.10), 0 18px 40px -18px rgba(30,27,75,.55);
-  transition:width .22s cubic-bezier(.2,.7,.2,1);
+  width:var(--sb-w); flex-shrink:0; height:100vh;
+  display:flex; flex-direction:column; position:relative; z-index:40;
+  background:linear-gradient(180deg, var(--sb-g1), var(--sb-g2));
+  color:var(--sb-t);
+  box-shadow:inset -1px 0 0 var(--sb-edge);
+  transition:width .2s cubic-bezier(.2,.7,.2,1);
 }
-.shell.dark .sb { box-shadow:0 18px 44px -16px rgba(0,0,0,.75); }
-/* yorug'lik tushgan shisha qirra */
-.sb::before { content:''; position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit; padding:1px;
-  background:linear-gradient(160deg, rgba(255,255,255,.24), rgba(255,255,255,.05) 30%, rgba(255,255,255,.02) 70%, rgba(165,180,252,.18));
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; }
-/* mayda don — shishaga "jon" beradi */
-.sb::after { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none; opacity:.06; mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
-.sb--yigiq { --rail:50%; --row:46px; width:var(--sb-wy); }
+.sb--yigiq { width:var(--sb-wy); }
 
-/* Bosh qism */
-.sb-hd { height:66px; flex-shrink:0; display:flex; align-items:center; gap:8px; padding:0 12px 0 16px; position:relative; }
-.sb-hd::after, .sb-ft::before { content:''; position:absolute; left:14px; right:14px; height:1px;
-  background:linear-gradient(90deg, transparent, var(--sb-line) 18%, var(--sb-line) 82%, transparent); }
-.sb-hd::after { bottom:0; }
+/* Bosh qism — topbar bilan bir balandlikda */
+.sb-hd { height:60px; flex-shrink:0; display:flex; align-items:center; gap:8px; padding:0 10px 0 16px; border-bottom:1px solid var(--sb-line); }
 .sb--yigiq .sb-hd { justify-content:center; padding:0; }
-.brand { display:flex; align-items:center; gap:11px; min-width:0; text-decoration:none; color:#fff; border-radius:12px; }
-.brand-mark { width:36px; height:36px; flex-shrink:0; border-radius:11px; display:grid; place-items:center; color:#fff;
-  background:linear-gradient(145deg, var(--brand-400), var(--brand-600));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 6px 16px -4px rgba(79,70,229,.75); transition:transform .2s; }
-.brand:hover .brand-mark { transform:rotate(-6deg) scale(1.04); }
-.brand-mark svg { width:20px; height:20px; }
-.brand-t { display:flex; flex-direction:column; min-width:0; line-height:1.15; }
-.brand-t b { font-size:16px; font-weight:800; letter-spacing:.005em; color:#fff; }
-.brand-t small { margin-top:3px; font-size:10px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--sb-t2); }
+.brand { display:flex; align-items:center; gap:10px; min-width:0; text-decoration:none; color:#fff; border-radius:8px; }
+.brand-mark { width:28px; height:28px; flex-shrink:0; border-radius:8px; display:grid; place-items:center; color:#fff;
+  background:var(--brand-500); box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 1px 2px rgba(0,0,0,.35); }
+.brand-mark svg { width:16px; height:16px; }
+.brand-t { display:flex; flex-direction:column; min-width:0; line-height:1.2; }
+.brand-t b { font-size:14px; font-weight:650; letter-spacing:-.005em; color:#fff; }
+.brand-t small { font-size:11.5px; color:var(--sb-t3); }
 .sb-ib--hd { margin-left:auto; }
 .sb .sb-x { display:none; margin-left:auto; }
 
-/* Ikon tugmalar */
-.sb-ib { width:32px; height:32px; flex-shrink:0; border:none; border-radius:9px; background:none; color:var(--sb-t2); cursor:pointer;
-  display:grid; place-items:center; transition:background .15s, color .15s; }
+.sb-ib { width:28px; height:28px; flex-shrink:0; border:none; border-radius:7px; background:none; color:var(--sb-t3); cursor:pointer;
+  display:grid; place-items:center; transition:background .12s, color .12s; }
 .sb-ib:hover { background:var(--sb-hov); color:#fff; }
-.sb-ib svg { width:18px; height:18px; }
-.sb-ib--w { width:44px; height:40px; border-radius:12px; }
-.sb-ib--x:hover { background:rgba(248,113,113,.14); color:#fca5a5; }
-.brand:focus-visible, .sb-ib:focus-visible, .ni:focus-visible, .si:focus-visible { outline:2px solid var(--brand-300); outline-offset:-2px; }
+.sb-ib svg { width:17px; height:17px; }
+.sb-ib--w { width:36px; height:36px; border-radius:8px; }
+.sb-ib--x:hover { color:#fca5a5; }
+.brand:focus-visible, .sb-ib:focus-visible, .ni:focus-visible, .si:focus-visible { outline:2px solid var(--brand-400); outline-offset:-2px; }
 
-/* Menyu ro'yxati — chetlari mayin so'nadi */
-.sb-nav { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:6px 12px 18px;
-  scrollbar-width:thin; scrollbar-color:transparent transparent;
-  -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 12px, #000 calc(100% - 22px), transparent 100%);
-          mask-image:linear-gradient(180deg, transparent 0, #000 12px, #000 calc(100% - 22px), transparent 100%); }
-.sb-nav:hover { scrollbar-color:rgba(255,255,255,.18) transparent; }
-
-.sb-g { margin-top:16px; }
-.sb-g:first-child { margin-top:8px; }
-.sb-gt { display:flex; align-items:center; gap:10px; padding:0 10px 8px; font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--sb-gt); }
-.sb-gt::after { content:''; flex:1; height:1px; background:linear-gradient(90deg, var(--sb-line), transparent); }
-.sb-gl { height:1px; margin:2px 14px 12px; background:var(--sb-line); }
-.sb-gi { position:relative; }
-/* Savdo jarayoni zanjiri: modullar biznes oqimi tartibida bitta chiziqqa tizilgan */
-.sb-g--zanjir .sb-gi::before { content:''; position:absolute; left:calc(var(--rail) - .5px); width:1px;
-  top:calc(var(--row) / 2); bottom:calc(var(--row) / 2 + 2px); background:var(--sb-rail); }
+/* Ro'yxat */
+.sb-nav { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:8px 10px 16px;
+  scrollbar-width:thin; scrollbar-color:transparent transparent; }
+.sb-nav:hover { scrollbar-color:rgba(255,255,255,.16) transparent; }
+.sb-g + .sb-g { margin-top:12px; }
+.sb-gt { height:28px; display:flex; align-items:center; padding:0 10px; font-size:11.5px; font-weight:500; color:var(--sb-t3); }
+.sb-gl { height:1px; margin:6px 12px; background:var(--sb-line); }
 
 /* Modul qatori */
-.ni { width:100%; height:var(--row); display:flex; align-items:center; gap:11px; padding:0 10px 0 9px; margin-bottom:2px; border:none; border-radius:12px;
-  background:none; color:var(--sb-t); font:inherit; font-size:13.5px; font-weight:500; text-decoration:none; text-align:left; cursor:pointer;
-  position:relative; transition:background .15s, color .15s; }
+.ni { width:100%; height:34px; display:flex; align-items:center; gap:10px; padding:0 8px 0 10px; margin:1px 0; border:none; border-radius:7px;
+  background:none; color:var(--sb-t); font:inherit; font-size:13px; font-weight:500; text-decoration:none; text-align:left; cursor:pointer;
+  position:relative; transition:background .12s, color .12s; }
 .ni:hover { background:var(--sb-hov); color:#fff; }
-.ni-tl { position:relative; z-index:1; width:30px; height:30px; flex-shrink:0; border-radius:9px; display:grid; place-items:center;
-  background:var(--sb-tile); color:var(--sb-t2); box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);
-  transition:background .15s, color .15s, box-shadow .15s; }
-.ni-ic { width:17px; height:17px; }
-.ni:hover .ni-tl { background:var(--sb-tile-h); color:#fff; }
+.ni-tl { display:grid; place-items:center; flex-shrink:0; color:var(--sb-ic); transition:color .12s; }
+.ni-ic { width:16px; height:16px; }
+.ni:hover .ni-tl, .ni.act .ni-tl { color:#fff; }
 .ni.act { color:#fff; }
-.ni.act .ni-tl, .ni.on .ni-tl { background:linear-gradient(145deg, var(--brand-400), var(--brand-600)); color:#fff;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 4px 12px -3px rgba(99,102,241,.8); }
-.ni.on { color:#fff; background:linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(255,255,255,.07), 0 8px 18px -10px rgba(0,0,0,.55); }
+.ni.on { background:var(--sb-sel); color:#fff; box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
+.ni.on .ni-tl { color:var(--brand-300); }
 .ni-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ni-n { min-width:22px; height:20px; padding:0 7px; border-radius:10px; background:var(--brand-500); color:#fff; font-size:11px; font-weight:700;
-  line-height:20px; text-align:center; font-variant-numeric:tabular-nums; box-shadow:0 2px 8px -2px rgba(99,102,241,.8); }
-.ni.on .ni-n { background:#fff; color:var(--brand-700); box-shadow:none; }
-.ni-n.dot { position:absolute; z-index:2; top:2px; right:calc(50% - 23px); min-width:0; width:9px; height:9px; padding:0; border-radius:50%;
-  background:var(--brand-400); box-shadow:0 0 0 2px var(--sb-g2), 0 0 10px rgba(129,140,248,.9); }
-.ni-ch { width:15px; height:15px; flex-shrink:0; color:var(--sb-gt); transition:transform .22s cubic-bezier(.2,.7,.2,1), color .15s; }
+.ni-n, .si-n.ish { min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:rgba(129,140,248,.22); color:#e0e4ff;
+  font-size:11px; font-weight:600; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; }
+.ni-n.dot { position:absolute; top:7px; right:7px; min-width:0; width:7px; height:7px; padding:0; border-radius:50%;
+  background:var(--brand-400); box-shadow:0 0 0 2px var(--sb-g1); }
+.ni-ch { width:14px; height:14px; flex-shrink:0; color:var(--sb-t3); transition:transform .18s cubic-bezier(.2,.7,.2,1), color .12s; }
 .ni:hover .ni-ch { color:var(--sb-t); }
 .ni-ch.up { transform:rotate(90deg); }
-.sb--yigiq .ni { justify-content:center; padding:0; }
-.sb--yigiq .ni.on { background:none; box-shadow:none; }
-.sb--yigiq .ni-tl { width:38px; height:38px; border-radius:12px; }
-.sb--yigiq .ni-ic { width:19px; height:19px; }
+.sb--yigiq .ni { justify-content:center; width:40px; height:40px; margin:2px auto; padding:0; border-radius:9px; }
+.sb--yigiq .ni-ic { width:18px; height:18px; }
 
-/* Ichki sahifalar — silliq ochiladi (grid 0fr → 1fr) */
-.sub { display:grid; grid-template-rows:0fr; transition:grid-template-rows .26s cubic-bezier(.2,.7,.2,1); }
+/* Ichki sahifalar — silliq ochiladi (grid 0fr → 1fr), yopiqda inert */
+.sub { display:grid; grid-template-rows:0fr; transition:grid-template-rows .2s cubic-bezier(.2,.7,.2,1); }
 .sub.open { grid-template-rows:1fr; }
-.sub-in { min-height:0; overflow:hidden; visibility:hidden; transition:visibility 0s .26s; }
+.sub-in { min-height:0; overflow:hidden; visibility:hidden; transition:visibility 0s .2s; }
 .sub.open .sub-in { visibility:visible; transition:visibility 0s; }
-.sub-l { position:relative; padding:2px 0 8px; }
-/* zanjirdan tashqari modullarda ichki sahifalarni o'z chizig'i bog'laydi */
-.sb-g:not(.sb-g--zanjir) .sub-l::before { content:''; position:absolute; left:calc(var(--rail) - .5px); width:1px; top:-8px; bottom:25px; background:var(--sb-rail); }
-
-.si { height:34px; display:flex; align-items:center; gap:10px; margin:0 0 1px var(--sub-x); padding:0 10px; border-radius:10px;
-  color:var(--sb-t2); font-size:13px; text-decoration:none; position:relative; transition:background .15s, color .15s; }
-/* chiziqdagi "bekat" nuqtasi */
-.si::before { content:''; position:absolute; left:calc(var(--rail) - var(--sub-x) - 3.5px); top:50%; width:7px; height:7px; margin-top:-3.5px;
-  border-radius:50%; background:var(--sb-g2); box-shadow:0 0 0 1px rgba(165,180,252,.45); opacity:0; transition:opacity .15s; }
+.sub-l { position:relative; padding:1px 0 6px; }
+.sub-l::before { content:''; position:absolute; left:17.5px; top:2px; bottom:7px; width:1px; background:var(--sb-line2); }
+.si { height:30px; display:flex; align-items:center; gap:8px; margin:1px 0 1px 26px; padding:0 8px 0 10px; border-radius:7px;
+  color:var(--sb-t2); font-size:13px; text-decoration:none; position:relative; transition:background .12s, color .12s; }
 .si:hover { background:var(--sb-hov); color:#fff; }
-.si:hover::before { opacity:1; }
-.si.on { background:var(--sb-sel); color:#fff; font-weight:500; box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); }
-.si.on::before { opacity:1; background:var(--brand-400); box-shadow:0 0 0 3px rgba(129,140,248,.22), 0 0 10px rgba(129,140,248,.95); }
-.si-ic { width:16px; height:16px; flex-shrink:0; color:var(--sb-gt); transition:color .15s; }
-.si:hover .si-ic { color:var(--sb-t); }
-.si.on .si-ic { color:var(--brand-300); }
+.si.on { background:var(--sb-sel); color:#fff; font-weight:500; }
+.si.on::before { content:''; position:absolute; left:-9.5px; top:7px; bottom:7px; width:2px; border-radius:1px; background:var(--brand-400); }
 .si-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.si-n { font-size:11.5px; font-weight:500; color:var(--sb-gt); font-variant-numeric:tabular-nums; }
-.si-n.ish { min-width:20px; height:18px; padding:0 6px; border-radius:9px; background:var(--brand-500); color:#fff; line-height:18px; text-align:center; font-weight:700; }
+.si-n { font-size:11.5px; color:var(--sb-t3); font-variant-numeric:tabular-nums; }
 
-/* Pastki qism: foydalanuvchi kartasi */
-.sb-ft { flex-shrink:0; position:relative; padding:12px; display:flex; justify-content:center; }
-.sb-ft::before { top:0; }
-.sb-me { width:100%; display:flex; align-items:center; gap:10px; padding:8px 6px 8px 8px; border-radius:14px;
-  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.035));
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07), inset 0 1px 0 rgba(255,255,255,.07); }
+/* Pastki qism: foydalanuvchi */
+.sb-ft { flex-shrink:0; padding:8px 10px 10px; border-top:1px solid var(--sb-line); display:flex; justify-content:center; }
+.sb-me { width:100%; display:flex; align-items:center; gap:10px; padding:6px 2px 6px 6px; border-radius:8px; }
 .sb-me-t { flex:1; display:flex; flex-direction:column; min-width:0; line-height:1.25; }
 .sb-me-t b { font-size:13px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.sb-me-t small { font-size:11.5px; color:var(--sb-t2); }
-.sb-me .sb-ib { width:30px; height:30px; }
+.sb-me-t small { font-size:11.5px; color:var(--sb-t3); }
 .av { width:32px; height:32px; flex-shrink:0; border-radius:50%; background:var(--brand-600); color:#fff; display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:600; letter-spacing:.02em; }
-.av--sb { width:34px; height:34px; background:linear-gradient(145deg, var(--brand-400), var(--brand-600)); box-shadow:0 0 0 2px rgba(255,255,255,.14); }
+.av--sb { width:28px; height:28px; font-size:11px; background:var(--brand-500); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14); }
 .av--lg { width:40px; height:40px; font-size:14px; }
 
 /* Yig'ilgan menyuning suzuvchi paneli */
-.fly { position:fixed; z-index:60; left:calc(var(--sb-wy) + var(--sb-m) + 10px); min-width:220px; max-width:290px; padding:6px; border-radius:16px;
-  color:var(--sb-t);
-  background:linear-gradient(160deg, rgba(38,35,94,.94), rgba(21,19,60,.96));
-  -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
-  box-shadow:0 20px 44px -12px rgba(15,13,46,.6), inset 0 0 0 1px rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.12); }
-.fly-hd { display:flex; flex-direction:column; gap:2px; padding:8px 10px; border-radius:10px; text-decoration:none; }
-.fly-hd b { font-size:13.5px; font-weight:700; color:#fff; }
-.fly-hd small { font-size:11.5px; line-height:1.35; color:var(--sb-t2); }
+.fly { position:fixed; z-index:60; left:calc(var(--sb-wy) + 6px); min-width:210px; max-width:280px; padding:4px; border-radius:10px;
+  color:var(--sb-t); background:var(--sb-g1); border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 12px 32px -8px rgba(10,9,30,.55), 0 2px 6px rgba(10,9,30,.3); }
+.fly-hd { display:flex; flex-direction:column; gap:1px; padding:7px 10px 8px; border-radius:7px; text-decoration:none; }
+.fly-hd b { font-size:13px; font-weight:600; color:#fff; }
+.fly-hd small { font-size:11.5px; line-height:1.35; color:var(--sb-t3); }
 .fly-hd:hover { background:var(--sb-hov); }
-.fly-l { margin-top:4px; padding-top:4px; border-top:1px solid var(--sb-line); }
-.fs { height:34px; display:flex; align-items:center; gap:10px; padding:0 10px; border-radius:9px; color:var(--sb-t2); font-size:13px; text-decoration:none;
+.fly-l { margin-top:2px; padding-top:4px; border-top:1px solid var(--sb-line); }
+.fs { height:30px; display:flex; align-items:center; gap:8px; padding:0 10px; border-radius:7px; color:var(--sb-t2); font-size:13px; text-decoration:none;
   transition:background .12s, color .12s; }
 .fs:hover { background:var(--sb-hov); color:#fff; }
 .fs.on { background:var(--sb-sel); color:#fff; font-weight:500; }
-.fs-ic { width:16px; height:16px; flex-shrink:0; color:var(--sb-gt); }
-.fs.on .fs-ic, .fs:hover .fs-ic { color:var(--brand-300); }
 .fs-t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.fly-enter-active, .fly-leave-active { transition:opacity .14s, transform .14s; }
-.fly-enter-from, .fly-leave-to { opacity:0; transform:translateX(-6px); }
+.fly-enter-active, .fly-leave-active { transition:opacity .12s, transform .12s; }
+.fly-enter-from, .fly-leave-to { opacity:0; transform:translateX(-4px); }
 
 @media (prefers-reduced-motion: reduce) {
-  .sb, .sub, .ni-ch, .brand-mark { transition:none; }
+  .sb, .sub, .ni-ch { transition:none; }
 }
 
 /* ═══ YUQORI PANEL ═══ */
@@ -867,9 +808,9 @@ kbd { font:500 11px/1 ui-sans-serif, system-ui, sans-serif; padding:3px 5px; bor
 @media (max-width:1180px) { .search { width:200px; } }
 @media (max-width:1040px) { .tb--txt span:not(.tb-n) { display:none; } .search { width:auto; } .search span, .search kbd { display:none; } }
 @media (max-width:900px) {
-  .sb { position:fixed; top:0; bottom:0; left:0; height:auto; margin:8px; width:min(var(--sb-w), calc(100vw - 56px));
-    transform:translateX(calc(-100% - 16px)); transition:transform .28s cubic-bezier(.2,.7,.2,1); }
-  .sb--mobil { transform:none; box-shadow:0 24px 60px rgba(0,0,0,.45); }
+  .sb { position:fixed; inset:0 auto 0 0; height:100%; width:min(280px, calc(100vw - 56px));
+    transform:translateX(-100%); transition:transform .24s cubic-bezier(.2,.7,.2,1); }
+  .sb--mobil { transform:none; box-shadow:0 0 48px rgba(0,0,0,.4); }
   .sb .sb-ib--hd { display:none; }
   .sb .sb-x { display:grid; }
   .sb-ov { position:fixed; inset:0; z-index:39; background:rgba(15,23,42,.42); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
