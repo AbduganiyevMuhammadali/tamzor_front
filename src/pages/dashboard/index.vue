@@ -2,8 +2,8 @@
 /* BOSH SAHIFA — Won Sell (mashinadan savdo) boshqaruv markazi + asosiy pul.
    Ma'lumot manbalari:
      /avtolavka/doska      — bugungi mashinalar (jonli): yuk, naqd, kun bosqichi, so'rovlar, kamomad
-     /avtolavka/dashboard  — davr yig'masi: jami + oldingi teng davr, dinamika, agentlar, top tovarlar
-                             (shartlar va naqd qoidasi /avtolavka/sotuvlar bilan bir xil)
+     /avtolavka/sotuvlar   — davr yig'masi shu jurnaldan frontda hisoblanadi (wonsell): jami, oldingi davr,
+                             dinamika, agentlar, tovarlar
      /dashboard            — kassa, qarzdorlar, ombor, ogohlantirishlar
    Optom rejimida mashina yo'q: sahifa skladdan sotuvlarni ko'rsatadi (yig'mada kanal=sklad ham bor). */
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
@@ -57,7 +57,52 @@ const yuklanmoqda = ref(false)
 const xato = ref('')
 const yangilandi = ref<Date | null>(null)
 
-const wonsell = (kun: number) => { const { dan, gacha } = oraliq(kun); return api.get(`/avtolavka/dashboard?dan=${dan}&gacha=${gacha}`) }
+/* Davr yig'masi — backend'dagi mavjud /avtolavka/sotuvlar jurnalidan frontda yig'iladi (alohida endpoint yo'q):
+   jami va oldingi davr — jurnalning o'z "jami"si; dinamika, agentlar va tovarlar — cheklar sahifalab o'qilib hisoblanadi.
+   30 sahifadan (3000 chek) ko'p bo'lsa dinamika va reytinglar shu 3000 ta eng yangi chek bo'yicha chiqadi. */
+const sotuvlar = (dan: string, gacha: string, sahifa = 1) => api.get(`/avtolavka/sotuvlar?dan=${dan}&gacha=${gacha}&page=${sahifa}`)
+async function wonsell(kun: number) {
+  const { dan, gacha } = oraliq(kun)
+  const o1 = new Date(); o1.setDate(o1.getDate() - (2 * kun - 1))
+  const o2 = new Date(); o2.setDate(o2.getDate() - kun)
+  const [b, old] = await Promise.all([sotuvlar(dan, gacha), sotuvlar(kunKey(o1), kunKey(o2)).catch(() => null)])
+  let rows: any[] = b.rows || []
+  const sah = Math.min(30, Math.ceil((b.jami?.soni || 0) / (b.limit || 100)))
+  if (sah > 1) {
+    const qolgan = await Promise.all(Array.from({ length: sah - 1 }, (_, i) => sotuvlar(dan, gacha, i + 2)))
+    rows = rows.concat(...qolgan.map((x: any) => x.rows || []))
+  }
+  const guruh = kun <= 45 ? 'kun' : kun <= 210 ? 'hafta' : 'oy'
+  const kalit = (d: Date) => {
+    if (guruh === 'oy') return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`
+    const x = new Date(d); if (guruh === 'hafta') x.setDate(x.getDate() - ((x.getDay() + 6) % 7))
+    return kunKey(x)
+  }
+  const D = new Map<string, any>()
+  { // bo'sh kunlar ham — grafik uzilmasin
+    const d = new Date(`${dan}T00:00:00`), oxir = new Date(`${gacha}T23:59:59`)
+    if (guruh === 'oy') d.setDate(1)
+    while (d <= oxir) { const k = kalit(d); if (!D.has(k)) D.set(k, { k, soni: 0, summa: 0, naqd: 0, qarz: 0 }); if (guruh === 'oy') d.setMonth(d.getMonth() + 1); else d.setDate(d.getDate() + (guruh === 'hafta' ? 7 : 1)) }
+  }
+  const A = new Map<any, any>(), T = new Map<string, any>()
+  for (const r of rows) {
+    const x = D.get(kalit(new Date(r.vaqt)))
+    if (x) { x.soni++; x.summa += r.summa; x.naqd += r.naqd; x.qarz += r.qarz }
+    const id = r.agent_id || 'sklad'
+    const a = A.get(id) || { id, fullname: r.agent_id ? r.agent_nomi : 'Sklad · xodimsiz', soni: 0, summa: 0, naqd: 0, qarz: 0, m: new Set() }
+    a.soni++; a.summa += r.summa; a.naqd += r.naqd; a.qarz += r.qarz; a.m.add(r.mijoz_id); A.set(id, a)
+    for (const n of r.tovarlar || []) { const t = T.get(n) || { nomi: n, cheklar: 0 }; t.cheklar++; T.set(n, t) }
+  }
+  const j = b.jami || {}
+  return {
+    dan, gacha, guruh,
+    jami: { ...j, ortacha_chek: j.soni ? Math.round(j.summa / j.soni) : 0 },
+    oldingi: old?.jami || {},
+    dinamika: [...D.values()],
+    agentlar: [...A.values()].map(a => ({ ...a, mijozlar: a.m.size })).sort((x, y) => y.summa - x.summa),
+    top_tovarlar: [...T.values()].sort((x, y) => y.cheklar - x.cheklar).slice(0, 8),
+  }
+}
 
 async function davrYukla() {
   const d = davrM.value
@@ -200,7 +245,7 @@ const taqsimot = computed(() => [
 const agentlar = computed<any[]>(() => agg.value?.agentlar || [])
 const agentMaks = computed(() => Math.max(1, ...agentlar.value.map(a => a.summa)))
 const tovarlar = computed<any[]>(() => (agg.value?.top_tovarlar || []).slice(0, 5))
-const tovarMaks = computed(() => Math.max(1, ...tovarlar.value.map(t => t.summa)))
+const tovarMaks = computed(() => Math.max(1, ...tovarlar.value.map(t => t.cheklar)))
 const agentOch = (a: any) => (a.id === 'sklad' || optom.value ? router.push(sotuvYoli.value) : router.push({ path: '/avtolavka', query: { agent: a.id } }))
 
 /* ── Pul va ombor ─────────────────────────────────────── */
@@ -402,16 +447,15 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
       <article class="karta">
         <header class="k-hd">
           <span class="ik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="IK.yulduz"/></span>
-          <div class="k-t"><b>Top tovarlar</b><small>{{ davrM.izoh }} · eng ko'p sotilgan</small></div>
+          <div class="k-t"><b>Top tovarlar</b><small>{{ davrM.izoh }} · eng ko'p cheklarda uchragan</small></div>
           <router-link to="/hisobot/tovarlar" class="k-link">ABC tahlil →</router-link>
         </header>
         <ol v-if="tovarlar.length" class="reyting">
           <li v-for="(t, i) in tovarlar" :key="t.tovar_id ?? t.nomi" class="ry ry--tovar">
             <span class="ry-o" :class="'o' + (i + 1)">{{ i + 1 }}</span>
             <span class="ry-t">
-              <span class="ry-r"><b>{{ t.nomi }}</b><b class="ry-v">{{ pulQ(t.summa) }}</b></span>
-              <span class="trek"><i :style="{ width: (t.summa / tovarMaks * 100) + '%' }"/></span>
-              <small>{{ fmtMiqdor(t.dona) }} kg · {{ fmtNum(t.cheklar) }} chekda</small>
+              <span class="ry-r"><b>{{ t.nomi }}</b><b class="ry-v">{{ fmtNum(t.cheklar) }} chek</b></span>
+              <span class="trek"><i :style="{ width: (t.cheklar / tovarMaks * 100) + '%' }"/></span>
             </span>
           </li>
         </ol>

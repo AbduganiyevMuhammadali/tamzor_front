@@ -63,6 +63,7 @@ onMounted(load)
     <div class="ck-grid">
       <div class="ck-card">
         <div class="ck-card-t">Chek sarlavhasi</div>
+        <p style="margin:0 0 10px;font-size:12.5px;color:var(--mut)">Mobil ilova chekida firma nomi, telefon va manzil chiqishi uchun shu maydonlarni to‘ldiring.</p>
         <div class="ck-field"><label>Firma nomi</label><input v-model="form.nomi" class="ck-in" placeholder="Masalan: BRULLER" :disabled="loading"/></div>
         <div class="ck-field"><label>Telefon</label><input v-model="form.telefon" class="ck-in" placeholder="+998 90 000 00 00" :disabled="loading"/></div>
         <div class="ck-field"><label>Manzil</label><input v-model="form.manzil" class="ck-in" placeholder="Shahar, ko'cha" :disabled="loading"/></div>

@@ -46,7 +46,12 @@ async function request(path, options = {}) {
       data?.errors?.[0]?.message ??   // Sequelize validation
       data?.message ??                // oddiy xato
       `Server xatosi (${res.status})`
-    throw new Error(msg)
+    // 400/403/409 — foydalanuvchiga ko'rsatiladigan xabar (403 logout QILMAYDI, faqat 401).
+    // err.status va err.errors ([{ msg, param }]) — forma xatoni maydon yonida ko'rsatishi uchun.
+    const err = new Error(msg)
+    err.status = res.status
+    err.errors = Array.isArray(data?.errors) ? data.errors : []
+    throw err
   }
   return data
 }

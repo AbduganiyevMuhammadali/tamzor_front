@@ -18,11 +18,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3013',
+        target: 'http://201.51.11.98:3022',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://localhost:3013',
+        target: 'http://201.51.11.98:3022',
         changeOrigin: true,
       },
     },
