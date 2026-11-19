@@ -28,12 +28,12 @@
 
     <div class="yg-search">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input v-model="search" @input="debouncedLoad" placeholder="Mijoz yoki raqam qidirish..." class="yg-si"/>
+      <input v-model="search" maxlength="100" @keydown.enter="qd.darhol()" placeholder="Mijoz yoki raqam qidirish..." class="yg-si"/>
     </div>
 
     <!-- ═══ LIST ═══ -->
     <div class="yg-list">
-      <div v-if="loading" class="yg-empty">
+      <div v-if="loading && !filtered.length" class="yg-empty">
         <svg class="yg-spin" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.07-8.33"/></svg>
         <span>Yuklanmoqda...</span>
       </div>
@@ -121,6 +121,7 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 // @ts-ignore
 import { arizaApi } from '@/api/api'
+import { useQidiruv } from '@/composables/useQidiruv'
 import DostavchiTayinlashModal from '@/components/DostavchiTayinlashModal.vue'
 
 const COLORS = ['#7c3aed','#8b5cf6','#6d28d9','#5b21b6']
@@ -142,22 +143,17 @@ function showToast(msg, type = 'success') {
 
 const filtered = computed(() => rows.value.filter(r => r.holat === tab.value))
 
-let debT
-function debouncedLoad() { clearTimeout(debT); debT = setTimeout(load, 350) }
-
-async function load() {
-  loading.value = true
-  try {
+const qd = useQidiruv({
+  matn: search, yuklanmoqda: loading,
+  yukla: q => {
     const params = { holat: 'tasdiqlangan,yigilmoqda', all: 'true' }
-    if (search.value) params.search = search.value
-    const data = await arizaApi.getAll(params)
-    rows.value = Array.isArray(data) ? data : (data.rows || [])
-  } catch (e) {
-    showToast(e.message || 'Yuklash xatosi', 'error')
-  } finally {
-    loading.value = false
-  }
-}
+    if (q) params.search = q
+    return arizaApi.getAll(params)
+  },
+  qolla: data => { rows.value = Array.isArray(data) ? data : (data.rows || []) },
+  xato: e => showToast(e.message || 'Yuklash xatosi', 'error'),
+})
+const load = () => qd.qayta()
 
 async function doChange(row, next) {
   changing.value = row.id

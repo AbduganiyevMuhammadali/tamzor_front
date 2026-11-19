@@ -404,27 +404,27 @@
               <div v-show="formTab === 'main'" class="mj-form-grid">
                 <div class="mj-fg mj-fg--full">
                   <label>Nomi <span class="req">*</span></label>
-                  <input type="text" v-model="form.nomi" class="mj-inp" placeholder="Mijoz nomi"/>
+                  <input type="text" v-model="form.nomi" v-maydon:nomi="f" class="mj-inp" placeholder="Mijoz nomi"/>
                 </div>
                 <div class="mj-fg mj-fg--full">
                   <label>Yuridik nomi</label>
-                  <input type="text" v-model="form.yuridik_nomi" class="mj-inp" placeholder="OAJ, MCHJ..."/>
+                  <input type="text" v-model="form.yuridik_nomi" v-maydon:yuridik_nomi="f" class="mj-inp" placeholder="OAJ, MCHJ..."/>
                 </div>
                 <div class="mj-fg">
                   <label>Telefon</label>
-                  <input type="text" v-model="form.telefon" class="mj-inp" placeholder="+998 90 000 00 00"/>
+                  <input type="text" v-model="form.telefon" v-maydon:telefon="f" class="mj-inp" placeholder="+998 90 000 00 00"/>
                 </div>
                 <div class="mj-fg">
                   <label>Telefon 2</label>
-                  <input type="text" v-model="form.telefon2" class="mj-inp" placeholder="+998 90 000 00 00"/>
+                  <input type="text" v-model="form.telefon2" v-maydon:telefon2="f" class="mj-inp" placeholder="+998 90 000 00 00"/>
                 </div>
                 <div class="mj-fg mj-fg--full">
                   <label>Manzil</label>
-                  <input type="text" v-model="form.manzil" class="mj-inp" placeholder="Ko'cha, uy raqami..."/>
+                  <input type="text" v-model="form.manzil" v-maydon:manzil="f" class="mj-inp" placeholder="Ko'cha, uy raqami..."/>
                 </div>
                 <div class="mj-fg mj-fg--full">
                   <label>Mo'ljal</label>
-                  <input type="text" v-model="form.mo_ljal" class="mj-inp" placeholder="Yaqin belgi, orientir..."/>
+                  <input type="text" v-model="form.mo_ljal" v-maydon:mo_ljal="f" class="mj-inp" placeholder="Yaqin belgi, orientir..."/>
                 </div>
                 <div class="mj-fg">
                   <label>Hudud (Territoriya)</label>
@@ -517,8 +517,8 @@
                 </div>
                 <div v-if="form.boshlangich_yon !== 'yoq'" class="mj-form-grid">
                   <div class="mj-fg"><label>Summa (so'm) *</label><NumberInput v-model="form.boshlangich_summa" css-class="mj-inp" placeholder="0"/></div>
-                  <div class="mj-fg"><label>Qaysi sanaga</label><input type="date" v-model="form.boshlangich_sana" class="mj-inp"/></div>
-                  <div class="mj-fg mj-fg--full"><label>Izoh</label><input type="text" v-model="form.boshlangich_izoh" class="mj-inp" maxlength="255" placeholder="Masalan: eski daftar bo'yicha"/></div>
+                  <div class="mj-fg"><label>Qaysi sanaga</label><input type="date" v-model="form.boshlangich_sana" v-maydon:boshlangich_sana="f" class="mj-inp"/></div>
+                  <div class="mj-fg mj-fg--full"><label>Izoh</label><input type="text" v-model="form.boshlangich_izoh" v-maydon:boshlangich_izoh="f" class="mj-inp" maxlength="255" placeholder="Masalan: eski daftar bo'yicha"/></div>
                 </div>
                 <div v-if="form.boshlangich_yon !== 'yoq' && form.boshlangich_summa > 0" class="mj-qoldiq-nat" :class="form.boshlangich_yon === 'qarzdor' ? 'neg' : 'pos'">
                   <template v-if="form.boshlangich_yon === 'qarzdor'">Mijoz bizdan <b>{{ formatSum(form.boshlangich_summa) }} so'm</b> qarzdor bo'lib boshlaydi</template>
@@ -532,19 +532,19 @@
 
               <!-- TAB: Yuridik -->
               <div v-show="formTab === 'extra'" class="mj-form-grid">
-                <div class="mj-fg"><label>INN</label><input type="text" v-model="form.inn" class="mj-inp" placeholder="123456789"/></div>
-                <div class="mj-fg"><label>Shartnoma raqami</label><input type="text" v-model="form.shartnoma_raqam" class="mj-inp" placeholder="SH-001"/></div>
-                <div class="mj-fg"><label>Shartnoma sanasi</label><input type="date" v-model="form.shartnoma_sana" class="mj-inp"/></div>
-                <div class="mj-fg"><label>Hisob raqam</label><input type="text" v-model="form.hisob_raqam" class="mj-inp" placeholder="2020..."/></div>
-                <div class="mj-fg"><label>Bank nomi</label><input type="text" v-model="form.bank" class="mj-inp" placeholder="Kapitalbank..."/></div>
-                <div class="mj-fg"><label>MFO</label><input type="text" v-model="form.mfo" class="mj-inp" placeholder="01234"/></div>
+                <div class="mj-fg"><label>INN</label><input type="text" v-model="form.inn" v-maydon:inn="f" class="mj-inp" placeholder="123456789"/></div>
+                <div class="mj-fg"><label>Shartnoma raqami</label><input type="text" v-model="form.shartnoma_raqam" v-maydon:shartnoma_raqam="f" class="mj-inp" placeholder="SH-001"/></div>
+                <div class="mj-fg"><label>Shartnoma sanasi</label><input type="date" v-model="form.shartnoma_sana" v-maydon:shartnoma_sana="f" class="mj-inp"/></div>
+                <div class="mj-fg"><label>Hisob raqam</label><input type="text" v-model="form.hisob_raqam" v-maydon:hisob_raqam="f" class="mj-inp" placeholder="2020..."/></div>
+                <div class="mj-fg"><label>Bank nomi</label><input type="text" v-model="form.bank" v-maydon:bank="f" class="mj-inp" placeholder="Kapitalbank..."/></div>
+                <div class="mj-fg"><label>MFO</label><input type="text" v-model="form.mfo" v-maydon:mfo="f" class="mj-inp" placeholder="01234"/></div>
                 <div class="mj-fg">
                   <label>Kredit limit (so'm)</label>
-                  <NumberInput v-model="form.kredit_limit" css-class="mj-inp" placeholder="0 = cheklovsiz"/>
+                  <NumberInput v-model="form.kredit_limit" v-maydon:kredit_limit="f" css-class="mj-inp" placeholder="0 = cheklovsiz"/>
                 </div>
                 <div class="mj-fg">
                   <label>To'lov muddati (kun)</label>
-                  <input type="number" v-model.number="form.tolov_muddati_kun" class="mj-inp" placeholder="30" min="1"/>
+                  <input type="number" v-model.number="form.tolov_muddati_kun" v-maydon:tolov_muddati_kun="f" class="mj-inp" placeholder="30" min="1" max="3650" step="1"/>
                 </div>
               </div>
 
@@ -589,12 +589,12 @@
                   <div class="mj-loc-coords">
                     <div class="mj-loc-coord-item">
                       <span class="mj-loc-coord-lbl">Kenglik (Lat)</span>
-                      <input type="number" v-model="form.lat" class="mj-inp mj-inp--coord" placeholder="41.2995" step="0.0000001" @input="updatePickerMarker"/>
+                      <input type="number" v-model="form.lat" v-maydon:lat="f" class="mj-inp mj-inp--coord" placeholder="41.2995" step="0.0000001" @input="updatePickerMarker"/>
                     </div>
                     <div class="mj-loc-coord-sep">×</div>
                     <div class="mj-loc-coord-item">
                       <span class="mj-loc-coord-lbl">Uzunlik (Lng)</span>
-                      <input type="number" v-model="form.lng" class="mj-inp mj-inp--coord" placeholder="69.2401" step="0.0000001" @input="updatePickerMarker"/>
+                      <input type="number" v-model="form.lng" v-maydon:lng="f" class="mj-inp mj-inp--coord" placeholder="69.2401" step="0.0000001" @input="updatePickerMarker"/>
                     </div>
                     <button type="button" class="mj-loc-my-btn" @click="useMyLocation" title="Joriy joylashuvni olish">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
@@ -643,6 +643,9 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { api } from '@/api/api'
+import { useForma } from '@/validation/useForma'
+import { tozala } from '@/validation/qoidalar'
+import * as sx from '@/validation/sxemalar'
 import { fonQatlam } from '@/utils/xarita'
 import MijozImport from './MijozImport.vue'
 import ReytingPanel from './ReytingPanel.vue'
@@ -712,6 +715,10 @@ const emptyForm = () => ({
   boshlangich_yon: 'yoq', boshlangich_summa: 0, boshlangich_sana: '', boshlangich_izoh: '',
 })
 const form = ref(emptyForm())
+const f = useForma(sx.mijoz, () => form.value)
+// Xato qaysi tabda — o'sha tab ochiladi
+const MAYDON_TAB = { inn: 'extra', shartnoma_raqam: 'extra', shartnoma_sana: 'extra', hisob_raqam: 'extra', bank: 'extra', mfo: 'extra', kredit_limit: 'extra', tolov_muddati_kun: 'extra',
+  lat: 'visit', lng: 'visit', tashrif_chastota: 'visit', boshlangich_sana: 'qoldiq', boshlangich_izoh: 'qoldiq', boshlangich_balans: 'qoldiq' }
 const joriyBalans = ref(0)        // tahrirda: mijoz kartasidagi hozirgi balans
 const eskiBoshlangich = ref(0)    // tahrirda: saqlangan boshlang'ich qoldiq
 const yangiBoshlangich = computed(() => {
@@ -781,6 +788,7 @@ function openCreate() {
   editId.value = null; form.value = emptyForm()
   joriyBalans.value = 0; eskiBoshlangich.value = 0
   selectedDays.value = []; formError.value = ''
+  f.tozala()
   formTab.value = 'main'; showModal.value = true
 }
 
@@ -811,11 +819,14 @@ function openEdit(m) {
   joriyBalans.value = parseFloat(m.balans || 0); eskiBoshlangich.value = parseFloat(m.boshlangich_balans || 0)
   selectedDays.value = m.tashrif_kunlari ? m.tashrif_kunlari.split(',').map(s => s.trim()).filter(Boolean) : []
   formError.value = ''; formTab.value = 'main'
+  f.tozala()
   showModal.value = true; detailMijoz.value = null
 }
 
 async function saveMijoz() {
-  if (!form.value.nomi?.trim()) { formError.value = 'Nomi majburiy'; return }
+  if (saving.value) return
+  formError.value = ''
+  if (!f.tekshir()) { formTab.value = MAYDON_TAB[Object.keys(f.xatolar.value)[0]] || 'main'; return }
   if (form.value.boshlangich_yon !== 'yoq' && !(Number(form.value.boshlangich_summa) > 0)) { formTab.value = 'qoldiq'; formError.value = "Boshlang'ich qoldiq summasini kiriting yoki «Qoldiq yo'q» ni tanlang"; return }
   saving.value = true; formError.value = ''
   try {
@@ -831,21 +842,34 @@ async function saveMijoz() {
     if (!body.sinf)           body.sinf           = null
     if (body.lat === '' || body.lat === null) body.lat = null
     if (body.lng === '' || body.lng === null) body.lng = null
+    Object.assign(body, tozala(sx.mijoz, body))   // trim, bo'sh satr → null, son → Number
     if (editId.value) { await api.patch(`/mijozlar/${editId.value}`, body) }
     else              { await api.post('/mijozlar', body) }
     showModal.value = false
     await loadSprav()
     await load()
   } catch (e) {
-    formError.value = e.message || 'Xatolik'
+    formError.value = f.server(e)
+    const k = Object.keys(sx.mijoz).find(x => f.xato(x))
+    if (k) formTab.value = MAYDON_TAB[k] || 'main'
   } finally { saving.value = false }
 }
 
 async function deleteMijoz(m) {
   if (!confirm(`"${m.nomi}" ni o'chirmoqchimisiz?`)) return
-  await api.delete(`/mijozlar/${m.id}`)
-  if (detailMijoz.value?.id === m.id) detailMijoz.value = null
-  await load()
+  try {
+    await api.delete(`/mijozlar/${m.id}`)
+    if (detailMijoz.value?.id === m.id) detailMijoz.value = null
+    await load()
+  } catch (e) {
+    if (e.message === 'session_expired') return
+    // Tarixi/balansi bor mijozni backend o'chirmaydi (400) — o'rniga nofaol qilish taklif etiladi
+    if (e.status === 400 && m.faol !== false) {
+      if (!confirm(`${e.message}\n\n"${m.nomi}" ni o'chirish o'rniga NOFAOL qilaymi? (ro'yxatlarda ko'rinmaydi, tarixi saqlanadi)`)) return
+      try { await api.patch(`/mijozlar/${m.id}`, { nomi: m.nomi, faol: false }); await load() }
+      catch (x) { if (x.message !== 'session_expired') alert(x.message) }
+    } else alert(e.message)
+  }
 }
 
 function openDetail(m) { detailMijoz.value = m }

@@ -10,6 +10,9 @@ import NumberInput from '@/components/NumberInput.vue'
 import { useRoute, useRouter } from 'vue-router'
 // @ts-ignore
 import { api, avtolavkaApi } from '@/api/api'
+import { useSorovId } from '@/validation/useForma'
+import { qiymatXato } from '@/validation/qoidalar'
+import * as sx from '@/validation/sxemalar'
 
 const route = useRoute()
 const router = useRouter()
@@ -192,11 +195,17 @@ const kunOgoh = computed(() => {
 
 /* ── Sotish ── */
 function sotishOch() { if (!muammo.value) { saqlashXato.value = ''; tasdiq.value = true } }
+// So'rov kaliti — shu savat uchun bitta: qayta urinishda o'zgarmaydi (javob yo'qolgan bo'lsa backend
+// o'sha sotuvni qaytaradi, ikkinchisi yaratilmaydi); muvaffaqiyatli sotuvdan keyin yangilanadi
+const sorov = useSorovId()
 async function sot() {
   if (muammo.value || saqlanmoqda.value) return
+  const naqdXato = qiymatXato(sx.avtolavkaSotuv.naqd!, naqd.value)
+  if (naqdXato) { saqlashXato.value = naqdXato; return }
   saqlanmoqda.value = true; saqlashXato.value = ''
   try {
     natija.value = await avtolavkaApi.sotuvCreate({
+      sorov_id: sorov.id.value,
       agent_id: agentId.value, mijoz_id: mijozId.value, sana: sana.value,
       qatorlar: qatorlar.value.map(q => ({ tovar_id: q.tovar_id, dona: q.dona, narx: q.narxi })),
       tolov: tolov.value, naqd: naqd.value,
@@ -205,6 +214,7 @@ async function sot() {
     })
     natija.value.qatorlar = qatorlar.value.map(q => ({ nomi: q.tovar_nomi, dona: q.dona, olchov: q.olchov, narx: q.narxi, summa: q.summa }))
     tasdiq.value = false
+    sorov.yangila()
     agentlarniYukla()
   } catch (e: any) {
     saqlashXato.value = e?.message || "Sotuvni saqlab bo'lmadi"
@@ -215,7 +225,7 @@ async function sot() {
   }
 }
 function yangiSotuv() {
-  natija.value = null; mijozId.value = null; savatniTozala()
+  natija.value = null; mijozId.value = null; savatniTozala(); sorov.yangila()
   tolov.value = 'naqd'; naqdMatn.value = ''; izoh.value = ''; saqlashXato.value = ''
   tayyorYukla()
 }

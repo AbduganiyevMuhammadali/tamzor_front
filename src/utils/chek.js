@@ -166,7 +166,11 @@ export function chekHtml(arizalar, firma = {}) {
 
 /** Yashirin iframe orqali chop etish (popup bloklanmaydi). Chop oynasi yopilgach iframe olib tashlanadi. */
 export function chekChop(arizalar, firma = {}) {
-  const html = chekHtml(arizalar, firma)
+  htmlChop(chekHtml(arizalar, firma))
+}
+
+/** Tayyor HTML hujjatni yashirin iframe orqali chop etadi (chek, yig'ma ro'yxat va h.k.) */
+export function htmlChop(html) {
   const f = document.createElement('iframe')
   f.setAttribute('aria-hidden', 'true')
   f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none;'

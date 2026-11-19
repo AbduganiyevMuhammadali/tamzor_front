@@ -18,10 +18,54 @@ function getToken() {
   }
 }
 
-async function request(path, options = {}) {
+/* So'rovni bekor qilish (qidiruv, sahifadan chiqish).
+ * signalBilan(signal, () => api.get(...)) — fn ichida SINXRON boshlangan har bir so'rov shu signalni oladi,
+ * shuning uchun nomli API'lar (arizaApi.getAll va h.k.) imzosini o'zgartirish shart emas. */
+let joriySignal = null
+export function signalBilan(signal, fn) {
+  const eski = joriySignal
+  joriySignal = signal
+  try { return fn() } finally { joriySignal = eski }
+}
+/** Bekor qilingan so'rov xatosi — foydalanuvchiga ko'rsatilmaydi */
+export const bekorXatomi = (e) => e?.name === 'AbortError'
+
+/* Spravochniklar keshi — kichik, kam o'zgaradigan ro'yxatlar har sahifada qayta so'ralmasin.
+ *  - Faqat pastdagi ro'yxatdagi GET manzillar; javob 60 soniya saqlanadi.
+ *  - Bir vaqtda kelgan bir xil so'rovlar bitta tarmoq so'roviga birlashadi.
+ *  - Har qanday yozish (POST/PATCH/PUT/DELETE) keshni to'liq tozalaydi — o'zgarish darhol ko'rinadi.
+ *  - Har chaqiruvchiga alohida nusxa beriladi (sahifa obyektni o'zgartirsa kesh buzilmaydi).
+ *  - Chiqish/boshqa foydalanuvchi: token kalitga kiradi. */
+const KESH_MUDDAT = 60_000
+const KESHLANADIGAN = new Set([
+  // '/arizalar/spravochnik' ataylab yo'q: unda tovar qoldig'i bor — buyurtma formasi doim yangisini olsin
+  '/mijozlar/spravochnik', '/agents/spravochnik', '/ishlab/spravochnik',
+  '/hisobot/agentlar', '/xarajatlar/turlar', '/turkumlar', '/sozlama/kurs', '/sozlama/chek',
+])
+const kesh = new Map()   // kalit → { vaqt, promise }
+export function keshTozala() { kesh.clear() }
+const nusxa = (d) => (d === null || typeof d !== 'object' ? d : typeof structuredClone === 'function' ? structuredClone(d) : JSON.parse(JSON.stringify(d)))
+
+function request(path, options = {}) {
+  const usul = (options.method || 'GET').toUpperCase()
+  if (usul !== 'GET') { kesh.clear(); return sorov(path, options) }
+  // Bekor qilinadigan so'rov (qidiruv) keshlanmaydi — bekor bo'lsa boshqalarga xato tarqalmasin
+  if (!KESHLANADIGAN.has(path) || options.signal || joriySignal) return sorov(path, options)
+  const kalit = `${getToken() || ''}|${path}`
+  const bor = kesh.get(kalit)
+  if (bor && Date.now() - bor.vaqt < KESH_MUDDAT) return bor.promise.then(nusxa)
+  const yozuv = { vaqt: Date.now(), promise: sorov(path, options) }
+  kesh.set(kalit, yozuv)
+  yozuv.promise.catch(() => { if (kesh.get(kalit) === yozuv) kesh.delete(kalit) })   // xato keshlanmaydi
+  return yozuv.promise.then(nusxa)
+}
+
+async function sorov(path, options = {}) {
   const token = getToken()
+  const signal = options.signal ?? joriySignal ?? undefined
   const res = await fetch(`${BASE}${path}`, {
     ...options,
+    signal,
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -39,32 +83,35 @@ async function request(path, options = {}) {
     throw new Error('session_expired')
   }
 
-  if (!res.ok) {
-    // Sequelize/Joi xatolari — eng ma'lumotli xabarni topamiz
-    const msg =
-      data?.errors?.[0]?.msg ??       // Joi validation
-      data?.errors?.[0]?.message ??   // Sequelize validation
-      data?.message ??                // oddiy xato
-      `Server xatosi (${res.status})`
-    // 400/403/409 — foydalanuvchiga ko'rsatiladigan xabar (403 logout QILMAYDI, faqat 401).
-    // err.status va err.errors ([{ msg, param }]) — forma xatoni maydon yonida ko'rsatishi uchun.
-    const err = new Error(msg)
-    err.status = res.status
-    err.errors = Array.isArray(data?.errors) ? data.errors : []
-    throw err
-  }
+  if (!res.ok) throw xatoYasa(res, data)
   return data
+}
+
+/* Server xatosi → Error. 400/403/409/429 — foydalanuvchiga ko'rsatiladigan xabar (403 logout QILMAYDI, faqat 401).
+ * err.status va err.errors ([{ msg, param }]) — forma xatoni maydon yonida ko'rsatishi uchun. */
+function xatoYasa(res, data) {
+  // Sequelize/Joi xatolari — eng ma'lumotli xabarni topamiz
+  const msg =
+    data?.errors?.[0]?.msg ??       // Joi validation
+    data?.errors?.[0]?.message ??   // Sequelize validation
+    data?.message ??                // oddiy xato
+    `Server xatosi (${res.status})`
+  const err = new Error(msg)
+  err.status = res.status
+  err.errors = Array.isArray(data?.errors) ? data.errors : []
+  return err
 }
 
 /* Fayl yuborish (multipart/form-data) — Content-Type'ni brauzer o'zi qo'yadi (boundary bilan) */
 async function upload(path, formData, method = 'POST') {
+  kesh.clear()   // yozish — spravochnik keshi eskiradi
   const token = getToken()
   const res = await fetch(`${BASE}${path}`, { method, body: formData, headers: token ? { Authorization: `Bearer ${token}` } : {} })
   const text = await res.text()
   let data = null
   try { data = text ? JSON.parse(text) : null } catch { /* ignore */ }
   if (res.status === 401) { window.dispatchEvent(new CustomEvent('sellz:session-expired')); throw new Error('session_expired') }
-  if (!res.ok) throw new Error(data?.errors?.[0]?.msg ?? data?.message ?? `Server xatosi (${res.status})`)
+  if (!res.ok) throw xatoYasa(res, data)
   return data
 }
 
@@ -73,7 +120,12 @@ async function yuklabOl(path, faylNomi) {
   const token = getToken()
   const res = await fetch(`${BASE}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
   if (res.status === 401) { window.dispatchEvent(new CustomEvent('sellz:session-expired')); throw new Error('session_expired') }
-  if (!res.ok) throw new Error(`Server xatosi (${res.status})`)
+  if (!res.ok) {
+    // Xato javobi JSON bo'ladi — backend xabarini ko'rsatamiz
+    let data = null
+    try { data = await res.json() } catch { /* ignore */ }
+    throw xatoYasa(res, data)
+  }
   const blob = await res.blob()
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a'); a.href = url; a.download = faylNomi; document.body.appendChild(a); a.click(); a.remove()
@@ -81,7 +133,7 @@ async function yuklabOl(path, faylNomi) {
 }
 
 export const api = {
-  get:    (path)              => request(path),
+  get:    (path, options)     => request(path, options),
   upload: (path, formData, method) => upload(path, formData, method),
   yukla:  (path, faylNomi)    => yuklabOl(path, faylNomi),
   post:   (path, body)        => request(path, { method: 'POST',   body: JSON.stringify(body) }),

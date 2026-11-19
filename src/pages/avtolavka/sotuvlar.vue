@@ -8,6 +8,7 @@ import { useRoute, useRouter } from 'vue-router'
 // @ts-ignore
 import { avtolavkaApi, arizaApi } from '@/api/api'
 import { authStore } from '@/stores/auth'
+import { useQidiruv } from '@/composables/useQidiruv'
 
 const route = useRoute()
 const router = useRouter()
@@ -65,27 +66,41 @@ const sarlavhaDavr = computed(() => {
   return `${f(dan.value)} — ${f(gacha.value)}`
 })
 
-let soralgan = 0
-async function yukla(qoshish = false) {
-  const n = ++soralgan
-  yuklanmoqda.value = true; xato.value = ''
-  const params: Record<string, any> = { dan: dan.value, gacha: gacha.value, page: qoshish ? sahifa.value + 1 : 1 }
+function paramsYasa(matn: string, page: number) {
+  const params: Record<string, any> = { dan: dan.value, gacha: gacha.value, page }
   if (agentId.value === 'sklad') params.kanal = 'sklad'
   else if (agentId.value) params.agent_id = agentId.value
   if (tolov.value) params.tolov = tolov.value
   if (korinish.value === 'takror') params.takror = 1
   if (korinish.value === 'bekor') params.holat = 'bekor'
-  if (search.value.trim()) params.search = search.value.trim()
+  if (matn) params.search = matn
+  return params
+}
+const qd = useQidiruv<any>({
+  matn: search, yuklanmoqda,
+  kalit: () => [dan.value, gacha.value, agentId.value, tolov.value, korinish.value],
+  yukla: m => { xato.value = ''; return avtolavkaApi.sotuvlar(paramsYasa(m, 1)) },
+  qolla: d => { data.value = d; sahifa.value = d.sahifa; rows.value = d.rows },
+  xato: e => { xato.value = e?.message || 'Yuklab bo\'lmadi' },
+})
+/* qoshish — "Yana ko'rsatish": keyingi sahifa mavjud ro'yxatga qo'shiladi.
+   Kutish paytida qidiruv/filtr o'zgarsa (ro'yxat almashsa) kechikkan javob tashlanadi. */
+async function yukla(qoshish = false) {
+  if (!qoshish) return qd.qayta()
+  const asos = rows.value
+  const eskirdi = () => rows.value !== asos
+  yuklanmoqda.value = true
   try {
-    const d = await avtolavkaApi.sotuvlar(params)
-    if (n !== soralgan) return
+    const d = await avtolavkaApi.sotuvlar(paramsYasa(qd.amal.value, sahifa.value + 1))
+    if (eskirdi()) return
     data.value = d
     sahifa.value = d.sahifa
-    rows.value = qoshish ? [...rows.value, ...d.rows] : d.rows
+    rows.value = [...asos, ...d.rows]
+    yuklanmoqda.value = false
   } catch (e: any) {
-    if (n === soralgan) xato.value = e?.message || 'Yuklab bo\'lmadi'
-  } finally {
-    if (n === soralgan) yuklanmoqda.value = false
+    if (eskirdi()) return
+    xato.value = e?.message || 'Yuklab bo\'lmadi'
+    yuklanmoqda.value = false
   }
 }
 
@@ -95,8 +110,6 @@ watch([dan, gacha, agentId, tolov, korinish], () => {
   router.replace({ query: { ...(dan.value !== bugun() || gacha.value !== bugun() ? { dan: dan.value, gacha: gacha.value } : {}), ...(agentId.value ? { agent: String(agentId.value) } : {}), ...(tolov.value ? { tolov: tolov.value } : {}), ...(korinish.value ? { korinish: korinish.value } : {}) } })
   yukla()
 })
-let qT: ReturnType<typeof setTimeout> | undefined
-watch(search, () => { clearTimeout(qT); qT = setTimeout(() => yukla(), 300) })
 onMounted(() => yukla())
 
 /* ── Chek tafsiloti ── */
@@ -228,7 +241,7 @@ const IKON = {
         <div class="as-bar-r">
           <label class="as-q">
             <svg viewBox="0 0 24 24" v-html="IKON.qidir"/>
-            <input v-model="search" placeholder="Mijoz yoki chek raqami"/>
+            <input v-model="search" maxlength="100" placeholder="Mijoz yoki chek raqami" @keydown.enter="qd.darhol()"/>
           </label>
           <div class="as-seg sm">
             <button :class="{ on: tolov === '' }" @click="tolov = ''">Hammasi</button>

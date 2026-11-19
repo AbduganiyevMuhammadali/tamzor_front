@@ -1,5 +1,8 @@
 <template>
   <div class="am-page">
+    <!-- Backend ro'yxatni limitda kesgan (kesildi: true) yoki yuklashda xato -->
+    <div v-if="yuklashXato" class="ogoh-tasma ogoh-tasma--xato">{{ yuklashXato }}</div>
+    <div v-else-if="kesildi" class="ogoh-tasma">Ma'lumot to'liq emas — juda ko'p yozuv. Davrni qisqartiring yoki bitta agentni tanlang.</div>
 
     <!-- ═══ HEAD ═══ -->
     <div class="am-head">
@@ -398,6 +401,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 // @ts-ignore
 import { hisobotApi } from '@/api/api'
+import { davrXato } from '@/validation/qoidalar'
 import BoshHolat from '@/components/BoshHolat.vue'
 import AgentMarshrut from '@/components/AgentMarshrut.vue'
 
@@ -424,6 +428,8 @@ const CW = 300, CH = 150   // chiziqli grafik koordinata tizimi
 
 const tab     = ref('marshrut')
 const loading = ref(false)
+const kesildi = ref(false)        // backend limitga yetib kesgan — natija to'liq emas
+const yuklashXato = ref('')
 const period  = ref('hafta')
 const qidiruv = ref('')
 const natijaF = ref('')
@@ -560,7 +566,10 @@ function setPeriod(p) {
 }
 
 async function load() {
+  // Davr: boshlanish tugashdan keyin bo'lmasin, ko'pi bilan 366 kun (backend chegarasi)
+  if (f.dan && f.gacha) { const x = davrXato(f.dan, f.gacha); if (x) { yuklashXato.value = x; return } }
   loading.value = true
+  yuklashXato.value = ''
   try {
     const p = {}
     if (f.dan)      p.dan      = f.dan
@@ -578,8 +587,9 @@ async function load() {
       agentlar: r.agentlar || [],
       anomaliya_chegara: r.anomaliya_chegara || d.anomaliya_chegara,
     })
+    kesildi.value = !!r.kesildi
   } catch (e) {
-    console.error('Agent monitoring xatosi:', e)
+    if (e?.message !== 'session_expired') yuklashXato.value = e?.message || "Ma'lumotni yuklab bo'lmadi"
   } finally {
     loading.value = false
   }

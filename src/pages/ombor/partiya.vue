@@ -1,6 +1,7 @@
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, toRef } from 'vue'
 import { api } from '../../api/api.js'
+import { useQidiruv } from '@/composables/useQidiruv'
 
 const filter = reactive({
   search:  '',
@@ -11,22 +12,25 @@ const filter = reactive({
 const loading = ref(false)
 const rows    = ref([])
 
-let debounceTimer = null
-function loadData() {
-  clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(async () => {
-    loading.value = true
+const yuklashXato = ref('')
+const qd = useQidiruv({
+  matn: toRef(filter, 'search'), yuklanmoqda: loading,
+  kalit: () => [filter.ombor, filter.turkum],
+  yukla: q => {
+    yuklashXato.value = ''
     const p = new URLSearchParams()
-    if (filter.search) p.set('search', filter.search)
+    if (q)             p.set('search', q)
     if (filter.ombor)  p.set('ombor',  filter.ombor)
-    if (filter.turkum) p.set('turkum', filter.turkum)
-    try {
-      rows.value = await api.get(`/hisobot/partiya-qoldiqlar?${p.toString()}`)
-    } finally {
-      loading.value = false
-    }
-  }, 300)
-}
+    if (filter.turkum.trim()) p.set('turkum', filter.turkum.trim().slice(0, 100))
+    return api.get(`/hisobot/partiya-qoldiqlar?${p.toString()}`)
+  },
+  qolla: d => { rows.value = d },
+  xato: e => { yuklashXato.value = e?.message || "Yuklab bo'lmadi" },
+})
+const loadData = () => qd.qayta()
+// Turkum ham matnli filtr — yozish to'xtagach yuboriladi (eski javob useQidiruv'da tashlanadi)
+let turkumT = null
+function turkumOzgardi() { clearTimeout(turkumT); turkumT = setTimeout(loadData, 350) }
 
 loadData()
 
@@ -73,7 +77,7 @@ function colorAt(i) { return COLORS[i % COLORS.length] }
       <div class="pt-filters">
         <div class="pt-fg">
           <label class="pt-flbl">Qidirish</label>
-          <input type="text" v-model="filter.search" @input="loadData" placeholder="Tovar nomi..." class="pt-fin"/>
+          <input type="text" v-model="filter.search" maxlength="100" @keydown.enter="qd.darhol()" placeholder="Tovar nomi..." class="pt-fin"/>
         </div>
         <div class="pt-fg">
           <label class="pt-flbl">Ombor</label>
@@ -85,7 +89,7 @@ function colorAt(i) { return COLORS[i % COLORS.length] }
         </div>
         <div class="pt-fg">
           <label class="pt-flbl">Turkum</label>
-          <input type="text" v-model="filter.turkum" @input="loadData" placeholder="Turkum..." class="pt-fin" style="min-width:100px"/>
+          <input type="text" v-model="filter.turkum" maxlength="100" @input="turkumOzgardi" @keydown.enter="loadData()" placeholder="Turkum..." class="pt-fin" style="min-width:100px"/>
         </div>
         <button class="pt-refresh" @click="loadData()" :class="{ 'pt-refresh--spin': loading }">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
@@ -142,7 +146,8 @@ function colorAt(i) { return COLORS[i % COLORS.length] }
       </div>
 
       <div class="pt-tbl-wrap">
-        <div v-if="loading" class="pt-loading">
+        <div v-if="yuklashXato" class="pt-loading">{{ yuklashXato }}</div>
+        <div v-else-if="loading && !rows.length" class="pt-loading">
           <span class="pt-spin"/>
           Yuklanmoqda...
         </div>

@@ -142,13 +142,13 @@
               <button v-for="a in AMALLAR" :key="a.k" :class="[{ on: amal.tur === a.k }, a.cls]" @click="amal.tur = a.k">{{ a.t }}</button>
             </div>
             <div class="qz-grid">
-              <label class="qz-f"><span>Summa (so'm) *</span><NumberInput v-model="amal.summa" placeholder="0" ref="summaInp"/></label>
-              <label class="qz-f"><span>Sana</span><input type="date" v-model="amal.sana"/></label>
+              <label class="qz-f"><span>Summa (so'm) *</span><NumberInput v-model="amal.summa" v-maydon:summa="hf" placeholder="0" ref="summaInp"/></label>
+              <label class="qz-f"><span>Sana</span><input type="date" v-model="amal.sana" v-maydon:sana="hf"/></label>
               <label class="qz-f"><span>To'lov usuli</span>
                 <select v-model="amal.tolov_usul"><option value="naqt">Naqd</option><option value="karta">Karta</option><option value="bank">Bank</option></select>
               </label>
-              <label v-if="amal.tur === 'qarz_berdik' || amal.tur === 'qarz_oldik'" class="qz-f"><span>Qaytarish muddati</span><input type="date" v-model="amal.muddat"/></label>
-              <label class="qz-f full"><span>Izoh</span><input v-model="amal.izoh" maxlength="255" placeholder="Masalan: 3 oyga, foizsiz"/></label>
+              <label v-if="amal.tur === 'qarz_berdik' || amal.tur === 'qarz_oldik'" class="qz-f"><span>Qaytarish muddati</span><input type="date" v-model="amal.muddat" v-maydon:muddat="hf"/></label>
+              <label class="qz-f full"><span>Izoh</span><input v-model="amal.izoh" v-maydon:izoh="hf" maxlength="255" placeholder="Masalan: 3 oyga, foizsiz"/></label>
             </div>
             <div v-if="amal.summa > 0" class="qz-prev" :class="yangiQoldiq > 0.5 ? 'plus' : yangiQoldiq < -0.5 ? 'minus' : 'teng'">
               <div>{{ kassaMatn }}</div>
@@ -174,12 +174,12 @@
           </div>
           <div class="qz-m-b">
             <div class="qz-grid">
-              <label class="qz-f full"><span>Ism / tashkilot *</span><input v-model="sh.ism" maxlength="150" placeholder="Masalan: Akmal aka (qo'shni do'kon)"/></label>
-              <label class="qz-f"><span>Telefon</span><input v-model="sh.telefon" maxlength="30" placeholder="+998"/></label>
+              <label class="qz-f full"><span>Ism / tashkilot *</span><input v-model="sh.ism" v-maydon:ism="shf" maxlength="150" placeholder="Masalan: Akmal aka (qo'shni do'kon)"/></label>
+              <label class="qz-f"><span>Telefon</span><input v-model="sh.telefon" v-maydon:telefon="shf" maxlength="30" placeholder="+998"/></label>
               <label v-if="sh.id" class="qz-f"><span>Holati</span>
                 <select v-model="sh.faol"><option :value="true">Faol</option><option :value="false">Nofaol</option></select>
               </label>
-              <label class="qz-f full"><span>Izoh</span><input v-model="sh.izoh" placeholder="Kim, qanday kelishuv"/></label>
+              <label class="qz-f full"><span>Izoh</span><input v-model="sh.izoh" v-maydon:izoh="shf" placeholder="Kim, qanday kelishuv"/></label>
             </div>
             <template v-if="!sh.id">
               <div class="qz-sub">Boshlang'ich qoldiq — tizimdan oldingi hisob (kassaga yozilmaydi)</div>
@@ -212,6 +212,8 @@ import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/api/api'
+import { useForma } from '@/validation/useForma'
+import * as sx from '@/validation/sxemalar'
 
 const route = useRoute(), router = useRouter()
 const TABLAR = [{ k: 'hammasi', t: 'Hammasi' }, { k: 'bizga', t: 'Bizga qarzdor' }, { k: 'bizdan', t: 'Biz qarzdormiz' }, { k: 'teng', t: 'Teng' }]
@@ -241,6 +243,8 @@ const tanlangan = ref(Number(route.query.shaxs) || null)
 const d = ref(null)
 const band = ref(false)
 const xato = ref('')
+const hf = useForma(sx.uchinchiHarakat, () => amal)   // harakat (berdik/oldik/qaytardi)
+const shf = useForma(sx.uchinchiShaxs, () => sh)        // shaxs kartasi
 const summaInp = ref(null)
 
 const bugun = () => { const x = new Date(); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}` }
@@ -294,18 +298,21 @@ function holatTanla(k) { holat.value = holat.value === k && k !== 'hammasi' ? 'h
 
 function amalOch(tur) {
   Object.assign(amal, { ochiq: true, tur, summa: null, sana: bugun(), tolov_usul: 'naqt', muddat: '', izoh: '' })
-  xato.value = ''
+  xato.value = ''; hf.tozala()
   nextTick(() => summaInp.value?.focus())
 }
 async function amalSaqla() {
-  band.value = true; xato.value = ''
+  if (band.value) return
+  xato.value = ''
+  if (!hf.tekshir()) return
+  band.value = true
   try {
     await api.post(`/uchinchi-shaxslar/${tanlangan.value}/harakat`, {
       tur: amal.tur, summa: amal.summa, sana: amal.sana, tolov_usul: amal.tolov_usul, muddat: amal.muddat || null, izoh: amal.izoh,
     })
     amal.ochiq = false
     await Promise.all([yukla(), tafsilot()])
-  } catch (e) { xato.value = e.message || 'Saqlanmadi' }
+  } catch (e) { xato.value = hf.server(e) || 'Saqlanmadi' }
   finally { band.value = false }
 }
 async function harakatOchir(h) {
@@ -316,11 +323,14 @@ async function harakatOchir(h) {
 
 function shaxsOch(s = null) {
   Object.assign(sh, { ochiq: true, id: s?.id || null, ism: s?.ism || '', telefon: s?.telefon || '', izoh: s?.izoh || '', faol: s ? !!s.faol : true, yon: 'yoq', summa: null, sana: bugun(), muddat: '' })
-  xato.value = ''
+  xato.value = ''; shf.tozala()
 }
 async function shaxsSaqla() {
   if (!sh.id && sh.yon !== 'yoq' && !(Number(sh.summa) > 0)) { xato.value = "Boshlang'ich qoldiq summasini kiriting yoki «Qoldiq yo'q» ni tanlang"; return }
-  band.value = true; xato.value = ''
+  if (band.value) return
+  xato.value = ''
+  if (!shf.tekshir()) return
+  band.value = true
   try {
     if (sh.id) {
       await api.patch(`/uchinchi-shaxslar/${sh.id}`, { ism: sh.ism, telefon: sh.telefon, izoh: sh.izoh, faol: sh.faol })
@@ -334,7 +344,7 @@ async function shaxsSaqla() {
     }
     sh.ochiq = false
     await Promise.all([yukla(), tafsilot()])
-  } catch (e) { xato.value = e.message || 'Saqlanmadi' }
+  } catch (e) { xato.value = shf.server(e) || 'Saqlanmadi' }
   finally { band.value = false }
 }
 async function shaxsOchir() {

@@ -7,6 +7,8 @@ declare module '*.vue' {
 }
 
 declare module '*/api/api.js' {
+  export function signalBilan<T>(signal: AbortSignal, fn: () => T): T
+  export const bekorXatomi: (e: unknown) => boolean
   export const api: {
     get:    (path: string) => Promise<any>
     post:   (path: string, body: unknown) => Promise<any>

@@ -4,6 +4,10 @@ import SozDataTable from '../components/SozDataTable.vue'
 import type { Tovar } from '../types'
 import type { Column } from '../types'
 import { api } from '../../../api/api.js'
+import { useQidiruv } from '@/composables/useQidiruv'
+import { useForma } from '@/validation/useForma'
+import { tozala } from '@/validation/qoidalar'
+import * as sx from '@/validation/sxemalar'
 
 // ─── Custom select ────────────────────────────────────────────────────────────
 const openSelId = ref<string | null>(null)
@@ -88,32 +92,33 @@ const loading = ref(false)
 const errorMsg = ref('')
 const total = ref(0)
 
-async function loadTovarlar() {
-  loading.value = true
-  errorMsg.value = ''
-  try {
-    const params = new URLSearchParams({ limit: '200' })
-    if (search.value)           params.set('search', search.value)
-    if (filterTurkum.value)     params.set('turkum', filterTurkum.value)
-    if (filterFaol.value !== 'all') params.set('faol', filterFaol.value)
-    if (filterTuri.value)       params.set('turi', filterTuri.value)
-    const data = await api.get(`/tovar?${params}`)
-    allRows.value = (data.data ?? []).map(fromApi)
-    total.value = data.total ?? allRows.value.length
-  } catch (e: unknown) {
-    errorMsg.value = e instanceof Error ? e.message : 'Xatolik'
-  } finally {
-    loading.value = false
-  }
-}
-
 // ─── Filters ──────────────────────────────────────────────────────────────────
 const search = ref('')
 const filterFaol = ref<'all' | 'true' | 'false'>('all')
 const filterTurkum = ref('')
 const filterTuri = ref<'' | 'tovar' | 'xom_ashyo'>('')
 
-watch([search, filterFaol, filterTurkum, filterTuri], () => loadTovarlar())
+const qd = useQidiruv<any>({
+  matn: search, yuklanmoqda: loading,
+  kalit: () => [filterFaol.value, filterTurkum.value, filterTuri.value],
+  yukla: q => {
+    errorMsg.value = ''
+    const params = new URLSearchParams({ limit: '200' })
+    if (q)                      params.set('search', q)
+    if (filterTurkum.value)     params.set('turkum', filterTurkum.value)
+    if (filterFaol.value !== 'all') params.set('faol', filterFaol.value)
+    if (filterTuri.value)       params.set('turi', filterTuri.value)
+    return api.get(`/tovar?${params}`)
+  },
+  qolla: data => {
+    allRows.value = (data.data ?? []).map(fromApi)
+    total.value = data.total ?? allRows.value.length
+  },
+  xato: e => { errorMsg.value = e instanceof Error ? e.message : 'Xatolik' },
+})
+const loadTovarlar = () => qd.qayta()
+
+watch([filterFaol, filterTurkum, filterTuri], () => loadTovarlar())
 
 const filtered = computed(() => allRows.value)
 
@@ -175,6 +180,8 @@ const emptyForm = (): TovarForm => ({
 })
 
 const form = reactive<TovarForm>(emptyForm())
+// Qoidalar backend maydon nomlari bo'yicha — forma API ko'rinishiga o'girib tekshiriladi
+const f = useForma(sx.tovar, () => toApiBody(form))
 const editId = ref<string | null>(null)
 
 const modalTitle = computed(() =>
@@ -199,6 +206,7 @@ function openAdd() {
   editId.value = null
   formTab.value = 'asosiy'
   saveError.value = ''
+  f.tozala()
   modalMode.value = 'add'
 }
 
@@ -207,6 +215,7 @@ function openEdit(row: Tovar) {
   editId.value = row.id
   formTab.value = 'asosiy'
   saveError.value = ''
+  f.tozala()
   modalMode.value = 'edit'
 }
 
@@ -215,6 +224,7 @@ function openView(row: Tovar) {
   editId.value = row.id
   formTab.value = 'asosiy'
   saveError.value = ''
+  f.tozala()
   modalMode.value = 'view'
 }
 
@@ -248,11 +258,13 @@ const saving = ref(false)
 const saveError = ref('')
 
 async function saveForm(addAnother = false) {
-  if (!validateForm()) return
-  saving.value = true
+  if (saving.value) return
   saveError.value = ''
+  if (!validateForm()) return
+  if (!f.tekshir()) { saveError.value = f.umumiy.value; formTab.value = 'asosiy'; return }
+  saving.value = true
   try {
-    const body = toApiBody(form)
+    const body = tozala(sx.tovar, toApiBody(form))
     let javob: any = null
     if (editId.value && modalMode.value === 'edit') {
       javob = await api.patch(`/tovar/${editId.value}`, body)
@@ -266,12 +278,13 @@ async function saveForm(addAnother = false) {
     if (addAnother) {
       showToast(`"${form.nomi}" saqlandi`, 'success')
       Object.assign(form, emptyForm()); editId.value = null; formTab.value = 'asosiy'
+      f.tozala()
     } else {
       showToast(`"${form.nomi}" saqlandi`, 'success')
       modalMode.value = null
     }
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Xatolik'
+    const msg = f.server(e) || 'Xatolik'
     saveError.value = msg
     showToast(msg, 'error')
   } finally {
@@ -499,7 +512,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
         </button>
         <div class="srch-box">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-          <input v-model="search" placeholder="Qidirish..." class="srch-in"/>
+          <input v-model="search" maxlength="100" @keydown.enter="qd.darhol()" placeholder="Qidirish..." class="srch-in"/>
         </div>
       </div>
     </div>
@@ -512,6 +525,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
         <span v-else class="tv-info-count">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
           <strong>{{ total }}</strong> ta mahsulot
+          <em v-if="total > allRows.length" class="tv-qisman"> — dastlabki {{ allRows.length }} tasi ko'rsatilmoqda, qolganini qidiruv yoki filtr bilan toping</em>
         </span>
       </div>
       <div class="tv-info-right">
@@ -764,7 +778,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                 <!-- Nomi full width -->
                 <div class="fg-field fg-full">
                   <label class="fg-lbl">Mahsulot nomi <span class="req">*</span></label>
-                  <input v-model="form.nomi" class="fg-in" placeholder="Masalan: Coca Cola 0.5L" :disabled="readonly"/>
+                  <input v-model="form.nomi" v-maydon:nomi="f" class="fg-in" placeholder="Masalan: Coca Cola 0.5L" :disabled="readonly"/>
                 </div>
 
                 <!-- Tovar turi: savdo tovari yoki xom ashyo (alohida omborda, sotilmaydi) -->
@@ -807,7 +821,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                   <label class="fg-lbl">Savdo yo'nalishi <span class="req">*</span></label>
                   <div class="csel" :class="openSelId==='savdo' && 'csel--open'">
                     <div class="combo-wrap">
-                      <input v-model="form.savdoYonalishi" class="combo-in" placeholder="Tanlang yoki yozing..." :disabled="readonly" @focus="toggleSel('savdo')" @input="openSelId='savdo'"/>
+                      <input v-model="form.savdoYonalishi" v-maydon:savdo_yonalishi.ota="f" class="combo-in" placeholder="Tanlang yoki yozing..." :disabled="readonly" @focus="toggleSel('savdo')" @input="openSelId='savdo'"/>
                       <button type="button" class="combo-arrow" :disabled="readonly" @click="toggleSel('savdo')">
                         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                       </button>
@@ -833,7 +847,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                   <label class="fg-lbl">Podkategoriya</label>
                   <div class="csel" :class="openSelId==='podkat' && 'csel--open'">
                     <div class="combo-wrap">
-                      <input v-model="form.podkategoriya" class="combo-in" placeholder="Tanlang yoki yozing..." :disabled="readonly" @focus="toggleSel('podkat')" @input="openSelId='podkat'"/>
+                      <input v-model="form.podkategoriya" v-maydon:podkategoriya.ota="f" class="combo-in" placeholder="Tanlang yoki yozing..." :disabled="readonly" @focus="toggleSel('podkat')" @input="openSelId='podkat'"/>
                       <button v-if="form.podkategoriya && !readonly" type="button" class="combo-clear" @mousedown.prevent="form.podkategoriya=''">
                         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                       </button>
@@ -882,7 +896,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                     <button class="fg-num-btn" @click="numStep('hajm', -1)" :disabled="readonly">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
                     </button>
-                    <input v-model.number="form.hajm" type="number" class="fg-num-in" :disabled="readonly"/>
+                    <input v-model.number="form.hajm" v-maydon:hajm.ota="f" type="number" min="0" step="any" class="fg-num-in" :disabled="readonly"/>
                     <button class="fg-num-btn" @click="numStep('hajm', 1)" :disabled="readonly">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
                     </button>
@@ -895,7 +909,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                     <button class="fg-num-btn" @click="numStep('ogirlik', -1)" :disabled="readonly">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
                     </button>
-                    <input v-model.number="form.ogirlik" type="number" class="fg-num-in" :disabled="readonly"/>
+                    <input v-model.number="form.ogirlik" v-maydon:ogirlik.ota="f" type="number" min="0" step="any" class="fg-num-in" :disabled="readonly"/>
                     <button class="fg-num-btn" @click="numStep('ogirlik', 1)" :disabled="readonly">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
                     </button>
@@ -908,7 +922,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                     <button class="fg-num-btn" @click="numStep('blokdagiSoni', -1, 1)" :disabled="readonly">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
                     </button>
-                    <input v-model.number="form.blokdagiSoni" type="number" class="fg-num-in" :disabled="readonly"/>
+                    <input v-model.number="form.blokdagiSoni" v-maydon:blokdagi_soni.ota="f" type="number" min="0" step="any" class="fg-num-in" :disabled="readonly"/>
                     <button class="fg-num-btn" @click="numStep('blokdagiSoni', 1, 1)" :disabled="readonly">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
                     </button>
@@ -921,7 +935,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                     <button class="fg-num-btn" @click="numStep('qutidagiBloklar', -1, 1)" :disabled="readonly">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
                     </button>
-                    <input v-model.number="form.qutidagiBloklar" type="number" class="fg-num-in" :disabled="readonly"/>
+                    <input v-model.number="form.qutidagiBloklar" v-maydon:qutidagi_bloklar.ota="f" type="number" min="0" step="any" class="fg-num-in" :disabled="readonly"/>
                     <button class="fg-num-btn" @click="numStep('qutidagiBloklar', 1, 1)" :disabled="readonly">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
                     </button>
@@ -976,7 +990,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                   <div class="shtrix-row">
                     <div class="fg-in-icon" style="flex:1">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h1a1 1 0 010 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h1a1 1 0 010 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h1a1 1 0 010 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h1a1 1 0 010 2H4a1 1 0 01-1-1zm6-12a1 1 0 011-1h2a1 1 0 010 2h-2a1 1 0 01-1-1zm0 4a1 1 0 011-1h2a1 1 0 010 2h-2a1 1 0 01-1-1zm0 4a1 1 0 011-1h2a1 1 0 010 2h-2a1 1 0 01-1-1zm0 4a1 1 0 011-1h2a1 1 0 010 2h-2a1 1 0 01-1-1zm5-12a1 1 0 011-1h1a1 1 0 010 2h-1a1 1 0 01-1-1zm0 4a1 1 0 011-1h1a1 1 0 010 2h-1a1 1 0 01-1-1zm0 4a1 1 0 011-1h1a1 1 0 010 2h-1a1 1 0 01-1-1zm0 4a1 1 0 011-1h1a1 1 0 010 2h-1a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-                      <input v-model="form.shtrixKod" class="fg-in-field" placeholder="0000000000000" :disabled="readonly"/>
+                      <input v-model="form.shtrixKod" v-maydon:shtrix_kod.ota="f" class="fg-in-field" placeholder="0000000000000" :disabled="readonly"/>
                     </div>
                     <button v-if="!readonly" type="button" class="gen-btn" @click="generateBarcode" title="Avtomatik generatsiya">
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
@@ -1003,7 +1017,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
 
                 <div class="fg-full fg-field">
                   <label class="fg-lbl">Tavsif</label>
-                  <textarea v-model="form.tavsif" class="fg-ta" rows="3" placeholder="Mahsulot haqida qisqacha tavsif..." :disabled="readonly"/>
+                  <textarea v-model="form.tavsif" v-maydon:tavsif="f" class="fg-ta" rows="3" placeholder="Mahsulot haqida qisqacha tavsif..." :disabled="readonly"/>
                 </div>
               </div>
 
@@ -1261,6 +1275,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
 .tv-info-bar { display:flex; align-items:center; justify-content:space-between; padding:8px 14px; background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; gap:12px; flex-wrap:wrap; }
 .tv-info-left { display:flex; align-items:center; }
 .tv-info-count { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); }
+.tv-qisman { font-style:normal; color:#b45309; }
 .tv-info-count svg { width:13px; height:13px; flex-shrink:0; }
 .tv-info-count strong { color:var(--title); font-weight:700; font-size:13px; }
 .tv-info-filtered { color:var(--muted); font-size:11px; }

@@ -58,13 +58,13 @@
             <div class="hp-card-hd">
               <div class="hp-card-title">+ Mijoz qo'shish</div>
             </div>
-            <input v-model="mijozQ" type="text" class="rj-search" placeholder="Mijoz nomi bo'yicha qidirish..." @input="searchMijoz"/>
+            <input v-model="mijozQ" type="text" class="rj-search" placeholder="Mijoz nomi bo'yicha qidirish..." maxlength="100" @keydown.enter="mijozQd.darhol()"/>
             <div class="rj-mijoz-list">
               <div v-for="m in mijozNatija" :key="m.id" class="rj-mijoz-item" @click="qoshReja(m)">
                 <span>{{ m.nomi }}</span>
                 <span class="rj-plus">+</span>
               </div>
-              <div v-if="mijozQ && !mijozNatija.length" class="hp-empty" style="padding:16px;font-size:12.5px">Topilmadi</div>
+              <div v-if="mijozQd.amal.value && !mijozQidirilmoqda && !mijozNatija.length" class="hp-empty" style="padding:16px;font-size:12.5px">Topilmadi</div>
             </div>
           </div>
         </div>
@@ -126,6 +126,7 @@ import { ref, onMounted } from 'vue'
 import { hisobotApi, api } from '@/api/api'
 // @ts-ignore
 import { useToast } from '@/composables/useToast'
+import { useQidiruv } from '@/composables/useQidiruv'
 
 const toast = useToast()
 
@@ -143,7 +144,6 @@ const loadingReja = ref(false)
 
 const mijozQ = ref('')
 const mijozNatija = ref<any[]>([])
-let mijozTimer: any = null
 
 const pfFrom = ref(new Date().toISOString().slice(0, 10))
 const pfTo = ref(new Date().toISOString().slice(0, 10))
@@ -167,16 +167,14 @@ async function loadReja() {
   }
 }
 
-function searchMijoz() {
-  clearTimeout(mijozTimer)
-  if (!mijozQ.value.trim()) { mijozNatija.value = []; return }
-  mijozTimer = setTimeout(async () => {
-    try {
-      const data = await api.get(`/mijozlar?search=${encodeURIComponent(mijozQ.value)}&limit=8`)
-      mijozNatija.value = data.rows || data || []
-    } catch { mijozNatija.value = [] }
-  }, 300)
-}
+// Mijoz tanlash (autocomplete) — bo'sh matnda ro'yxat tozalanadi
+const mijozQidirilmoqda = ref(false)
+const mijozQd = useQidiruv<any>({
+  matn: mijozQ, yuklanmoqda: mijozQidirilmoqda,
+  yukla: q => (q ? api.get(`/mijozlar?search=${encodeURIComponent(q)}&limit=8`) : Promise.resolve([])),
+  qolla: data => { mijozNatija.value = data.rows || data || [] },
+  xato: e => { mijozNatija.value = []; toast.error('Qidiruv xatosi', e.message || '') },
+})
 
 async function qoshReja(m: any) {
   if (!rAgent.value) return
@@ -232,7 +230,7 @@ function pfClass(foiz: number) {
 }
 
 onMounted(async () => {
-  try { agentlar.value = await hisobotApi.agentlar() } catch {}
+  try { agentlar.value = await hisobotApi.agentlar() } catch (e: any) { toast.error("Agentlar ro'yxatini yuklab bo'lmadi", e.message || '') }
   await loadPlanFact()
 })
 </script>

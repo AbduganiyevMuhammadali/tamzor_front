@@ -695,28 +695,28 @@
                     <label class="fm-label">To'liq ism <span class="fm-req">*</span></label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      <input v-model="form.fullname" class="fm-input" placeholder="Familiya Ism Sharif"/>
+                      <input v-model="form.fullname" v-maydon:fullname.ota="f" class="fm-input" placeholder="Familiya Ism Sharif"/>
                     </div>
                   </div>
                   <div class="fm-field">
                     <label class="fm-label">Telefon raqami</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.64 13a19.79 19.79 0 01-3.07-8.67A2 2 0 013.55 2h3a2 2 0 012 1.72 12.05 12.05 0 00.7 2.81 2 2 0 01-.45 2.11L7.91 9.91a16 16 0 006.17 6.17l1.06-1.06a2 2 0 012.11-.45 12.05 12.05 0 002.81.7A2 2 0 0122 16.92z"/></svg>
-                      <input v-model="form.telefon" class="fm-input" placeholder="+998 90 000 00 00"/>
+                      <input v-model="form.telefon" v-maydon:telefon.ota="f" class="fm-input" placeholder="+998 90 000 00 00"/>
                     </div>
                   </div>
                   <div class="fm-field">
                     <label class="fm-label">Passport seriyasi</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 10a2 2 0 100-4 2 2 0 000 4z"/><path d="M6 20c0-2.21 2.686-4 6-4s6 1.79 6 4"/></svg>
-                      <input v-model="form.passport" class="fm-input" placeholder="AA 0000000"/>
+                      <input v-model="form.passport" v-maydon:passport.ota="f" class="fm-input" placeholder="AA 0000000"/>
                     </div>
                   </div>
                   <div class="fm-field">
                     <label class="fm-label">Tug'ilgan sana</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                      <input v-model="form.tugilgan_sana" type="date" class="fm-input"/>
+                      <input v-model="form.tugilgan_sana" v-maydon:tugilgan_sana.ota="f" type="date" class="fm-input"/>
                     </div>
                   </div>
                 </div>
@@ -763,7 +763,7 @@
                     <label class="fm-label">Oylik plan (so'm) <span class="fm-req">*</span></label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                      <NumberInput v-model="form.plan_summa" :bosh="''" css-class="fm-input" placeholder="5 000 000"/>
+                      <NumberInput v-model="form.plan_summa" v-maydon:plan_summa.ota="f" :bosh="''" css-class="fm-input" placeholder="5 000 000"/>
                     </div>
                     <!-- Plan preview -->
                     <div v-if="form.plan_summa" class="fm-plan-preview">
@@ -775,7 +775,7 @@
                     <label class="fm-label">Bonus foizi (%)</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                      <input v-model="form.bonus_foiz" type="number" class="fm-input" placeholder="5" min="0" max="100"/>
+                      <input v-model="form.bonus_foiz" v-maydon:bonus_foiz.ota="f" type="number" class="fm-input" placeholder="5" min="0" max="100"/>
                       <span class="fm-input-suffix">%</span>
                     </div>
                   </div>
@@ -783,14 +783,14 @@
                     <label class="fm-label">Kredit limiti (so'm)</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                      <NumberInput v-model="form.kredit_limit" :bosh="''" css-class="fm-input" placeholder="10 000 000"/>
+                      <NumberInput v-model="form.kredit_limit" v-maydon:kredit_limit.ota="f" :bosh="''" css-class="fm-input" placeholder="10 000 000"/>
                     </div>
                   </div>
                   <div class="fm-field">
                     <label class="fm-label">Maksimal chegirma (%)</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                      <input v-model="form.max_chegirma" type="number" class="fm-input" placeholder="10" min="0" max="100"/>
+                      <input v-model="form.max_chegirma" v-maydon:max_chegirma.ota="f" type="number" class="fm-input" placeholder="10" min="0" max="100"/>
                       <span class="fm-input-suffix">%</span>
                     </div>
                   </div>
@@ -798,7 +798,7 @@
                     <label class="fm-label">Ishga kirgan sana</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                      <input v-model="form.ish_boshlagan" type="date" class="fm-input"/>
+                      <input v-model="form.ish_boshlagan" v-maydon:ish_boshlagan.ota="f" type="date" class="fm-input"/>
                     </div>
                   </div>
                 </div>
@@ -889,21 +889,21 @@
                     <label class="fm-label">Boshlang'ich manzil</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                      <input v-model="form.boshlanish_manzil" class="fm-input" placeholder="Uy manzili: Shahar, ko'cha, uy..."/>
+                      <input v-model="form.boshlanish_manzil" v-maydon:boshlanish_manzil.ota="f" class="fm-input" placeholder="Uy manzili: Shahar, ko'cha, uy..."/>
                     </div>
                   </div>
                   <div class="fm-field">
                     <label class="fm-label">Mashina raqami</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                      <input v-model="form.mashina_raqam" class="fm-input" placeholder="01A 123 AA"/>
+                      <input v-model="form.mashina_raqam" v-maydon:mashina_raqam.ota="f" class="fm-input" placeholder="01A 123 AA"/>
                     </div>
                   </div>
                   <div class="fm-field">
                     <label class="fm-label">Harakatlanish radiusi (km)</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
-                      <input v-model="form.radius_km" type="number" class="fm-input" placeholder="50"/>
+                      <input v-model="form.radius_km" v-maydon:radius_km.ota="f" type="number" class="fm-input" placeholder="50"/>
                       <span class="fm-input-suffix">km</span>
                     </div>
                   </div>
@@ -929,11 +929,11 @@
                   <div class="fm-mobil-row">
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
-                      <input v-model.trim="form.login" class="fm-input" placeholder="Login (masalan: agent1)" autocomplete="off" autocapitalize="none"/>
+                      <input v-model.trim="form.login" v-maydon:login.ota="f" class="fm-input" placeholder="Login (masalan: agent1)" autocomplete="off" autocapitalize="none"/>
                     </div>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                      <input v-model="form.parol" class="fm-input" :placeholder="modal?.id ? 'Yangi parol (bo\'sh — o\'zgarmaydi)' : 'Parol (kamida 4 belgi)'" autocomplete="new-password"/>
+                      <input v-model="form.parol" v-maydon:parol.ota="f" class="fm-input" :placeholder="modal?.id ? 'Yangi parol (bo\'sh — o\'zgarmaydi)' : 'Parol (kamida 4 belgi)'" autocomplete="new-password"/>
                     </div>
                   </div>
                   <small class="fm-hint">Agent telefondagi ilovaga shu login va parol bilan kiradi. Login bo'sh bo'lsa — ilovaga kira olmaydi.</small>
@@ -982,6 +982,8 @@ import NumberInput from '@/components/NumberInput.vue'
 import { agentApi } from '@/api/api'
 import { fonQatlam } from '@/utils/xarita'
 import { useToast } from '@/composables/useToast'
+import { useForma } from '@/validation/useForma'
+import * as sx from '@/validation/sxemalar'
 
 const toast = useToast()
 
@@ -1050,6 +1052,11 @@ const detailRef    = ref(null)
 const modal     = ref(null)
 const form      = ref(emptyForm())
 const formErr   = ref('')
+const f = useForma(sx.agent, () => form.value)
+// Maydon qaysi qadamda — xato bo'lsa o'sha qadam ochiladi
+const MAYDON_QADAM = { fullname: 0, telefon: 0, passport: 0, tugilgan_sana: 0, plan_summa: 1, bonus_foiz: 1, kredit_limit: 1, max_chegirma: 1, ish_boshlagan: 1,
+  boshlanish_manzil: 3, mashina_raqam: 3, radius_km: 3, login: 3, parol: 3 }
+const qadamXato = (qadam) => Object.keys(f.xatolar.value).find(k => MAYDON_QADAM[k] === qadam)
 const saving    = ref(false)
 const formStep  = ref(0)
 
@@ -1065,8 +1072,9 @@ function emptyForm() {
 }
 
 function nextStep() {
-  if (formStep.value === 0 && !form.value.fullname.trim()) { formErr.value = 'Ism majburiy'; return }
-  if (formStep.value === 1 && !form.value.plan_summa) { formErr.value = 'Plan summasi majburiy'; return }
+  // Joriy qadamdagi maydonlar to'g'ri bo'lmaguncha keyingisiga o'tilmaydi
+  const k = qadamXato(formStep.value)
+  if (k) { Object.keys(MAYDON_QADAM).filter(x => MAYDON_QADAM[x] === formStep.value).forEach(f.tegdi); formErr.value = f.xatolar.value[k]; return }
   formErr.value = ''
   formStep.value++
 }
@@ -1074,6 +1082,7 @@ function nextStep() {
 function openAdd() {
   form.value = emptyForm()
   formErr.value = ''
+  f.tozala()
   formStep.value = 0
   modal.value = { id: null }
 }
@@ -1100,6 +1109,7 @@ function openEdit(agent) {
     parol:             '',   // hech qachon to'ldirilmaydi — bo'sh qolsa o'zgarmaydi
   }
   formErr.value = ''
+  f.tozala()
   formStep.value = 0
   modal.value = { id: agent.id }
 }
@@ -1111,14 +1121,12 @@ function toggleDay(key) {
 }
 
 async function saveAgent() {
-  if (!form.value.fullname.trim()) {
-    formErr.value = 'Ism majburiy'
-    toast.warning("Maydon to'ldirilmagan", "Agentning to'liq ismi majburiy")
-    return
-  }
-  if (!form.value.plan_summa) {
-    formErr.value = 'Plan summasi majburiy'
-    toast.warning("Maydon to'ldirilmagan", 'Oylik plan summasi kiritilishi shart')
+  if (saving.value) return
+  if (!f.tekshir()) {
+    const k = Object.keys(f.xatolar.value)[0]
+    formStep.value = MAYDON_QADAM[k] ?? 0
+    formErr.value = f.xatolar.value[k]
+    toast.warning("Maydon noto'g'ri", formErr.value)
     return
   }
   formErr.value = ''
@@ -1154,8 +1162,10 @@ async function saveAgent() {
     formStep.value = 0
     modal.value = null
   } catch (e) {
-    const msg = e.message || 'Xatolik yuz berdi'
+    const msg = f.server(e) || 'Xatolik yuz berdi'
     formErr.value = msg
+    const k = Object.keys(MAYDON_QADAM).find(x => f.xato(x))
+    if (k) formStep.value = MAYDON_QADAM[k]
     toast.error(isEdit ? 'Saqlashda xatolik' : "Qo'shishda xatolik", msg)
   } finally {
     saving.value = false
@@ -1170,7 +1180,11 @@ async function deleteAgent(agent) {
     toast.success("Agent o'chirildi", `${agent.fullname} ro'yxatdan olib tashlandi`)
     await load()
   } catch (e) {
-    toast.error("O'chirishda xatolik", e.message || 'Xatolik yuz berdi')
+    // Tarixi bor agentni backend o'chirmaydi — o'rniga nofaol qilish taklif etiladi
+    if (e.status === 400 && agent.faol !== false && confirm(`${e.message}\n\n"${agent.fullname}" ni o'chirish o'rniga NOFAOL qilaymi?`)) {
+      try { await agentApi.toggleFaol(agent.id); toast.success('Nofaol qilindi', agent.fullname); await load() }
+      catch (x) { toast.error('Xatolik', x.message || '') }
+    } else toast.error("O'chirishda xatolik", e.message || 'Xatolik yuz berdi')
   }
 }
 
@@ -1203,7 +1217,7 @@ async function load() {
         try {
           const detail = await agentApi.getById(upd.id, { period: period.value })
           agentMijozlar.value = detail.mijozlar || []
-        } catch {}
+        } catch (e) { toast.error("Agent mijozlarini yangilab bo'lmadi", e.message || '') }
       }
     }
   } catch(e) {

@@ -2,6 +2,8 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { api } from '@/api/api'
 import { useToast } from '@/composables/useToast'
+import { useForma } from '@/validation/useForma'
+import * as sx from '@/validation/sxemalar'
 
 const toast = useToast()
 
@@ -19,6 +21,7 @@ const mode   = ref<Mode>(null)
 const editId = ref<number | null>(null)
 const form   = reactive({ nomi: '', izoh: '' })
 const formErr = ref('')
+const f = useForma(sx.hudud, () => form)
 
 // ── API ────────────────────────────────────────────────────
 async function load() {
@@ -34,8 +37,9 @@ async function load() {
 }
 
 async function save() {
-  if (!form.nomi.trim()) { formErr.value = 'Nomi majburiy'; return }
+  if (saving.value) return
   formErr.value = ''
+  if (!f.tekshir()) return
   saving.value = true
   try {
     if (editId.value) {
@@ -48,8 +52,8 @@ async function save() {
     await load()
     mode.value = null
   } catch (e: any) {
-    toast.error('Saqlash xatosi', e.message)
-    formErr.value = e.message
+    formErr.value = f.server(e)
+    toast.error('Saqlash xatosi', formErr.value)
   } finally {
     saving.value = false
   }
@@ -70,6 +74,7 @@ function openAdd() {
   Object.assign(form, { nomi: '', izoh: '' })
   editId.value = null
   formErr.value = ''
+  f.tozala()
   mode.value = 'add'
 }
 
@@ -77,6 +82,7 @@ function openEdit(row: Hudud) {
   Object.assign(form, { nomi: row.nomi, izoh: row.izoh ?? '' })
   editId.value = row.id
   formErr.value = ''
+  f.tozala()
   mode.value = 'edit'
 }
 
@@ -194,7 +200,7 @@ onMounted(load)
                 <label class="hz-lbl">Hudud nomi <span class="hz-req">*</span></label>
                 <div class="hz-input-wrap">
                   <svg class="hz-input-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  <input v-model="form.nomi" class="hz-input" placeholder="Masalan: Yunusobod tumani" @keyup.enter="save"/>
+                  <input v-model="form.nomi" v-maydon:nomi.ota="f" class="hz-input" placeholder="Masalan: Yunusobod tumani" @keyup.enter="save"/>
                 </div>
               </div>
               <div class="hz-field">

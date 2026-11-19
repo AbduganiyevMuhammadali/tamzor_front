@@ -171,8 +171,8 @@
                 <button v-for="(t, k) in USUL_UZUN" :key="k" type="button" :class="{ on: m.tolov_usul === k }" @click="m.tolov_usul = k">{{ t }}</button>
               </div>
             </div>
-            <label class="xr-f"><span>Sana</span><input type="date" v-model="m.sana" :max="bugun()"/></label>
-            <label class="xr-f full"><span>Izoh — nima uchun, kimga</span><input v-model="m.izoh" maxlength="255" placeholder="Masalan: benzin 20 l, Akmal (haydovchi)"/></label>
+            <label class="xr-f"><span>Sana</span><input type="date" v-model="m.sana" v-maydon:sana="xf" :max="bugun()"/></label>
+            <label class="xr-f full"><span>Izoh — nima uchun, kimga</span><input v-model="m.izoh" v-maydon:izoh="xf" maxlength="255" placeholder="Masalan: benzin 20 l, Akmal (haydovchi)"/></label>
             <div class="xr-f full">
               <span>Chek rasmi (ixtiyoriy)</span>
               <div class="xr-rasm">
@@ -236,6 +236,8 @@
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { api } from '@/api/api'
+import { useForma } from '@/validation/useForma'
+import * as sx from '@/validation/sxemalar'
 
 const S = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`
 const IKON = {
@@ -358,6 +360,7 @@ const maxKun = computed(() => Math.max(1, ...kunGrafik.value.map(k => k.summa)))
 /* Xarajat oynasi */
 const m = reactive({ ochiq: false, id: null, kategoriya: '', summa: null, tolov_usul: 'naqt', sana: bugun(), izoh: '', rasm: null, rasmUrl: '', rasmOchir: false, eskiSumma: 0, eskiUsul: '' })
 const band = ref(false), xato = ref('')
+const xf = useForma(sx.xarajat, () => m)
 const summaInp = ref(null)
 const yangiToifa = reactive({ ochiq: false, nomi: '' })
 const tayyor = computed(() => !!m.kategoriya && Number(m.summa) > 0)
@@ -367,12 +370,12 @@ const qoldiqKeyin = computed(() => qoldiqHozir.value - (Number(m.summa) || 0))
 function qoshOch(kod = '') {
   Object.assign(m, { ochiq: true, id: null, kategoriya: kod || m.kategoriya || '', summa: null, tolov_usul: 'naqt', sana: bittaKun.value ? dan.value : bugun(), izoh: '', rasm: null, rasmUrl: '', rasmOchir: false, eskiSumma: 0, eskiUsul: '' })
   if (m.sana > bugun()) m.sana = bugun()
-  xato.value = ''; yangiToifa.ochiq = false
+  xato.value = ''; yangiToifa.ochiq = false; xf.tozala()
   nextTick(() => summaInp.value?.focus())
 }
 function tahrirOch(r) {
   Object.assign(m, { ochiq: true, id: r.id, kategoriya: r.kategoriya === 'boshqa_chiqim' ? 'xarajat' : r.kategoriya, summa: r.summa, tolov_usul: r.tolov_usul || 'naqt', sana: kunKey(new Date(r.sana)), izoh: r.izoh, rasm: null, rasmUrl: r.chek_rasm || '', rasmOchir: false, eskiSumma: r.summa, eskiUsul: r.tolov_usul })
-  xato.value = ''; yangiToifa.ochiq = false
+  xato.value = ''; yangiToifa.ochiq = false; xf.tozala()
 }
 function rasmTanla(e) {
   const f = e.target.files?.[0]; e.target.value = ''
@@ -382,8 +385,11 @@ function rasmTanla(e) {
 }
 function rasmOchir() { m.rasm = null; m.rasmUrl = ''; m.rasmOchir = true }
 async function saqla(yana) {
+  if (band.value) return
   if (!tayyor.value) { xato.value = !m.kategoriya ? 'Toifani tanlang' : 'Summani kiriting'; return }
-  band.value = true; xato.value = ''
+  xato.value = ''
+  if (!xf.tekshir()) { xato.value = xf.umumiy.value; return }
+  band.value = true
   try {
     const fd = new FormData()
     fd.append('kategoriya', m.kategoriya); fd.append('summa', String(m.summa)); fd.append('tolov_usul', m.tolov_usul)
@@ -398,7 +404,7 @@ async function saqla(yana) {
       Object.assign(m, { summa: null, izoh: '', rasm: null, rasmUrl: '', kategoriya: kat, sana, tolov_usul: usul })
       nextTick(() => summaInp.value?.focus())
     } else m.ochiq = false
-  } catch (e) { xato.value = e.message || 'Saqlanmadi' }
+  } catch (e) { xato.value = xf.server(e) || 'Saqlanmadi' }
   finally { band.value = false }
 }
 async function ochir(r) {

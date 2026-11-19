@@ -169,7 +169,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
             <label for="lg-login">Login</label>
             <div class="kiritma" :class="{ 'kiritma--xato': !!xabar && !login }">
               <svg class="k-ik" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-              <input id="lg-login" ref="loginInp" v-model="login" class="inp"
+              <input id="lg-login" ref="loginInp" v-model="login" maxlength="100" class="inp"
                 name="username" type="text" placeholder="Foydalanuvchi nomi"
                 autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
                 enterkeyhint="next" :aria-invalid="!!xabar" autofocus>
@@ -180,7 +180,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
             <label for="lg-parol">Parol</label>
             <div class="kiritma" :class="{ 'kiritma--xato': !!xabar }">
               <svg class="k-ik" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
-              <input id="lg-parol" ref="parolInp" v-model="parol" class="inp inp--parol"
+              <input id="lg-parol" ref="parolInp" v-model="parol" maxlength="100" class="inp inp--parol"
                 name="password" :type="korinsin ? 'text' : 'password'" placeholder="••••••••"
                 autocomplete="current-password" enterkeyhint="go" :aria-invalid="!!xabar"
                 aria-describedby="lg-caps"

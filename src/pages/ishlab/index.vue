@@ -5,6 +5,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 // @ts-ignore
 import { ishlabApi } from '@/api/api'
+import { useQidiruv } from '@/composables/useQidiruv'
 import KpiKarta from '../hisobot/kit/KpiKarta.vue'
 import { HOLAT, BOSQICHLAR } from './hisob'
 import '../hisobot/kit/hisobot.css'
@@ -16,14 +17,16 @@ const holat = ref('')
 const q = ref('')
 const page = ref(1)
 
-async function yukla() {
-  yuklanmoqda.value = true
-  try { d.value = await ishlabApi.getAll({ holat: holat.value, search: q.value.trim(), page: page.value, limit: 30 }) }
-  finally { yuklanmoqda.value = false }
-}
+const yuklashXato = ref('')
+const qd = useQidiruv<any>({
+  matn: q, sahifa: page, yuklanmoqda,
+  kalit: () => holat.value,
+  yukla: s => { yuklashXato.value = ''; return ishlabApi.getAll({ holat: holat.value, search: s, page: page.value, limit: 30 }) },
+  qolla: r => { d.value = r },
+  xato: e => { yuklashXato.value = e?.message || "Yuklab bo'lmadi" },
+})
+const yukla = () => qd.qayta()
 onMounted(yukla)
-let t: ReturnType<typeof setTimeout>
-const qidir = () => { clearTimeout(t); t = setTimeout(() => { page.value = 1; yukla() }, 300) }
 const filtr = (k: string) => { holat.value = k; page.value = 1; yukla() }
 
 const fmt = (v: unknown, dd = 0) => new Intl.NumberFormat('ru-RU', { maximumFractionDigits: dd }).format(Number(v) || 0)
@@ -97,10 +100,11 @@ const IK = {
           <button v-for="f in FILTR" :key="f.k" class="il-chip" :class="{ on: holat === f.k }" @click="filtr(f.k)">{{ f.nom }}
             <i v-if="f.k === 'jarayonda' && s.jarayonda">{{ s.jarayonda }}</i><i v-if="f.k === 'qoralama' && s.qoralama">{{ s.qoralama }}</i></button>
         </div>
-        <div class="il-qidir"><svg viewBox="0 0 24 24" v-html="IK.qidir" /><input v-model="q" placeholder="Raqam yoki tovar…" @input="qidir" /></div>
+        <div class="il-qidir"><svg viewBox="0 0 24 24" v-html="IK.qidir" /><input v-model="q" maxlength="100" placeholder="Raqam yoki tovar…" @keydown.enter="qd.darhol()" /></div>
       </div>
       <div class="hs-karta-b hs-karta-b--0">
-        <div v-if="yuklanmoqda && !d" class="il-bos"><div class="hs-skelet" style="height:180px" /></div>
+        <div v-if="yuklashXato" class="il-bos">{{ yuklashXato }}</div>
+        <div v-else-if="yuklanmoqda && !d" class="il-bos"><div class="hs-skelet" style="height:180px" /></div>
         <div v-else-if="!d?.rows?.length" class="il-bos">
           <svg viewBox="0 0 24 24" v-html="IK.zavod" />
           <b>{{ holat || q ? 'Partiya topilmadi' : "Hali ishlab chiqarish yo'q" }}</b>

@@ -3,6 +3,8 @@ import { ref, computed, reactive, onMounted, watch } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { api } from '@/api/api'
 import { useToast } from '@/composables/useToast'
+import { useForma } from '@/validation/useForma'
+import * as sx from '@/validation/sxemalar'
 
 /* Narx ro'yxatlari: har bir ro'yxat — tovarlar bo'yicha narx. Mijoz toifasiga biriktiriladi
    (Mijoz kategoriyasi sahifasi). Ro'yxatda yo'q tovar uchun mijoz turining standart ro'yxati,
@@ -114,17 +116,22 @@ async function saqla() {
 function ochQosh() {
   Object.assign(forma, { id: 0, nomi: '', tur: 'chakana', izoh: '', standart: false, faol: true })
   formaXato.value = ''
+  ff.tozala()
   rejim.value = 'add'
 }
 function ochTahrir(r: Ruyxat) {
   Object.assign(forma, { id: r.id, nomi: r.nomi, tur: r.tur, izoh: r.izoh ?? '', standart: r.standart, faol: r.faol })
   formaXato.value = ''
+  ff.tozala()
   rejim.value = 'edit'
 }
 
+const ff = useForma(sx.narxRuyxat, () => forma)
 async function formaSaqla() {
-  if (!forma.nomi.trim()) { formaXato.value = 'Nomi majburiy'; return }
+  formaXato.value = ''
+  if (!ff.tekshir()) return
   const body = { nomi: forma.nomi.trim(), tur: forma.tur, izoh: forma.izoh || null, standart: forma.standart, faol: forma.faol }
+  await ff.yubor(async () => {
   try {
     const tahrir = rejim.value === 'edit'
     const saqlangan: Ruyxat = tahrir
@@ -136,8 +143,9 @@ async function formaSaqla() {
     const yangi = ruyxatlar.value.find(r => r.id === saqlangan.id)
     if (yangi) await tanla(yangi)
   } catch (e: any) {
-    formaXato.value = e.message
+    formaXato.value = ff.server(e)
   }
+  })
 }
 
 async function standartQil(r: Ruyxat) {
@@ -261,7 +269,7 @@ onMounted(yukla)
         <h3 class="np-modal-title">{{ rejim === 'edit' ? 'Ro\'yxatni tahrirlash' : 'Yangi narx ro\'yxati' }}</h3>
         <div v-if="formaXato" class="np-err">{{ formaXato }}</div>
         <label class="np-lbl">Nomi *</label>
-        <input v-model="forma.nomi" class="np-in" placeholder="Masalan: Supermarket VIP"/>
+        <input v-model="forma.nomi" v-maydon:nomi="ff" class="np-in" placeholder="Masalan: Supermarket VIP"/>
         <label class="np-lbl">Tur</label>
         <select v-model="forma.tur" class="np-in">
           <option value="chakana">Chakana</option>
@@ -269,12 +277,12 @@ onMounted(yukla)
           <option value="maxsus">Maxsus</option>
         </select>
         <label class="np-lbl">Izoh</label>
-        <input v-model="forma.izoh" class="np-in" placeholder="ixtiyoriy"/>
+        <input v-model="forma.izoh" v-maydon:izoh="ff" class="np-in" placeholder="ixtiyoriy"/>
         <label class="np-chk"><input type="checkbox" v-model="forma.standart"/> Shu turdagi mijozlar uchun standart ro'yxat</label>
         <label class="np-chk"><input type="checkbox" v-model="forma.faol"/> Faol</label>
         <div class="np-modal-ft">
           <button class="np-btn" @click="rejim = null">Bekor qilish</button>
-          <button class="np-btn np-btn--primary" @click="formaSaqla">Saqlash</button>
+          <button class="np-btn np-btn--primary" :disabled="ff.band.value" @click="formaSaqla">{{ ff.band.value ? 'Saqlanmoqda...' : 'Saqlash' }}</button>
         </div>
       </div>
     </div>

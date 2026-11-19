@@ -83,12 +83,29 @@ export function davrMatn(dan: string, gacha: string) {
   return `${sanaQisqa(dan)} – ${sanaQisqa(gacha)}`
 }
 
+/* Backend hisobot davrini 366 kun bilan cheklaydi. `qotgan` — foydalanuvchi hozir o'zgartirgan uch:
+   u joyida qoladi, ikkinchi uch chegaraga tortiladi. true qaytsa — davr qisqartirildi. */
+export const DAVR_MAKS_KUN = 366
+const SANA_RE = /^\d{4}-\d{2}-\d{2}$/
+export function davrChekla(d: { dan: string; gacha: string }, qotgan: 'dan' | 'gacha' = 'gacha'): boolean {
+  if (!SANA_RE.test(d.dan) || !SANA_RE.test(d.gacha)) return false
+  const a = new Date(d.dan + 'T00:00:00'), b = new Date(d.gacha + 'T00:00:00')
+  if (Math.round((+b - +a) / 86400000) + 1 <= DAVR_MAKS_KUN) return false
+  if (qotgan === 'dan') { const x = new Date(a); x.setDate(x.getDate() + DAVR_MAKS_KUN - 1); d.gacha = kunKey(x) }
+  else { const x = new Date(b); x.setDate(x.getDate() - (DAVR_MAKS_KUN - 1)); d.dan = kunKey(x) }
+  return true
+}
+
 const SAQLASH = 'sellz_hisobot_davr'
 function boshlangich() {
   try {
     const s = JSON.parse(localStorage.getItem(SAQLASH) || 'null')
     if (s?.preset) return presetDavr(s.preset)          // "30 kun" har kuni yangilanadi
-    if (s?.dan && s?.gacha) return { dan: s.dan, gacha: s.gacha }
+    if (s?.dan && s?.gacha && SANA_RE.test(s.dan) && SANA_RE.test(s.gacha) && s.dan <= s.gacha) {
+      const d = { dan: s.dan as string, gacha: s.gacha as string }
+      davrChekla(d)
+      return d
+    }
   } catch { /* saqlanmagan */ }
   return presetDavr('30')
 }

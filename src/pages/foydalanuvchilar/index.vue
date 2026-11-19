@@ -2,6 +2,8 @@
 import { ref, computed, reactive, watch, onMounted } from 'vue'
 import { api } from '@/api/api.js'
 import { rejimStore } from '@/stores/rejim'
+import { useForma } from '@/validation/useForma'
+import * as sx from '@/validation/sxemalar'
 
 // ── SVG paths ────────────────────────────────────────────
 const SVG = {
@@ -162,6 +164,11 @@ const userForm      = ref(emptyUserForm())
 const userFormError = ref('')
 const userSaving    = ref(false)
 const editUserId    = ref(null)
+// Backend maydon nomlari: name → fullname. Yangi foydalanuvchida parol majburiy.
+const uf = useForma(
+  { ...sx.foydalanuvchi, password: { ...sx.foydalanuvchi.password } },
+  () => ({ username: userForm.value.username, fullname: userForm.value.name, role: userForm.value.role, password: userForm.value.password }),
+)
 
 const permTab = ref('bolimlar')
 
@@ -169,6 +176,7 @@ function openAddUser() {
   userForm.value = emptyUserForm()
   editUserId.value = null
   userFormError.value = ''
+  uf.tozala()
   setPermsUP(null)
   permTab.value = 'bolimlar'
   modalMode.value = 'add-user'
@@ -182,16 +190,16 @@ function openEditUser(u) {
   }
   editUserId.value = u.id
   userFormError.value = ''
+  uf.tozala()
   setPermsUP(u.perms)
   permTab.value = 'bolimlar'
   modalMode.value = 'edit-user'
 }
 
 async function saveUser() {
+  if (userSaving.value) return
   const f = userForm.value
-  if (!f.name.trim())     { userFormError.value = 'Ism majburiy';       return }
-  if (!f.username.trim()) { userFormError.value = 'Username majburiy';  return }
-  if (!f.role)            { userFormError.value = 'Rol majburiy';       return }
+  if (!uf.tekshir()) { userFormError.value = uf.umumiy.value; return }
   if (!editUserId.value && !f.password) { userFormError.value = 'Parol majburiy'; return }
   if (!editUserId.value && !f.confirmPassword) { userFormError.value = 'Parolni tasdiqlang'; return }
   if (f.password && f.password !== f.confirmPassword) {
@@ -227,7 +235,7 @@ async function saveUser() {
     await fetchUsers()
     modalMode.value = null
   } catch (e) {
-    userFormError.value = e.message
+    userFormError.value = uf.server(e)
   } finally {
     userSaving.value = false
   }
@@ -624,10 +632,10 @@ function getInitials(name) {
                     Shaxsiy ma'lumotlar
                   </div>
                   <div class="f2">
-                    <div class="f"><label class="fl">To'liq ism <span class="req">*</span></label><input v-model="userForm.name" class="fi" placeholder="Familiya Ism"/></div>
-                    <div class="f"><label class="fl">Username <span class="req">*</span></label><input v-model="userForm.username" class="fi" placeholder="username"/></div>
-                    <div class="f"><label class="fl">Parol{{ modalMode==='edit-user' ? ' (o\'zgartirish uchun)' : '' }} <span v-if="modalMode!=='edit-user'" class="req">*</span></label><input v-model="userForm.password" type="password" class="fi" placeholder="••••••••"/></div>
-                    <div class="f"><label class="fl">Parolni tasdiqlash{{ modalMode==='edit-user' ? '' : '' }} <span v-if="userForm.password" class="req">*</span></label><input v-model="userForm.confirmPassword" type="password" class="fi" placeholder="••••••••"/></div>
+                    <div class="f"><label class="fl">To'liq ism <span class="req">*</span></label><input v-model="userForm.name" v-maydon:fullname="uf" class="fi" placeholder="Familiya Ism"/></div>
+                    <div class="f"><label class="fl">Username <span class="req">*</span></label><input v-model="userForm.username" v-maydon:username="uf" class="fi" placeholder="username" autocomplete="off"/></div>
+                    <div class="f"><label class="fl">Parol{{ modalMode==='edit-user' ? ' (o\'zgartirish uchun)' : '' }} <span v-if="modalMode!=='edit-user'" class="req">*</span></label><input v-model="userForm.password" v-maydon:password="uf" type="password" class="fi" placeholder="••••••••" autocomplete="new-password"/></div>
+                    <div class="f"><label class="fl">Parolni tasdiqlash{{ modalMode==='edit-user' ? '' : '' }} <span v-if="userForm.password" class="req">*</span></label><input v-model="userForm.confirmPassword" type="password" maxlength="100" class="fi" placeholder="••••••••" autocomplete="new-password"/></div>
                   </div>
                 </div>
 

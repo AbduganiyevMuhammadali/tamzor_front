@@ -2,6 +2,8 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { api } from '@/api/api'
 import { useToast } from '@/composables/useToast'
+import { useForma } from '@/validation/useForma'
+import * as sx from '@/validation/sxemalar'
 
 const toast = useToast()
 
@@ -21,6 +23,7 @@ const mode    = ref<Mode>(null)
 const editId  = ref<number | null>(null)
 const form    = reactive({ nomi: '', izoh: '', narx_ruyxat_id: '' as number | '' })
 const formErr = ref('')
+const f = useForma(sx.mijozKategoriya, () => form)
 
 // Har bir kategoriyaga rang
 const KAT_COLORS = ['#7c3aed','#059669','#d97706','#dc2626','#8b5cf6','#6d28d9','#a78bfa','#5b21b6','#047857','#b45309']
@@ -44,8 +47,9 @@ function narxId(): number | null { return form.narx_ruyxat_id === '' ? null : Nu
 function ruyxatNomi(id: number | null) { return narxRuyxatlar.value.find(r => r.id === id)?.nomi || null }
 
 async function save() {
-  if (!form.nomi.trim()) { formErr.value = 'Nomi majburiy'; return }
+  if (saving.value) return
   formErr.value = ''
+  if (!f.tekshir()) return
   saving.value = true
   try {
     if (editId.value) {
@@ -58,8 +62,8 @@ async function save() {
     await load()
     mode.value = null
   } catch (e: any) {
-    toast.error('Saqlash xatosi', e.message)
-    formErr.value = e.message
+    formErr.value = f.server(e)
+    toast.error('Saqlash xatosi', formErr.value)
   } finally {
     saving.value = false
   }
@@ -80,6 +84,7 @@ function openAdd() {
   Object.assign(form, { nomi: '', izoh: '', narx_ruyxat_id: '' })
   editId.value = null
   formErr.value = ''
+  f.tozala()
   mode.value = 'add'
 }
 
@@ -87,6 +92,7 @@ function openEdit(row: MijozKat) {
   Object.assign(form, { nomi: row.nomi, izoh: row.izoh ?? '', narx_ruyxat_id: row.narx_ruyxat_id ?? '' })
   editId.value = row.id
   formErr.value = ''
+  f.tozala()
   mode.value = 'edit'
 }
 
@@ -226,7 +232,7 @@ onMounted(load)
                 <label class="mk-lbl">Kategoriya nomi <span class="mk-req">*</span></label>
                 <div class="mk-input-wrap">
                   <svg class="mk-input-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                  <input v-model="form.nomi" class="mk-input" placeholder="Masalan: A - Premium" @keyup.enter="save"/>
+                  <input v-model="form.nomi" v-maydon:nomi.ota="f" class="mk-input" placeholder="Masalan: A - Premium" @keyup.enter="save"/>
                 </div>
               </div>
 

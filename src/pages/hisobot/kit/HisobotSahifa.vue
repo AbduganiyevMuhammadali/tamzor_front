@@ -4,7 +4,7 @@
    hisobotlar uchun umumiy), qo'shimcha filtrlar, eksport va
    "Qanday hisoblanadi?" izohi. */
 import { ref, computed } from 'vue'
-import { davr, PRESETLAR, presetDavr, presetTop, davrMatn, IKON } from './hisobot'
+import { davr, PRESETLAR, presetDavr, presetTop, davrMatn, davrChekla, DAVR_MAKS_KUN, IKON } from './hisobot'
 import './hisobot.css'
 
 const props = withDefaults(defineProps<{
@@ -19,11 +19,16 @@ defineEmits<{ (e: 'yangila'): void }>()
 
 const izohOchiq = ref(false)
 const preset = computed(() => presetTop(davr.dan.value, davr.gacha.value))
-function tanla(k: string) { const d = presetDavr(k); davr.dan.value = d.dan; davr.gacha.value = d.gacha }
+const qisqardi = ref(false)   // davr 366 kundan uzun tanlandi — chegaraga tortildi
+function tanla(k: string) { const d = presetDavr(k); qisqardi.value = false; davr.dan.value = d.dan; davr.gacha.value = d.gacha }
 function sana(k: 'dan' | 'gacha', v: string) {
   if (!v) return
-  davr[k].value = v
-  if (davr.dan.value > davr.gacha.value) (k === 'dan' ? davr.gacha : davr.dan).value = v
+  // Bitta o'zgarishda hisoblab, keyin yozamiz — hisobot ikki marta qayta yuklanmasin
+  const d = { dan: davr.dan.value, gacha: davr.gacha.value }
+  d[k] = v
+  if (d.dan > d.gacha) d[k === 'dan' ? 'gacha' : 'dan'] = v
+  qisqardi.value = davrChekla(d, k)
+  davr.dan.value = d.dan; davr.gacha.value = d.gacha
 }
 </script>
 
@@ -57,6 +62,7 @@ function sana(k: 'dan' | 'gacha', v: string) {
           <input type="date" :value="davr.gacha.value" @change="sana('gacha', ($event.target as HTMLInputElement).value)"/>
         </div>
         <span class="hs-davr-matn">{{ davrMatn(davr.dan.value, davr.gacha.value) }}</span>
+        <span v-if="qisqardi" class="hs-davr-matn" style="color:#b45309">Davr {{ DAVR_MAKS_KUN }} kundan oshmaydi — qisqartirildi</span>
       </template>
       <div class="hs-bar-filtr"><slot name="filtr"/></div>
       <span v-if="yuklanmoqda" class="hs-yukl"><i/>Yangilanmoqda</span>

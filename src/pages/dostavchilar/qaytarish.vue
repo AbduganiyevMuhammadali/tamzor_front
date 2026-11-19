@@ -123,7 +123,7 @@ onMounted(async () => {
   try {
     const d = await dostavchiApi.getAll()
     dostavchilar.value = d.rows || d || []
-  } catch {}
+  } catch (e: any) { toast.error("Dostavchilar ro'yxatini yuklab bo'lmadi", e.message || '') }
   await load()
 })
 </script>

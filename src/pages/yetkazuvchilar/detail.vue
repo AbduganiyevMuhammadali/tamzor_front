@@ -190,6 +190,7 @@
               <NumberInput
                 css-class="yd-input"
                 v-model="tolovForm.summa"
+                v-maydon:summa="tf"
                 :bosh="''"
                 placeholder="0"
                 ref="summaInput"
@@ -219,12 +220,12 @@
 
             <div class="yd-form-group">
               <label>Sana</label>
-              <input type="date" class="yd-input" v-model="tolovForm.sana" />
+              <input type="date" class="yd-input" v-model="tolovForm.sana" v-maydon:sana="tf" />
             </div>
 
             <div class="yd-form-group">
               <label>Izoh</label>
-              <textarea class="yd-input yd-textarea" v-model="tolovForm.izoh" placeholder="Ixtiyoriy..." rows="2"></textarea>
+              <textarea class="yd-input yd-textarea" v-model="tolovForm.izoh" v-maydon:izoh="tf" placeholder="Ixtiyoriy..." rows="2"></textarea>
             </div>
           </div>
 
@@ -253,19 +254,19 @@
           <div class="yd-modal-body">
             <div class="yd-form-group">
               <label>Ism <span class="yd-req">*</span></label>
-              <input type="text" class="yd-input" v-model="editForm.ism" placeholder="To'liq ism" />
+              <input type="text" class="yd-input" v-model="editForm.ism" v-maydon:ism="ef" placeholder="To'liq ism" />
             </div>
             <div class="yd-form-group">
               <label>Telefon</label>
-              <input type="text" class="yd-input" v-model="editForm.telefon" placeholder="+998 __ ___ __ __" />
+              <input type="text" class="yd-input" v-model="editForm.telefon" v-maydon:telefon="ef" placeholder="+998 __ ___ __ __" />
             </div>
             <div class="yd-form-group">
               <label>Manzil</label>
-              <input type="text" class="yd-input" v-model="editForm.manzil" placeholder="Shahar, ko'cha..." />
+              <input type="text" class="yd-input" v-model="editForm.manzil" v-maydon:manzil="ef" placeholder="Shahar, ko'cha..." />
             </div>
             <div class="yd-form-group">
               <label>Izoh</label>
-              <textarea class="yd-input yd-textarea" v-model="editForm.izoh" placeholder="Ixtiyoriy..." rows="2"></textarea>
+              <textarea class="yd-input yd-textarea" v-model="editForm.izoh" v-maydon:izoh="ef" placeholder="Ixtiyoriy..." rows="2"></textarea>
             </div>
           </div>
 
@@ -287,6 +288,12 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/api/api'
+import { useToast } from '@/composables/useToast'
+import { useForma } from '@/validation/useForma'
+import { tozala } from '@/validation/qoidalar'
+import * as sx from '@/validation/sxemalar'
+
+const toast = useToast()
 
 const route = useRoute()
 const router = useRouter()
@@ -310,6 +317,8 @@ const tolovForm = ref({ summa: '', tolov_turi: 'naqt', izoh: '', sana: today() }
 const editModal = ref(false)
 const savingEdit = ref(false)
 const editForm = ref({ ism: '', telefon: '', manzil: '', izoh: '' })
+const tf = useForma(sx.yetkazuvchiTolov, () => tolovForm.value)
+const ef = useForma(sx.yetkazuvchi, () => editForm.value)
 
 const totalPages = computed(() => Math.ceil(total.value / limit) || 1)
 
@@ -368,8 +377,9 @@ async function loadHarakatlar() {
     harakatlar.value = res.data || []
     total.value = res.total || 0
     computeStats(res.data || [])
-  } catch {
+  } catch (e) {
     harakatlar.value = []
+    toast.error("Harakatlarni yuklab bo'lmadi", e.message || '')
   } finally {
     loadingH.value = false
   }
@@ -388,15 +398,22 @@ function computeStats(rows) {
 
 async function loadAllStats() {
   try {
-    const res = await api.get(`/yetkazuvchilar/${id}/harakatlar?page=1&limit=9999`)
-    const rows = res.data || []
+    // Backend bir so'rovda ko'pi bilan 500 qator beradi — hammasini sahifalab yig'amiz
+    const BOLAK = 500
+    const rows = []
+    for (let p = 1; p <= 40; p++) {
+      const res = await api.get(`/yetkazuvchilar/${id}/harakatlar?page=${p}&limit=${BOLAK}`)
+      const qism = res.data || []
+      rows.push(...qism)
+      if (qism.length < BOLAK || rows.length >= (res.total || 0)) break
+    }
     let jami_qarz = 0, jami_tolov = 0, prixodlar = 0, tolovlar = 0
     for (const h of rows) {
       if (h.tur === 'qarz') { jami_qarz += parseFloat(h.summa || 0); prixodlar++ }
       else { jami_tolov += parseFloat(h.summa || 0); tolovlar++ }
     }
     stats.value = { jami_qarz, jami_tolov, prixodlar, tolovlar }
-  } catch {}
+  } catch (e) { toast.error("Jami ko'rsatkichlarni hisoblab bo'lmadi", e.message || '') }
 }
 
 function changePage(p) {
@@ -406,6 +423,7 @@ function changePage(p) {
 
 function openTolov() {
   tolovForm.value = { summa: '', tolov_turi: 'naqt', izoh: '', sana: today() }
+  tf.tozala()
   tolovModal.value = true
   nextTick(() => summaInput.value?.focus())
 }
@@ -415,21 +433,17 @@ function closeTolov() {
 }
 
 async function submitTolov() {
-  if (!tolovForm.value.summa || !tolovForm.value.tolov_turi) return
+  if (savingTolov.value || !tf.tekshir()) return
   savingTolov.value = true
   try {
-    await api.post(`/yetkazuvchilar/${id}/tolov`, {
-      summa: parseFloat(tolovForm.value.summa),
-      tolov_turi: tolovForm.value.tolov_turi,
-      izoh: tolovForm.value.izoh || null,
-      sana: tolovForm.value.sana || null,
-    })
+    await api.post(`/yetkazuvchilar/${id}/tolov`, tozala(sx.yetkazuvchiTolov, { ...tolovForm.value }))
     closeTolov()
     await loadYetkazuvchi()
     page.value = 1
     await loadHarakatlar()
     loadAllStats()
-  } catch {
+  } catch (e) {
+    toast.error("To'lovni saqlab bo'lmadi", tf.server(e))
   } finally {
     savingTolov.value = false
   }
@@ -442,6 +456,7 @@ function openEdit() {
     manzil: yetkazuvchi.value.manzil || '',
     izoh: yetkazuvchi.value.izoh || '',
   }
+  ef.tozala()
   editModal.value = true
 }
 
@@ -450,13 +465,14 @@ function closeEdit() {
 }
 
 async function submitEdit() {
-  if (!editForm.value.ism?.trim()) return
+  if (savingEdit.value || !ef.tekshir()) return
   savingEdit.value = true
   try {
-    await api.patch(`/yetkazuvchilar/${id}`, editForm.value)
+    await api.patch(`/yetkazuvchilar/${id}`, tozala(sx.yetkazuvchi, { ...editForm.value }))
     closeEdit()
     await loadYetkazuvchi()
-  } catch {
+  } catch (e) {
+    toast.error("Saqlab bo'lmadi", ef.server(e))
   } finally {
     savingEdit.value = false
   }

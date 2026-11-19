@@ -6,6 +6,9 @@ import { sozlamaApi } from '../../../api/api.js'
 import { notifStore } from '../../../stores/notif.js'
 import NumberInput from '../../../components/NumberInput.vue'
 import { authStore } from '../../../stores/auth'
+import { useQidiruv } from '@/composables/useQidiruv'
+import { useForma } from '@/validation/useForma'
+import * as sx from '@/validation/sxemalar'
 
 // Tasdiqlangan hujjatda miqdor (kg) tuzatish faqat Admin uchun
 const admin = computed(() => authStore.isAdmin.value)
@@ -282,21 +285,18 @@ const inlineResults     = ref([])
 const inlineSearching   = ref(false)
 const showInlineDrop    = ref(false)
 const inlineInputRef    = ref(null)
-let   inlineTimer       = null
 
-watch(inlineSearch, (v) => {
-  clearTimeout(inlineTimer)
-  if (!v.trim()) { inlineResults.value = []; showInlineDrop.value = false; return }
-  inlineTimer = setTimeout(async () => {
-    inlineSearching.value = true
-    try {
-      const d = await api.get(`/tovar?search=${encodeURIComponent(v)}&limit=20`)
-      inlineResults.value = d.data ?? []
-      // Natija topilmasa ham dropdown ochiq qoladi — "Yangi tovar qo'shish"
-      // tugmasi ko'rinishi uchun (topilmagan tovarni shu yerdan yaratish imkoni).
-      showInlineDrop.value = true
-    } finally { inlineSearching.value = false }
-  }, 250)
+const inlineQd = useQidiruv({
+  matn: inlineSearch, yuklanmoqda: inlineSearching,
+  yukla: q => (q ? api.get(`/tovar?search=${encodeURIComponent(q)}&limit=20`) : Promise.resolve(null)),
+  qolla: (d, q) => {
+    if (!q) { inlineResults.value = []; showInlineDrop.value = false; return }
+    inlineResults.value = d?.data ?? []
+    // Natija topilmasa ham dropdown ochiq qoladi — "Yangi tovar qo'shish"
+    // tugmasi ko'rinishi uchun (topilmagan tovarni shu yerdan yaratish imkoni).
+    showInlineDrop.value = true
+  },
+  xato: e => { inlineResults.value = []; showInlineDrop.value = false; errMsg.value = e?.message || 'Qidiruv xatosi' },
 })
 
 // ─── Yangi tovar (katalogda yo'q) — inline yoki katalog modalidan qo'shish ────
@@ -398,7 +398,6 @@ const catalogSearch    = ref('')
 const catalogResults   = ref([])
 const catalogLoading   = ref(false)
 const catalogSelected  = ref(new Set())
-let   catalogTimer     = null
 
 async function openCatalog() {
   catalogOpen.value     = true
@@ -407,19 +406,15 @@ async function openCatalog() {
   await loadCatalog()
 }
 
-async function loadCatalog() {
-  catalogLoading.value = true
-  try {
-    const q = catalogSearch.value.trim()
-    const d = await api.get(`/tovar?limit=60${q ? '&search=' + encodeURIComponent(q) : ''}`)
-    catalogResults.value = d.data ?? []
-  } finally { catalogLoading.value = false }
-}
-
-watch(catalogSearch, () => {
-  clearTimeout(catalogTimer)
-  catalogTimer = setTimeout(loadCatalog, 300)
+const catalogQd = useQidiruv({
+  matn: catalogSearch, yuklanmoqda: catalogLoading,
+  yukla: q => (catalogOpen.value
+    ? api.get(`/tovar?limit=60${q ? '&search=' + encodeURIComponent(q) : ''}`)
+    : Promise.resolve(null)),
+  qolla: d => { if (d) catalogResults.value = d.data ?? [] },
+  xato: e => { errMsg.value = e?.message || 'Katalogni yuklab bo\'lmadi' },
 })
+const loadCatalog = () => catalogQd.qayta()
 
 function toggleCatalogItem(id) {
   const s = new Set(catalogSelected.value)
@@ -445,9 +440,15 @@ const saving  = ref(false)
 const holat   = ref('qoralama')
 const errMsg  = ref('')
 
+const hf = useForma(sx.prixod, () => head)
 async function save(andNew = false, tasdiqla = false) {
-  saving.value = true
+  if (saving.value) return
   errMsg.value = ''
+  if (!hf.tekshir()) { errMsg.value = hf.umumiy.value; return }
+  // Qatorlar: backend manfiy miqdor/narxni rad etadi — yuborishdan oldin shu yerda ushlaymiz
+  const yomon = qatorlar.value.find(q => [q.narx, q.narx_usd, q.sotuv_narx, q.qutilarda, q.bloklarda, q.donada].some(v => v !== '' && v != null && !(Number(v) >= 0)))
+  if (yomon) { errMsg.value = `"${yomon.tovar_nomi}": narx va miqdor manfiy yoki noto'g'ri bo'lmasin`; return }
+  saving.value = true
   try {
     const body = {
       sana:              head.sana,
@@ -512,8 +513,9 @@ async function save(andNew = false, tasdiqla = false) {
       router.push('/ombor/prixod')
     }
   } catch (e) {
-    errMsg.value = e.message || 'Xatolik yuz berdi'
-    setTimeout(() => { errMsg.value = '' }, 5000)
+    // 400 — maydonga bog'lanadi; 409 — hujjat boshqa joyda o'zgargan (xabar backend'dan)
+    errMsg.value = hf.server(e) || 'Xatolik yuz berdi'
+    setTimeout(() => { errMsg.value = '' }, e?.status === 409 ? 12000 : 5000)
   } finally {
     saving.value = false
   }
@@ -523,6 +525,7 @@ async function save(andNew = false, tasdiqla = false) {
 // /prixod/:id/narxlar qator + register narxlari va miqdorini, hujjat summasi va yetkazuvchi
 // qarzi farqini yangilaydi; miqdor kamaytirilganda sotilgan tovarni tekshiradi
 async function saveNarxlar() {
+  if (saving.value) return
   saving.value = true
   errMsg.value = ''
   try {
@@ -803,7 +806,7 @@ function avatarColor(name) {
             <div class="pf-field" v-if="head.yetkazuvchi_id">
               <label class="pf-lbl">Dastlabki to'lov</label>
               <div class="pf-in-suffix">
-                <NumberInput v-model="head.tolangan_summa" css-class="pf-in" :disabled="readonly" placeholder="0"/>
+                <NumberInput v-model="head.tolangan_summa" v-maydon:tolangan_summa="hf" css-class="pf-in" :disabled="readonly" placeholder="0"/>
                 <span class="pf-suffix">UZS</span>
               </div>
               <span v-if="!readonly && head.tolangan_summa > 0 && head.tolangan_summa < jamiSumma" class="pf-ytk-hint">
@@ -835,7 +838,7 @@ function avatarColor(name) {
             <div class="pf-field pf-field--xarajat">
               <label class="pf-lbl">Qo'shimcha xarajat</label>
               <div class="pf-in-suffix">
-                <NumberInput v-model="head.qoshimcha_xarajat" css-class="pf-in" :disabled="readonly"/>
+                <NumberInput v-model="head.qoshimcha_xarajat" v-maydon:qoshimcha_xarajat="hf" css-class="pf-in" :disabled="readonly"/>
                 <span class="pf-suffix">UZS</span>
               </div>
             </div>
@@ -1084,7 +1087,7 @@ function avatarColor(name) {
         <div class="pf-card pf-card--note">
           <div class="pf-field">
             <label class="pf-lbl">Izoh</label>
-            <textarea v-model="head.izoh" class="pf-ta" rows="2" placeholder="Kelish haqida qo'shimcha ma'lumot..." :disabled="readonly"/>
+            <textarea v-model="head.izoh" v-maydon:izoh="hf" class="pf-ta" rows="2" placeholder="Kelish haqida qo'shimcha ma'lumot..." :disabled="readonly"/>
           </div>
         </div>
 
@@ -1114,7 +1117,7 @@ function avatarColor(name) {
             <div class="cat-srch-bar">
               <div class="cat-srch">
                 <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-                <input v-model="catalogSearch" class="cat-srch-in" placeholder="Mahsulot nomini qidirish..."/>
+                <input v-model="catalogSearch" maxlength="100" @keydown.enter="catalogQd.darhol()" class="cat-srch-in" placeholder="Mahsulot nomini qidirish..."/>
                 <span v-if="catalogLoading" class="pf-spin pf-spin--sm"/>
               </div>
               <div v-if="catalogSelected.size > 0" class="cat-sel-chip">

@@ -29,7 +29,7 @@
       <div class="bw-search-row">
         <div class="bw-search-box">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input v-model="search" @input="debouncedLoad" placeholder="Mijoz yoki raqam..." class="bw-search-in"/>
+          <input v-model="search" maxlength="100" @keydown.enter="qd.darhol()" placeholder="Mijoz yoki raqam..." class="bw-search-in"/>
         </div>
       </div>
 
@@ -62,7 +62,7 @@
 
       <!-- LIST -->
       <div class="bw-list">
-        <div v-if="loading" class="bw-list-empty">
+        <div v-if="loading && !filtered.length" class="bw-list-empty">
           <svg class="bw-spin" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.07-8.33"/></svg>
           <span>Yuklanmoqda...</span>
         </div>
@@ -495,11 +495,12 @@
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useQidiruv } from '@/composables/useQidiruv'
 // @ts-ignore
 import { arizaApi, sozlamaApi } from '@/api/api'
 import DostavchiTayinlashModal from '@/components/DostavchiTayinlashModal.vue'
 // @ts-ignore
-import { chekChop } from '@/utils/chek'
+import { chekChop, htmlChop } from '@/utils/chek'
 import { authStore } from '@/stores/auth'
 
 const router = useRouter()
@@ -557,28 +558,24 @@ function showToast(msg, type = 'success', ms = 2600) {
 const filtered = computed(() => rows.value)
 
 // ── Load ─────────────────────────────────────────────────
-let debT
-function debouncedLoad() { clearTimeout(debT); debT = setTimeout(load, 350) }
-
-async function load() {
-  loading.value = true
-  try {
+const qd = useQidiruv({
+  matn: search, yuklanmoqda: loading,
+  kalit: () => [subHolat.value, jonatishSana.value],
+  yukla: q => {
     const holat = subHolat.value || 'tasdiqlangan,yigilmoqda,yolda,yetkazildi'
     // Faqat distributsiya: avtolavka sotuvlari (mashinadan) Avtolavka → Sotuvlar sahifasida
     const params = { holat, all: 'true', kanal: 'distributsiya' }
-    if (search.value) params.search = search.value
+    if (q) params.search = q
     if (jonatishSana.value) params.jonatish_sana = jonatishSana.value
     // Bugun: yetkazish sanasidan qat'i nazar hali yetkazilmagan hamma buyurtma ham
     // (mobil zakaz ertangi sana bilan keladi — tasdiqlangach shu yerda ko'rinsin)
     if (isToday.value) params.ochiq = 'true'
-    const data = await arizaApi.getAll(params)
-    rows.value = Array.isArray(data) ? data : (data.rows || [])
-  } catch (e) {
-    showToast(e.message || 'Yuklash xatosi', 'error')
-  } finally {
-    loading.value = false
-  }
-}
+    return arizaApi.getAll(params)
+  },
+  qolla: data => { rows.value = Array.isArray(data) ? data : (data.rows || []) },
+  xato: e => showToast(e.message || 'Yuklash xatosi', 'error'),
+})
+const load = () => qd.qayta()
 
 function setHolat(k) { subHolat.value = k; load() }
 
@@ -598,7 +595,7 @@ async function selectRow(row) {
     const full = await arizaApi.getById(row.id)
     const idx = rows.value.findIndex(r => r.id === row.id)
     if (idx !== -1) rows.value[idx] = full
-  } catch {}
+  } catch (e) { showToast(e.message || "Buyurtma tafsilotini yuklab bo'lmadi", 'error') }
 }
 
 function holatIdx(h) { return HOLAT_ORDER.indexOf(h) }
@@ -675,17 +672,7 @@ function yigmaChop() {
   <tfoot><tr><td></td><td>Jami · ${d.tovarlar.length} xil</td><td class="r">${d.zakazlar}</td><td class="r">${fmtMiqdor(d.kg)}</td><td class="r">${kgYoki(yigmaJamiHolat.value.tasdiqlangan)}</td><td class="r">${kgYoki(yigmaJamiHolat.value.yigilmoqda)}</td><td class="r">${kgYoki(yigmaJamiHolat.value.yolda)}</td><td class="r">${kgYoki(yigmaJamiHolat.value.yetkazildi)}</td><td class="r">${fmtSum(d.summa)}</td><td></td></tr></tfoot></table>
   <div class="imzo"><span>Omborchi</span><span>Yig'di</span><span>Tekshirdi</span></div>
   </body></html>`
-  const f = document.createElement('iframe')
-  f.setAttribute('aria-hidden', 'true')
-  f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none;'
-  document.body.appendChild(f)
-  const doc = f.contentDocument || f.contentWindow.document
-  doc.open(); doc.write(html); doc.close()
-  const w = f.contentWindow
-  const tozala = () => setTimeout(() => f.remove(), 500)
-  w.onafterprint = tozala
-  setTimeout(() => { try { w.focus(); w.print() } catch { tozala() } }, 150)
-  setTimeout(() => { if (document.body.contains(f)) f.remove() }, 60000)
+  htmlChop(html)
 }
 
 // ── Holat o'zgartirish (real API) ────────────────────────

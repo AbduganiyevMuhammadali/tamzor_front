@@ -335,7 +335,7 @@ function fmtTime(s: string) {
 }
 
 onMounted(async () => {
-  try { agentlar.value = await hisobotApi.agentlar() } catch {}
+  try { agentlar.value = await hisobotApi.agentlar() } catch (e: any) { toast.error("Agentlar ro'yxatini yuklab bo'lmadi", e.message || '') }
   await loadTab()
 })
 </script>

@@ -405,12 +405,12 @@
             <div class="dm-body">
               <div class="dm-field">
                 <label>Ism <span class="dm-req">*</span></label>
-                <input v-model="form.ism" class="dm-in" placeholder="To'liq ism..."/>
+                <input v-model="form.ism" v-maydon:ism="f" class="dm-in" placeholder="To'liq ism..."/>
               </div>
               <div class="dm-grid2">
                 <div class="dm-field">
                   <label>Telefon</label>
-                  <input v-model="form.telefon" class="dm-in" placeholder="+998..."/>
+                  <input v-model="form.telefon" v-maydon:telefon="f" class="dm-in" placeholder="+998..."/>
                 </div>
                 <div class="dm-field">
                   <label>Transport</label>
@@ -425,11 +425,11 @@
               </div>
               <div class="dm-field">
                 <label>Mashina raqami</label>
-                <input v-model="form.mashina_raqam" class="dm-in" placeholder="01 A 123 BC"/>
+                <input v-model="form.mashina_raqam" v-maydon:mashina_raqam="f" class="dm-in" placeholder="01 A 123 BC"/>
               </div>
               <div class="dm-field">
                 <label>Izoh</label>
-                <textarea v-model="form.izoh" class="dm-ta" rows="2" placeholder="Ixtiyoriy..."/>
+                <textarea v-model="form.izoh" v-maydon:izoh="f" class="dm-ta" rows="2" placeholder="Ixtiyoriy..."/>
               </div>
               <div class="dm-sec-hd">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -438,11 +438,11 @@
               <div class="dm-grid2">
                 <div class="dm-field">
                   <label>Login</label>
-                  <input v-model="form.login" class="dm-in" placeholder="masalan: dostavchi2" autocomplete="off"/>
+                  <input v-model="form.login" v-maydon:login="f" class="dm-in" placeholder="masalan: dostavchi2" autocomplete="off"/>
                 </div>
                 <div class="dm-field">
                   <label>Parol {{ editId ? '(o\'zgartirish uchun)' : '' }}</label>
-                  <input v-model="form.parol" type="password" class="dm-in" placeholder="••••••" autocomplete="new-password"/>
+                  <input v-model="form.parol" v-maydon:parol="f" type="password" class="dm-in" placeholder="••••••" autocomplete="new-password"/>
                 </div>
               </div>
               <p class="dm-hint" v-if="editId">Parolni bo'sh qoldirsangiz, eskisi saqlanib qoladi.</p>
@@ -479,6 +479,9 @@ import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 // @ts-ignore
 import { dostavchiApi } from '@/api/api'
+import { useForma } from '@/validation/useForma'
+import { tozala, qiymatXato } from '@/validation/qoidalar'
+import * as sx from '@/validation/sxemalar'
 import { fonQatlam } from '@/utils/xarita'
 
 // ── Helpers ───────────────────────────────────────────────
@@ -523,6 +526,7 @@ const editId    = ref<number|null>(null)
 const saving    = ref(false)
 const modalErr  = ref('')
 const form = reactive({ ism: '', telefon: '', transport: '', mashina_raqam: '', izoh: '', faol: true, login: '', parol: '' })
+const f = useForma(sx.dostavchi, () => form)
 
 // Map state
 let L: any = null
@@ -655,15 +659,25 @@ async function loadKassa() {
   finally { kassaLoading.value = false }
 }
 async function kassaQabul() {
-  if (!selected.value || !kassa.value) return
+  if (!selected.value || !kassa.value || kassaSaving.value) return
   const summa = kassaSumma.value ?? kassa.value.kerak
+  const sx_xato = qiymatXato(sx.dostavchiKassaQabul.summa!, summa)
+  if (sx_xato) { showToast(sx_xato, 'err'); return }
   if (summa < kassa.value.kerak - 0.5 && !confirm(`${fmtSum(kassa.value.kerak - summa)} so'm kamomad qayd etiladi. Davom etasizmi?`)) return
   kassaSaving.value = true
   try {
-    await dostavchiApi.kassaQabul(selected.value.id, { sana: kassaSana.value, summa, izoh: summa < kassa.value.kerak - 0.5 ? 'Kamomad bilan qabul' : '' })
+    // kutilgan_topshirilgan — sahifada ko'rinib turgan "topshirildi": boshqa kassir parallel qabul
+    // qilgan bo'lsa backend 409 qaytaradi va summa ikki marta qo'shilmaydi
+    await dostavchiApi.kassaQabul(selected.value.id, {
+      sana: kassaSana.value, summa, izoh: summa < kassa.value.kerak - 0.5 ? 'Kamomad bilan qabul' : '',
+      kutilgan_topshirilgan: Number(kassa.value.topshirildi) || 0,
+    })
     showToast(`${fmtSum(summa)} so'm kassaga qabul qilindi`)
     await loadKassa()
-  } catch (e: any) { showToast(e.message || 'Xato', 'err') }
+  } catch (e: any) {
+    if (e.status === 409) { await loadKassa(); showToast(`${e.message || "Ma'lumot o'zgargan"} — kassa qayta yuklandi, summani tekshirib qayta urining`, 'err') }
+    else showToast(e.message || 'Xato', 'err')
+  }
   finally { kassaSaving.value = false }
 }
 function fmtVaqt(s: string) { const d = new Date(s); return isNaN(+d) ? '' : d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }
@@ -814,7 +828,7 @@ function getMyLocation() {
 // ── CRUD ──────────────────────────────────────────────────
 function openCreate() {
   Object.assign(form, { ism: '', telefon: '', transport: '', mashina_raqam: '', izoh: '', faol: true, login: '', parol: '' })
-  editId.value = null; modalErr.value = ''; modalOpen.value = true
+  editId.value = null; modalErr.value = ''; f.tozala(); modalOpen.value = true
 }
 function openEdit(d: any) {
   Object.assign(form, {
@@ -822,21 +836,23 @@ function openEdit(d: any) {
     mashina_raqam: d.mashina_raqam || '', izoh: d.izoh || '', faol: d.faol,
     login: d.login || '', parol: '',
   })
-  editId.value = d.id; modalErr.value = ''; modalOpen.value = true
+  editId.value = d.id; modalErr.value = ''; f.tozala(); modalOpen.value = true
 }
 async function save() {
-  if (!form.ism.trim()) { modalErr.value = 'Ism majburiy'; return }
-  saving.value = true; modalErr.value = ''
+  if (saving.value) return
+  modalErr.value = ''
+  if (!f.tekshir()) return
+  saving.value = true
   try {
-    const body: any = {
-      ism: form.ism.trim(),
-      telefon: form.telefon || null,
-      transport: form.transport || null,
-      mashina_raqam: form.mashina_raqam || null,
-      izoh: form.izoh || null,
+    const body: any = tozala(sx.dostavchi, {
+      ism: form.ism,
+      telefon: form.telefon,
+      transport: form.transport,
+      mashina_raqam: form.mashina_raqam,
+      izoh: form.izoh,
       faol: form.faol,
-      login: form.login.trim() || null,
-    }
+      login: form.login,
+    })
     if (form.parol) body.parol = form.parol
     if (editId.value) {
       const upd = await dostavchiApi.update(editId.value, body)
@@ -849,7 +865,7 @@ async function save() {
     modalOpen.value = false
     await load()
   } catch (e: any) {
-    modalErr.value = e.message || 'Xatolik'
+    modalErr.value = f.server(e)
   } finally {
     saving.value = false
   }

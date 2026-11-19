@@ -282,12 +282,14 @@ async function yubor(rejim) {
   })
 }
 async function tekshir() {
+  if (band.value) return
   xato.value = ''; band.value = true
   try { t.value = await yubor('tekshir'); filtr.value = 'hammasi'; qadam.value = 3 }
   catch (e) { xato.value = e.message || 'Tekshirishda xato' }
   finally { band.value = false }
 }
 async function saqla() {
+  if (band.value) return   // ikki marta bosilsa ikkinchi import ketmasin (backend 409 qaytaradi)
   xato.value = ''; band.value = true
   try { t.value = await yubor('saqla'); saqlandi = true; qadam.value = 4 }
   catch (e) { xato.value = e.message || 'Saqlashda xato — hech narsa yozilmadi' }

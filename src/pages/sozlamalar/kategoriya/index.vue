@@ -5,6 +5,7 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { turkumApi } from '@/api/api'
 import { useToast } from '@/composables/useToast'
+import { useQidiruv } from '@/composables/useQidiruv'
 
 const toast = useToast()
 
@@ -126,13 +127,14 @@ async function tanlashniOch() {
   tanlashOchiq.value = true; tanlangan.value = new Set()
   await tanlashYukla()
 }
-let qidirT: ReturnType<typeof setTimeout>
-function tanlashQidirDeb() { clearTimeout(qidirT); qidirT = setTimeout(tanlashYukla, 300) }
-async function tanlashYukla() {
-  if (!panel.value) return
-  try { tanlashRoyxat.value = await turkumApi.tanlash(panel.value.id, tanlashQidir.value.trim()) }
-  catch (e: any) { toast.error('Yuklash xatosi', e.message) }
-}
+const tanlashQd = useQidiruv<any>({
+  matn: tanlashQidir,
+  kalit: () => panel.value?.id,
+  yukla: s => (panel.value && tanlashOchiq.value ? turkumApi.tanlash(panel.value.id, s) : Promise.resolve(tanlashRoyxat.value)),
+  qolla: r => { tanlashRoyxat.value = r },
+  xato: e => toast.error('Yuklash xatosi', e.message),
+})
+const tanlashYukla = () => tanlashQd.qayta()
 function belgila(id: number) { const s = new Set(tanlangan.value); s.has(id) ? s.delete(id) : s.add(id); tanlangan.value = s }
 async function biriktir() {
   if (!panel.value || !tanlangan.value.size) return
@@ -279,7 +281,7 @@ onMounted(load)
         <template v-else>
           <div class="tk-search tk-search--full">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input v-model="tanlashQidir" class="tk-search-in" placeholder="Tovar nomi..." @input="tanlashQidirDeb" autofocus/>
+            <input v-model="tanlashQidir" class="tk-search-in" placeholder="Tovar nomi..." maxlength="100" @keydown.enter="tanlashQd.darhol()" autofocus/>
           </div>
           <div v-if="!tanlashRoyxat.length" class="tk-panel-empty">Biriktiriladigan tovar yo'q</div>
           <ul v-else class="tk-list tk-list--pick">

@@ -1,5 +1,8 @@
 <template>
   <div class="mr">
+    <!-- Backend ro'yxatni limitda kesgan (kesildi: true) yoki yuklashda xato -->
+    <div v-if="yuklashXato" class="ogoh-tasma ogoh-tasma--xato">{{ yuklashXato }}</div>
+    <div v-else-if="kesildi" class="ogoh-tasma">Ma'lumot to'liq emas — juda ko'p yozuv. Bitta agentni tanlang.</div>
 
     <!-- ═══ Yuqori panel ═══ -->
     <div class="mr-top">
@@ -143,6 +146,8 @@ const RING = 2 * Math.PI * 13
 const bugunISO = new Date().toISOString().slice(0, 10)
 const sana      = ref(bugunISO)
 const loading   = ref(false)
+const kesildi = ref(false)        // backend limitga yetib kesgan — natija to'liq emas
+const yuklashXato = ref('')
 const tanlangan = ref(null)
 const faolStop  = ref(null)
 const mapEl     = ref(null)
@@ -176,6 +181,7 @@ let map = null, layer = null, L = null
 
 async function load() {
   loading.value = true
+  yuklashXato.value = ''
   try {
     const p = { sana: sana.value }
     if (props.agentId) p.agent_id = props.agentId
@@ -186,12 +192,13 @@ async function load() {
       agentlar: r.agentlar || [],
       jami: r.jami || d.jami,
     })
+    kesildi.value = !!r.kesildi
     // Avval tanlangani saqlanadi, bo'lmasa eng faoli
     const bor = faolAgentlar.value.some(a => a.agent_id === tanlangan.value)
     if (!bor) tanlangan.value = faolAgentlar.value[0]?.agent_id ?? null
     faolStop.value = null
   } catch (e) {
-    console.error('Marshrut xatosi:', e)
+    if (e?.message !== 'session_expired') yuklashXato.value = e?.message || "Marshrutni yuklab bo'lmadi"
     d.agentlar = []
   } finally {
     loading.value = false

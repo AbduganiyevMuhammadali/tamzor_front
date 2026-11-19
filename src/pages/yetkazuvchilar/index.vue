@@ -1,7 +1,11 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../../api/api.js'
+import { useQidiruv } from '@/composables/useQidiruv'
+import { useForma } from '@/validation/useForma'
+import { tozala } from '@/validation/qoidalar'
+import * as sx from '@/validation/sxemalar'
 
 const router = useRouter()
 
@@ -12,7 +16,6 @@ const page    = ref(1)
 const limit   = 50
 
 const filter = reactive({ search: '' })
-let searchTimer = null
 
 const modalOpen = ref(false)
 const modalMode = ref('create') // 'create' | 'edit'
@@ -21,6 +24,7 @@ const errMsg    = ref('')
 const editId    = ref(null)
 
 const form = reactive({ ism: '', telefon: '', manzil: '', izoh: '' })
+const f = useForma(sx.yetkazuvchi, () => form)
 
 /* Tepadagi ikki ro'yxat: haqdor (biz qarzdormiz) va qarzdor (bizga qarz — avans) yetkazuvchilar */
 const qoldiq = ref(null)
@@ -39,29 +43,32 @@ function kunOldin(s) {
   return k <= 0 ? 'bugun' : k === 1 ? 'kecha' : `${k} kun oldin`
 }
 
-async function loadData() {
-  loading.value = true
-  try {
+const yuklashXato = ref('')
+const qd = useQidiruv({
+  matn: toRef(filter, 'search'), sahifa: page, yuklanmoqda: loading,
+  yukla: q => {
+    yuklashXato.value = ''
     const p = new URLSearchParams({ page: page.value, limit })
-    if (filter.search) p.set('search', filter.search)
-    const d = await api.get(`/yetkazuvchilar?${p}`)
+    if (q) p.set('search', q)
+    return api.get(`/yetkazuvchilar?${p}`)
+  },
+  qolla: d => {
     rows.value  = d.data  ?? []
     total.value = d.total ?? 0
-  } finally { loading.value = false }
-}
+  },
+  xato: e => { yuklashXato.value = e?.message || "Yuklab bo'lmadi" },
+})
+const loadData = () => qd.qayta()
 
 onMounted(() => { loadData(); loadQoldiq() })
 
-function onSearch() {
-  clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => { page.value = 1; loadData() }, 300)
-}
 
 function openCreate() {
   modalMode.value = 'create'
   editId.value    = null
   Object.assign(form, { ism: '', telefon: '', manzil: '', izoh: '' })
   errMsg.value    = ''
+  f.tozala()
   modalOpen.value = true
 }
 
@@ -70,23 +77,23 @@ function openEdit(y) {
   editId.value    = y.id
   Object.assign(form, { ism: y.ism || '', telefon: y.telefon || '', manzil: y.manzil || '', izoh: y.izoh || '' })
   errMsg.value    = ''
+  f.tozala()
   modalOpen.value = true
 }
 
 async function saveForm() {
-  if (!form.ism.trim()) { errMsg.value = 'Ism kiritilmagan'; return }
-  saving.value = true
+  if (saving.value) return
   errMsg.value = ''
+  if (!f.tekshir()) return
+  saving.value = true
   try {
-    if (modalMode.value === 'create') {
-      await api.post('/yetkazuvchilar', { ism: form.ism, telefon: form.telefon || null, manzil: form.manzil || null, izoh: form.izoh || null })
-    } else {
-      await api.patch(`/yetkazuvchilar/${editId.value}`, { ism: form.ism, telefon: form.telefon || null, manzil: form.manzil || null, izoh: form.izoh || null })
-    }
+    const body = tozala(sx.yetkazuvchi, { ...form })
+    if (modalMode.value === 'create') await api.post('/yetkazuvchilar', body)
+    else await api.patch(`/yetkazuvchilar/${editId.value}`, body)
     modalOpen.value = false
     loadData(); loadQoldiq()
   } catch (e) {
-    errMsg.value = e.message || 'Xatolik'
+    errMsg.value = f.server(e)
   } finally { saving.value = false }
 }
 
@@ -128,7 +135,7 @@ function balansInfo(b) {
       <div class="yl-header-r">
         <div class="yl-srch">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-          <input v-model="filter.search" @input="onSearch" class="yl-srch-in" placeholder="Qidirish..."/>
+          <input v-model="filter.search" maxlength="100" @keydown.enter="qd.darhol()" class="yl-srch-in" placeholder="Qidirish..."/>
         </div>
         <button class="yl-btn yl-btn--primary" @click="openCreate">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
@@ -203,7 +210,8 @@ function balansInfo(b) {
       </div>
 
       <div class="yl-tbl-wrap">
-        <div v-if="loading" class="yl-loading">
+        <div v-if="yuklashXato" class="yl-loading">{{ yuklashXato }}</div>
+        <div v-else-if="loading && !rows.length" class="yl-loading">
           <span class="yl-spin"/> Yuklanmoqda...
         </div>
         <table v-else class="yl-tbl">
@@ -281,19 +289,19 @@ function balansInfo(b) {
               <div v-if="errMsg" class="yl-err">{{ errMsg }}</div>
               <div class="yl-mfield">
                 <label class="yl-mlbl">Ism / Kompaniya nomi *</label>
-                <input v-model="form.ism" class="yl-min" placeholder="Yetkazuvchi nomi"/>
+                <input v-model="form.ism" v-maydon:ism="f" class="yl-min" placeholder="Yetkazuvchi nomi"/>
               </div>
               <div class="yl-mfield">
                 <label class="yl-mlbl">Telefon</label>
-                <input v-model="form.telefon" class="yl-min" placeholder="+998 90 000 00 00"/>
+                <input v-model="form.telefon" v-maydon:telefon="f" class="yl-min" placeholder="+998 90 000 00 00"/>
               </div>
               <div class="yl-mfield">
                 <label class="yl-mlbl">Manzil</label>
-                <input v-model="form.manzil" class="yl-min" placeholder="Shahar, ko'cha..."/>
+                <input v-model="form.manzil" v-maydon:manzil="f" class="yl-min" placeholder="Shahar, ko'cha..."/>
               </div>
               <div class="yl-mfield">
                 <label class="yl-mlbl">Izoh</label>
-                <textarea v-model="form.izoh" class="yl-mta" rows="2" placeholder="Qo'shimcha ma'lumot..."/>
+                <textarea v-model="form.izoh" v-maydon:izoh="f" class="yl-mta" rows="2" placeholder="Qo'shimcha ma'lumot..."/>
               </div>
             </div>
             <div class="yl-modal-foot">

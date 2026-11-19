@@ -136,3 +136,16 @@ button { font-family: inherit; cursor: pointer; }
    Qorong'i mavzuda fon teskari ranglarda — oq xarita ko'zni qamashtirmaydi. Faqat fon qatlamiga ta'sir qiladi. */
 .leaflet-layer.sellz-fon { filter: saturate(.45) brightness(1.03) contrast(.96); }
 .shell.dark .leaflet-layer.sellz-fon { filter: invert(.92) hue-rotate(180deg) saturate(.35) brightness(.95) contrast(.9); }
+
+/* ── FORMA XATOLARI — v-maydon direktivasi qo'yadi (src/validation/useForma.ts) ── */
+.fx-xato { display:block; margin-top:4px; font-size:11.5px; line-height:1.35; font-weight:500; color:#dc2626; }
+.fx-bad, .fx-bad:focus { border-color:#dc2626 !important; box-shadow:0 0 0 3px rgba(220,38,38,.12) !important; }
+.shell.dark .fx-xato { color:#f87171; }
+.shell.dark .fx-bad, .shell.dark .fx-bad:focus { border-color:#f87171 !important; box-shadow:0 0 0 3px rgba(248,113,113,.16) !important; }
+
+/* ── OGOHLANTIRISH TASMASI — "ma'lumot to'liq emas" (kesildi) va yuklash xatosi ── */
+.ogoh-tasma { margin:0 0 12px; padding:10px 14px; border-radius:10px; font-size:13px; font-weight:500; line-height:1.4;
+  background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
+.ogoh-tasma--xato { background:#fef2f2; border-color:#fecaca; color:#b91c1c; }
+.shell.dark .ogoh-tasma { background:rgba(245,158,11,.12); border-color:rgba(245,158,11,.35); color:#fcd34d; }
+.shell.dark .ogoh-tasma--xato { background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.35); color:#fca5a5; }

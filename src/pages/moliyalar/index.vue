@@ -21,7 +21,7 @@
     </div>
 
     <!-- ═══ KPI ═══ -->
-    <div class="ks-kpi" v-if="!loading">
+    <div class="ks-kpi" v-if="!loading || yuklangan">
       <div class="ks-kpi-card ks-kpi-card--in">
         <div class="ks-kpi-ic" style="background:rgba(16,185,129,.15)">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
@@ -64,7 +64,7 @@
     <div class="ks-body">
 
       <!-- Kategoriyalar -->
-      <div class="ks-cats" v-if="!loading && data.kategoriyalar.length">
+      <div class="ks-cats" v-if="(!loading || yuklangan) && data.kategoriyalar.length">
         <div class="ks-cats-hd">Kategoriyalar bo'yicha</div>
         <div class="ks-cat" v-for="c in data.kategoriyalar" :key="c.kategoriya"
           :class="{ on: filterKat === c.kategoriya }"
@@ -81,7 +81,7 @@
         <div class="ks-list-toolbar">
           <div class="ks-search">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input v-model="search" @input="debouncedLoad" placeholder="Mijoz yoki izoh..." class="ks-si"/>
+            <input v-model="search" maxlength="100" @keydown.enter="qd.darhol()" placeholder="Mijoz yoki izoh..." class="ks-si"/>
           </div>
           <div class="ks-tur-filter">
             <button class="ks-tf" :class="{ on: filterTur === '' }" @click="filterTur = ''; load()">Barchasi</button>
@@ -90,7 +90,7 @@
           </div>
         </div>
 
-        <div v-if="loading" class="ks-loading"><div class="ks-spinner"/></div>
+        <div v-if="loading && !yuklangan" class="ks-loading"><div class="ks-spinner"/></div>
         <div v-else-if="!data.harakatlar.length" class="ks-empty">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
           <p>Harakat yo'q</p>
@@ -164,7 +164,7 @@
 
               <div class="km-field">
                 <label>Kategoriya</label>
-                <select v-model="addForm.kategoriya" class="km-in">
+                <select v-model="addForm.kategoriya" v-maydon:kategoriya="af" class="km-in">
                   <option v-for="k in katOptions" :key="k.key" :value="k.key">{{ k.label }}</option>
                 </select>
               </div>
@@ -180,7 +180,7 @@
               <div class="km-row2">
                 <div class="km-field">
                   <label>Summa</label>
-                  <NumberInput v-model="addForm.summa" css-class="km-in" placeholder="0"/>
+                  <NumberInput v-model="addForm.summa" v-maydon:summa="af" css-class="km-in" placeholder="0"/>
                 </div>
                 <div class="km-field">
                   <label>To'lov usuli</label>
@@ -194,7 +194,7 @@
 
               <div class="km-field">
                 <label>Izoh</label>
-                <input v-model="addForm.izoh" class="km-in" placeholder="Ixtiyoriy..."/>
+                <input v-model="addForm.izoh" v-maydon:izoh="af" class="km-in" placeholder="Ixtiyoriy..."/>
               </div>
               <div class="km-err" v-if="addErr">{{ addErr }}</div>
             </div>
@@ -224,6 +224,10 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { useRouter } from 'vue-router'
+import { useQidiruv } from '@/composables/useQidiruv'
+import { useForma, useSorovId } from '@/validation/useForma'
+import { tozala } from '@/validation/qoidalar'
+import * as sx from '@/validation/sxemalar'
 // @ts-ignore
 import { kassaApi, arizaApi } from '@/api/api'
 
@@ -247,6 +251,7 @@ const KAT_ALL = [
 ]
 
 const loading   = ref(false)
+const yuklangan = ref(false)   // birinchi javob keldi — keyingi yuklashlarda eski natija joyida qoladi
 const period    = ref('month')
 const search    = ref('')
 const filterTur = ref('')
@@ -273,23 +278,20 @@ function showToast(msg: string, type = 'ok') {
 
 const katOptions = computed(() => KAT_ALL.filter(k => k.tur === addForm.tur))
 
-let debT: ReturnType<typeof setTimeout>
-function debouncedLoad() { clearTimeout(debT); debT = setTimeout(load, 350) }
-
-async function load() {
-  loading.value = true
-  try {
+const qd = useQidiruv<any>({
+  matn: search, yuklanmoqda: loading,
+  kalit: () => [period.value, filterTur.value, filterKat.value],
+  yukla: q => {
     const params: any = { period: period.value }
     if (filterTur.value) params.tur = filterTur.value
     if (filterKat.value) params.kategoriya = filterKat.value
-    if (search.value) params.search = search.value
-    data.value = await kassaApi.hisobot(params)
-  } catch (e: any) {
-    showToast(e.message || 'Yuklash xatosi', 'err')
-  } finally {
-    loading.value = false
-  }
-}
+    if (q) params.search = q
+    return kassaApi.hisobot(params)
+  },
+  qolla: d => { data.value = d; yuklangan.value = true },
+  xato: e => showToast(e.message || 'Yuklash xatosi', 'err'),
+})
+const load = () => qd.qayta()
 
 function toggleKatFilter(k: string) {
   filterKat.value = filterKat.value === k ? '' : k
@@ -300,30 +302,42 @@ function setTur(tur: string) {
   addForm.tur = tur
   addForm.kategoriya = KAT_ALL.find(k => k.tur === tur)?.key || ''
 }
+const af = useForma(sx.kassa, () => addForm)
+// So'rov kaliti: forma ochilganda yaratiladi, qayta urinishda o'zgarmaydi — tugma ikki marta
+// bosilsa yoki javob yo'qolib qayta yuborilsa ham backend bitta yozuv yaratadi
+const sorov = useSorovId()
 function openAdd(tur: string) {
   Object.assign(addForm, { tur, kategoriya: '', summa: null, tolov_usul: 'naqt', mijoz_id: '', izoh: '' })
   setTur(tur)
   addErr.value = ''
+  af.tozala()
+  sorov.yangila()
   addModal.value = true
 }
 async function saveAmal() {
-  if (!addForm.summa || addForm.summa <= 0) { addErr.value = 'Summa kiriting'; return }
-  if (addForm.kategoriya === 'mijoz_tolov' && !addForm.mijoz_id) { addErr.value = 'Mijoz tanlang'; return }
-  saving.value = true; addErr.value = ''
+  if (saving.value) return
+  addErr.value = ''
+  if (!af.tekshir()) return
+  if (addForm.kategoriya === 'mijoz_tolov' && !addForm.mijoz_id) { addErr.value = 'Mijoz tanlanmagan'; return }
+  saving.value = true
   try {
     await kassaApi.create({
-      tur: addForm.tur,
-      kategoriya: addForm.kategoriya,
-      summa: addForm.summa,
-      tolov_usul: addForm.tolov_usul,
+      ...tozala(sx.kassa, {
+        tur: addForm.tur,
+        kategoriya: addForm.kategoriya,
+        summa: addForm.summa,
+        tolov_usul: addForm.tolov_usul,
+        izoh: addForm.izoh,
+      }),
       mijoz_id: addForm.mijoz_id || null,
-      izoh: addForm.izoh || null,
+      sorov_id: sorov.id.value,
     })
+    sorov.yangila()
     addModal.value = false
     showToast(addForm.tur === 'kirim' ? 'Kirim qo\'shildi' : 'Chiqim qo\'shildi')
     await load()
   } catch (e: any) {
-    addErr.value = e.message || 'Xatolik'
+    addErr.value = af.server(e)
   } finally {
     saving.value = false
   }
@@ -378,7 +392,7 @@ function fmtDateTime(s: string) {
 }
 
 async function loadMijozlar() {
-  try { const sp = await arizaApi.spravochnik(); mijozlar.value = sp.mijozlar || [] } catch {}
+  try { const sp = await arizaApi.spravochnik(); mijozlar.value = sp.mijozlar || [] } catch (e: any) { showToast(e.message || "Mijozlar ro'yxatini yuklab bo'lmadi", 'err') }
 }
 
 onMounted(() => { load(); loadMijozlar() })

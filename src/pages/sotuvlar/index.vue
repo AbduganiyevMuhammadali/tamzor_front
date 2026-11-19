@@ -21,7 +21,7 @@
     <div class="pg-bar">
       <div class="pg-search">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input v-model="search" @input="debouncedLoad" placeholder="Mijoz yoki raqam..." class="pg-si"/>
+        <input v-model="search" maxlength="100" @keydown.enter="qd.darhol()" placeholder="Mijoz yoki raqam..." class="pg-si"/>
       </div>
       <select class="pg-sel" v-model="fAgent" @change="load">
         <option value="">Barcha agentlar</option>
@@ -49,7 +49,7 @@
 
       <!-- LIST -->
       <div class="pg-list-wrap">
-        <div v-if="loading" class="pg-list">
+        <div v-if="loading && !rows.length" class="pg-list">
           <div class="pg-skel" v-for="i in 6" :key="i"/>
         </div>
         <div v-else-if="!rows.length" class="pg-empty">
@@ -407,7 +407,7 @@
                   <div class="m-sum-footer" v-if="form.qatorlar.length">
                     <div class="m-chegirma">
                       <label>Chegirma %</label>
-                      <input type="number" v-model.number="form.chegirma_foiz" min="0" max="100" placeholder="0"/>
+                      <input type="number" v-model.number="form.chegirma_foiz" v-maydon:chegirma_foiz.ota="af" min="0" max="100" step="any" placeholder="0"/>
                     </div>
                     <div class="m-total-line">
                       <span>Jami</span>
@@ -441,7 +441,7 @@
                     </div>
                     <div class="m-det-f">
                       <label>Ekspeditor</label>
-                      <input v-model="form.ekspeditor" class="m-det-in" placeholder="Ism..."/>
+                      <input v-model="form.ekspeditor" v-maydon:ekspeditor="af" class="m-det-in" placeholder="Ism..."/>
                     </div>
                     <div class="m-det-f">
                       <label>Ombor</label>
@@ -451,7 +451,7 @@
                     </div>
                     <div class="m-det-f">
                       <label>Izoh</label>
-                      <input v-model="form.izoh" class="m-det-in" placeholder="Ixtiyoriy..."/>
+                      <input v-model="form.izoh" v-maydon:izoh="af" class="m-det-in" placeholder="Ixtiyoriy..."/>
                     </div>
                   </div>
                 </div>
@@ -592,6 +592,10 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useQidiruv } from '@/composables/useQidiruv'
+import { useForma } from '@/validation/useForma'
+import { tozala } from '@/validation/qoidalar'
+import * as sx from '@/validation/sxemalar'
 import { useToast } from '@/composables/useToast'
 // @ts-ignore
 import { arizaApi, api } from '@/api/api'
@@ -691,35 +695,31 @@ const formTotal = computed(() =>
 const isInCart = (id: number) => !!form.qatorlar.find((q: any) => q.tovar_id === id)
 
 // ── Load ──────────────────────────────────────────────────
-let debT: ReturnType<typeof setTimeout>
-const debouncedLoad = () => { clearTimeout(debT); debT = setTimeout(() => { page.value=1; load() }, 350) }
-
-async function load() {
-  loading.value = true
-  try {
+// Qidiruv: debounce, eski javobni bekor qilish, 1-sahifaga qaytish — useQidiruv ichida
+const qd = useQidiruv<[any, any]>({
+  matn: search, sahifa: page, yuklanmoqda: loading,
+  kalit: () => [fHolat.value, fAgent.value],
+  yukla: q => {
     const params: any = { page: page.value, limit: LIMIT }
     if (fHolat.value) params.holat  = fHolat.value
     if (fAgent.value) params.agent_id = fAgent.value
     params.kanal = KANAL
-    if (search.value) params.search = search.value
-    const [data, statData] = await Promise.all([
-      arizaApi.getAll(params),
-      arizaApi.statistika(KANAL),
-    ])
+    if (q) params.search = q
+    return Promise.all([arizaApi.getAll(params), arizaApi.statistika(KANAL)])
+  },
+  qolla: ([data, statData]) => {
     rows.value  = data.rows || data || []
     total.value = data.count || rows.value.length
     stat.value  = statData
-  } catch (e: any) {
-    showToast(e.message || 'Yuklash xatosi', 'error')
-  } finally {
-    loading.value = false
-  }
-}
+  },
+  xato: e => showToast(e.message || 'Yuklash xatosi', 'error'),
+})
+const load = () => qd.qayta()
 async function loadSprav() {
   try {
     const d = await arizaApi.spravochnik()
     sprav.value = { ...d, omborlar: d.omborlar?.length ? d.omborlar : ['Основной склад'] }
-  } catch {}
+  } catch (e: any) { showToast(e.message || "Spravochnikni yuklab bo'lmadi", 'error') }
 }
 
 // ── Select / filter ───────────────────────────────────────
@@ -749,6 +749,7 @@ function keyingiQadam(a: any): { matn: string; yol?: string; tugma?: string } | 
 // ── Modal ─────────────────────────────────────────────────
 function openCreate() {
   Object.assign(form, emptyForm())
+  af.tozala()
   if (sprav.value.omborlar?.length) form.ombor = sprav.value.omborlar[0]
   formErr.value  = ''
   dateError.value = false
@@ -854,15 +855,21 @@ function setCart(tovar_id: number, val: number) {
 }
 
 // ── Save ──────────────────────────────────────────────────
+const af = useForma(sx.ariza, () => form)
 async function save() {
+  if (saving.value) return
   dateError.value = false
   if (!form.mijoz_id)        { formErr.value = 'Mijoz tanlang'; return }
-  if (!form.qatorlar.length) { formErr.value = 'Kamida 1 ta tovar tanlang'; return }
+  if (!form.qatorlar.length) { formErr.value = 'Kamida 1 ta tovar kiritilishi shart'; return }
+  if (form.qatorlar.length > sx.ARIZA_QATOR_MAKS) { formErr.value = `Bitta arizada ${sx.ARIZA_QATOR_MAKS} tadan ortiq qator bo'lmasin`; return }
   if (!form.jonatish_sana)   { formErr.value = 'Yetkazish sanasi majburiy'; dateError.value = true; return }
+  if (!af.tekshir())         { formErr.value = af.umumiy.value; return }
+  const yomon = form.qatorlar.find((q: any) => !(Number(q.narx) >= 0) || !(Number(q.blok || 0) >= 0) || !(Number(q.dona || 0) >= 0))
+  if (yomon) { formErr.value = `"${yomon.tovar_nomi}": narx va miqdor manfiy bo'lmasin`; return }
   formErr.value = ''
   saving.value  = true
   try {
-    const body = {
+    const body = tozala(sx.ariza, {
       turi: 'sotish',
       mijoz_id:  form.mijoz_id,  mijoz_nomi:  form.mijoz_nomi,
       agent_id:  form.agent_id || null, agent_nomi: form.agent_nomi || null,
@@ -873,15 +880,15 @@ async function save() {
       chegirma_foiz: form.chegirma_foiz || 0,
       izoh:      form.izoh || null,
       qatorlar:  form.qatorlar,
-    }
+    })
     await arizaApi.create(body)
     showToast(`${form.mijoz_nomi} uchun ariza yuborildi · ${form.jonatish_sana}`)
     closeModal()
     await load()
     stat.value = await arizaApi.statistika(KANAL)
   } catch (e: any) {
-    formErr.value = e.message || 'Xatolik'
-    showToast(e.message || 'Xatolik', 'error')
+    formErr.value = af.server(e) || 'Xatolik'
+    showToast(formErr.value, 'error')
   } finally {
     saving.value = false
   }
@@ -946,7 +953,6 @@ function fmtDate(s: string) {
   return new Date(s).toLocaleDateString('uz-UZ', { day:'2-digit', month:'2-digit', year:'2-digit' })
 }
 
-watch(search, () => debouncedLoad())
 // Notifikatsiyadan ?doc=<id> bilan kelsa — o'sha zakazni avtomatik ochamiz
 async function openDocFromQuery() {
   const docId = route.query.doc

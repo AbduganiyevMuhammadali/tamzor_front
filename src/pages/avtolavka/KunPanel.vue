@@ -11,6 +11,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 // @ts-ignore
 import { avtolavkaApi, hisobotApi } from '@/api/api'
+import { useQidiruv } from '@/composables/useQidiruv'
 
 const props = defineProps<{ agentId: number; sana: string }>()
 const emit = defineEmits<{ (e: 'yop'): void; (e: 'ozgardi'): void }>()
@@ -102,15 +103,13 @@ function yukQadam(q: any, yon: number) {
   yuk[q.tovar_id] = Math.floor(v / bs) * bs || (yon > 0 ? Math.min(bs, Number(q.omborda) || 0) : 0)
 }
 function tavsiyaniQoy() { (tavsiya.value?.qatorlar || []).forEach((q: any) => { yuk[q.tovar_id] = q.tavsiya }) }
-let qidTimer: ReturnType<typeof setTimeout> | null = null
-function qidir() {
-  if (qidTimer) clearTimeout(qidTimer)
-  qidTimer = setTimeout(async () => {
-    const s = qidiruv.value.trim()
-    if (!s) { natijalar.value = []; return }
-    try { natijalar.value = ((await avtolavkaApi.tovarlar({ search: s })) || []).slice(0, 8) } catch { natijalar.value = [] }
-  }, 220)
-}
+// Tovar qo'shish (autocomplete) — bo'sh matnda ro'yxat yopiladi
+const qidiruvQd = useQidiruv<any[]>({
+  matn: qidiruv,
+  yukla: s => (s ? avtolavkaApi.tovarlar({ search: s }) : Promise.resolve([])),
+  qolla: r => { natijalar.value = (r || []).slice(0, 8) },
+  xato: e => { natijalar.value = []; korsat(e?.message || 'Qidiruv xatosi', 'xato') },
+})
 function qosh(t: any) {
   if (!yukQatorlar.value.find((q: any) => q.tovar_id === t.id)) {
     const bs = Number(t.blokdagi_soni) || 1
@@ -445,7 +444,7 @@ onMounted(yangila)
         </div>
 
         <div class="kp-search">
-          <input v-model="qidiruv" placeholder="Tovar qo'shish — nomini yozing" @input="qidir"/>
+          <input v-model="qidiruv" maxlength="100" placeholder="Tovar qo'shish — nomini yozing" @keydown.enter="qidiruvQd.darhol()"/>
           <div v-if="natijalar.length" class="kp-dd">
             <button v-for="t in natijalar" :key="t.id" @click="qosh(t)"><b>{{ t.nomi }}</b><span>omborda {{ fmtDona(t.qoldiq) }} · {{ fmtSum(t.chakana_narx) }} so'm</span></button>
           </div>

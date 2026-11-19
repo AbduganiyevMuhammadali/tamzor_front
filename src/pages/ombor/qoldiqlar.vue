@@ -1,8 +1,9 @@
 <script setup>
-import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, watch, nextTick, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { hisobotApi } from '@/api/api'
 import { useToast } from '@/composables/useToast'
+import { useQidiruv } from '@/composables/useQidiruv'
 
 const toast = useToast()
 const route = useRoute()
@@ -12,29 +13,24 @@ const filter = reactive({ ombor: typeof route.query.ombor === 'string' ? route.q
 
 const rows    = ref([])
 const loading = ref(false)
-let   timer   = null
 
-async function load() {
-  loading.value = true
-  try {
+const qd = useQidiruv({
+  matn: toRef(filter, 'search'), yuklanmoqda: loading,
+  kalit: () => [filter.ombor, filter.turkum],
+  yukla: q => {
     const p = {}
     if (filter.ombor)   p.ombor   = filter.ombor
     if (filter.turkum)  p.turkum  = filter.turkum
-    if (filter.search)  p.search  = filter.search
-    rows.value = await hisobotApi.qoldiqlar(p)
-  } catch (e) {
-    toast.error('Yuklash xatosi', e.message || '')
-  } finally {
-    loading.value = false
-  }
-}
+    if (q)              p.search  = q
+    return hisobotApi.qoldiqlar(p)
+  },
+  qolla: d => { rows.value = d },
+  xato: e => toast.error('Yuklash xatosi', e.message || ''),
+})
+const load = () => qd.qayta()
 
 onMounted(load)
 watch(() => [filter.ombor, filter.turkum], load)
-watch(() => filter.search, () => {
-  clearTimeout(timer)
-  timer = setTimeout(load, 300)
-})
 
 // Turkumlar (filter uchun)
 const turkumlar = computed(() => [...new Set(rows.value.map(r => r.turkum))].sort())
@@ -198,7 +194,7 @@ const sparkPoints = computed(() => {
     <div class="qd-filters">
       <div class="qd-srch">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-        <input v-model="filter.search" class="qd-srch-in" placeholder="Tovar nomi bo'yicha qidirish..."/>
+        <input v-model="filter.search" maxlength="100" @keydown.enter="qd.darhol()" class="qd-srch-in" placeholder="Tovar nomi bo'yicha qidirish..."/>
         <button v-if="filter.search" class="qd-srch-clear" @click="filter.search = ''">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
         </button>
@@ -219,7 +215,7 @@ const sparkPoints = computed(() => {
     <!-- ══ TABLE ══ -->
     <div class="qd-card">
       <div class="qd-tbl-wrap">
-        <div v-if="loading" class="qd-loading">
+        <div v-if="loading && !rows.length" class="qd-loading">
           <span class="qd-spin"/>
           Yuklanmoqda...
         </div>

@@ -7,6 +7,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../../../api/api.js'
 import { authStore } from '@/stores/auth'
+import { useQidiruv } from '@/composables/useQidiruv'
 
 const router = useRouter()
 const admin = computed(() => authStore.isAdmin.value)
@@ -24,24 +25,29 @@ const dateFrom    = ref('')
 const dateTo      = ref('')
 
 // ─── Load ─────────────────────────────────────────────────────────────────────
-async function load() {
-  loading.value = true
-  try {
+const yuklashXato = ref('')
+const qd = useQidiruv({
+  matn: search, sahifa: page, yuklanmoqda: loading,
+  kalit: () => [filterHolat.value, dateFrom.value, dateTo.value],
+  yukla: q => {
+    yuklashXato.value = ''
     const p = new URLSearchParams({ page: page.value, limit })
-    if (search.value)      p.set('search',    search.value)
+    if (q)                 p.set('search',    q)
     if (filterHolat.value) p.set('holat',     filterHolat.value)
     if (dateFrom.value)    p.set('date_from', dateFrom.value)
     if (dateTo.value)      p.set('date_to',   dateTo.value)
-    const data = await api.get(`/prixod?${p}`)
+    return api.get(`/prixod?${p}`)
+  },
+  qolla: data => {
     rows.value  = data.data  ?? []
     total.value = data.total ?? 0
-  } finally {
-    loading.value = false
-  }
-}
+  },
+  xato: e => { yuklashXato.value = e?.message || "Yuklab bo'lmadi" },
+})
+const load = () => qd.qayta()
 
 onMounted(load)
-watch([search, filterHolat, dateFrom, dateTo], () => { page.value = 1; load() })
+watch([filterHolat, dateFrom, dateTo], () => qd.filtr())
 
 // ─── O'chirish ────────────────────────────────────────────────────────────────
 const ochir = ref(null)          // { row, parol, xato, band }
@@ -108,7 +114,7 @@ const totalPages = computed(() => Math.ceil(total.value / limit))
     <div class="pr-filters">
       <div class="pr-srch">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-        <input v-model="search" placeholder="Yetkazuvchi qidirish..." class="pr-srch-in"/>
+        <input v-model="search" maxlength="100" @keydown.enter="qd.darhol()" placeholder="Yetkazuvchi qidirish..." class="pr-srch-in"/>
       </div>
       <select v-model="filterHolat" class="pr-flt-sel">
         <option value="">Barcha holat</option>
@@ -130,7 +136,11 @@ const totalPages = computed(() => Math.ceil(total.value / limit))
 
     <!-- Table -->
     <div class="pr-table-wrap">
-      <div v-if="loading" class="pr-loading">
+      <div v-if="yuklashXato" class="pr-loading">
+        {{ yuklashXato }}
+        <button class="pr-pag-btn" style="width:auto;padding:0 12px" @click="load()">Qayta urinish</button>
+      </div>
+      <div v-else-if="loading && !rows.length" class="pr-loading">
         <div class="pr-spinner"/>
         Yuklanmoqda...
       </div>

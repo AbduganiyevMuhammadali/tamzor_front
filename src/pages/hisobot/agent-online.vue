@@ -1,5 +1,8 @@
 <template>
   <div class="ao">
+    <!-- Backend ro'yxatni limitda kesgan (kesildi: true) yoki yuklashda xato -->
+    <div v-if="yuklashXato" class="ogoh-tasma ogoh-tasma--xato">{{ yuklashXato }}</div>
+    <div v-else-if="kesildi" class="ogoh-tasma">Ma'lumot to'liq emas — juda ko'p yozuv. Xaritada hamma nuqta ko'rinmasligi mumkin; trekni o'chirib ko'ring.</div>
 
     <!-- ═══ HEADER ═══ -->
     <div class="ao-hd">
@@ -120,6 +123,8 @@ const rang = (id: number) => RANGLAR[id % RANGLAR.length]
 
 const d = ref<Javob | null>(null)
 const yuklanmoqda = ref(false)
+const kesildi = ref(false)        // backend limitga yetib kesgan — natija to'liq emas
+const yuklashXato = ref('')
 const autoOn = ref(true)
 const filtr = ref<Filtr>('bari')
 const tanlangan = ref<number | null>(null)
@@ -168,11 +173,13 @@ async function yukla(jim = false) {
   if (!jim) yuklanmoqda.value = true
   try {
     d.value = await hisobotApi.agentOnline({ trek: trekKorsat.value ? 'true' : 'false' })
+    kesildi.value = !!(d.value as any)?.kesildi
+    yuklashXato.value = ''
     yangilangan.value = new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
     await nextTick()
     await chiz()
   } catch (e) {
-    console.error('Agent online yuklanmadi:', e)
+    if ((e as any)?.message !== 'session_expired') yuklashXato.value = (e as any)?.message || "Ma'lumotni yuklab bo'lmadi"
   } finally {
     yuklanmoqda.value = false
   }
