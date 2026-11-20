@@ -1,8 +1,8 @@
 <script setup lang="ts">
-/* BOSH SAHIFA — Won Sell (mashinadan savdo) boshqaruv markazi + asosiy pul.
+/* BOSH SAHIFA — Van Sell (mashinadan savdo) boshqaruv markazi + asosiy pul.
    Ma'lumot manbalari:
      /avtolavka/doska      — bugungi mashinalar (jonli): yuk, naqd, kun bosqichi, so'rovlar, kamomad
-     /avtolavka/sotuvlar   — davr yig'masi shu jurnaldan frontda hisoblanadi (wonsell): jami, oldingi davr,
+     /avtolavka/sotuvlar   — davr yig'masi shu jurnaldan frontda hisoblanadi (vansell): jami, oldingi davr,
                              dinamika, agentlar, tovarlar
      /dashboard            — kassa, qarzdorlar, ombor, ogohlantirishlar
    Optom rejimida mashina yo'q: sahifa skladdan sotuvlarni ko'rsatadi (yig'mada kanal=sklad ham bor). */
@@ -20,7 +20,7 @@ import { fmtNum, fmtMiqdor, fmtShort, OYLAR, HAFTA } from './format'
 
 const router = useRouter()
 const optom = rejimStore.isOptom
-const nom = computed(() => (optom.value ? 'Sotuv' : 'Won Sell'))
+const nom = computed(() => (optom.value ? 'Sotuv' : 'Van Sell'))
 const sotuvYoli = computed(() => (optom.value ? '/sotuv/jurnal' : '/avtolavka/sotuvlar'))
 
 /* ── Davr ─────────────────────────────────────────────── */
@@ -61,7 +61,7 @@ const yangilandi = ref<Date | null>(null)
    jami va oldingi davr — jurnalning o'z "jami"si; dinamika, agentlar va tovarlar — cheklar sahifalab o'qilib hisoblanadi.
    30 sahifadan (3000 chek) ko'p bo'lsa dinamika va reytinglar shu 3000 ta eng yangi chek bo'yicha chiqadi. */
 const sotuvlar = (dan: string, gacha: string, sahifa = 1) => api.get(`/avtolavka/sotuvlar?dan=${dan}&gacha=${gacha}&page=${sahifa}`)
-async function wonsell(kun: number) {
+async function vansell(kun: number) {
   const { dan, gacha } = oraliq(kun)
   const o1 = new Date(); o1.setDate(o1.getDate() - (2 * kun - 1))
   const o2 = new Date(); o2.setDate(o2.getDate() - kun)
@@ -106,7 +106,7 @@ async function wonsell(kun: number) {
 
 async function davrYukla() {
   const d = davrM.value
-  const [a, g] = await Promise.all([wonsell(d.kun), d.kun < 7 ? wonsell(14) : null])
+  const [a, g] = await Promise.all([vansell(d.kun), d.kun < 7 ? vansell(14) : null])
   agg.value = a
   grafikA.value = g
   if (d.k === 'bugun') bugunA.value = a
@@ -114,7 +114,7 @@ async function davrYukla() {
 async function jonliYukla() {
   const [dk, bg] = await Promise.all([
     optom.value ? null : api.get('/avtolavka/doska').catch(() => null),
-    davr.value === 'bugun' ? null : wonsell(1).catch(() => null),
+    davr.value === 'bugun' ? null : vansell(1).catch(() => null),
   ])
   doska.value = dk
   if (bg) bugunA.value = bg
@@ -340,7 +340,7 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
         <header class="k-hd">
           <span class="ik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="IK.mashina"/></span>
           <div class="k-t"><b>Mashinalar</b><small>bugun · jonli, har daqiqada yangilanadi</small></div>
-          <router-link to="/avtolavka" class="k-link">Won Sell markazi →</router-link>
+          <router-link to="/avtolavka" class="k-link">Van Sell markazi →</router-link>
         </header>
         <div class="mashinalar">
           <button v-for="m in mashinalar" :key="m.agent_id" class="mash" :style="{ '--h': holatRang(m) }" @click="mashinaOch(m)">

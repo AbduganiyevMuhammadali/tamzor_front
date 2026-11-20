@@ -3,7 +3,7 @@ import { reactive, computed } from 'vue'
 import { BASE } from '@/api/api'
 
 /* Biznes rejimi — server .env dagi BIZNES_REJIM (GET /rejim) dan olinadi.
-   distributsiya (sukut): agent, dostavchik, Won Sell, buyurtma zanjiri.
+   distributsiya (sukut): agent, dostavchik, Van Sell, buyurtma zanjiri.
    optom: mijoz omborga keladi, sotuv shu zahoti skladdan — agent / dostavchik /
    mashina bo'limlari menyuda ham, yo'naltirishda ham yo'q.
    Oxirgi qiymat localStorage'da saqlanadi, sahifa ochilganda menyu "sakramasin". */

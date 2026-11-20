@@ -19,8 +19,8 @@ const IZOH = [
   { nom: 'Tannarx', matn: "Sotilgan kg × tovarning o'rtacha kirim narxi (so'nggi 90 kundagi xaridlar bo'yicha, miqdorga qarab og'irlikli)." },
   { nom: 'Yalpi foyda va marja', matn: 'Foyda = sof tushum − tannarx. Marja = foyda ÷ tushum. Marja 18% — har 100 so\'m savdodan 18 so\'m foyda qoladi.' },
   { nom: 'Mijozlar qarzi', matn: "Mijoz balansi manfiy bo'lsa — qarz. Qarzning yoshi: to'lovlar eng eski savdolarni yopadi, qolgan qarz eng yangi savdolarga tegishli." },
-  { nom: 'Ombor qiymati', matn: "Barcha omborlardagi (Won Sell mashinalari ham) qoldiq × tannarx. Brak hisobga olinmaydi. Zaxira kuni = qiymat ÷ kunlik sotuv tannarxi." },
-  { nom: "Ichki ko'chirish", matn: "Won Sell yuklash/qabuli tovarni bir ombordan boshqasiga ko'chiradi — bu sotuv ham, xarid ham emas, hisobotlarda alohida." },
+  { nom: 'Ombor qiymati', matn: "Barcha omborlardagi (Van Sell mashinalari ham) qoldiq × tannarx. Brak hisobga olinmaydi. Zaxira kuni = qiymat ÷ kunlik sotuv tannarxi." },
+  { nom: "Ichki ko'chirish", matn: "Van Sell yuklash/qabuli tovarni bir ombordan boshqasiga ko'chiradi — bu sotuv ham, xarid ham emas, hisobotlarda alohida." },
   { nom: 'Taqqoslash', matn: "Kartalardagi foiz — tanlangan davrni undan oldingi xuddi shuncha kunlik davr bilan solishtirish." },
 ]
 

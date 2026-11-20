@@ -205,7 +205,7 @@
               <div class="yd-radio-group">
                 <label class="yd-radio" :class="{ 'yd-radio--active': tolovForm.tolov_turi === 'naqt' }">
                   <input type="radio" v-model="tolovForm.tolov_turi" value="naqt" />
-                  <span>Naqt</span>
+                  <span>Naqd</span>
                 </label>
                 <label class="yd-radio" :class="{ 'yd-radio--active': tolovForm.tolov_turi === 'optom' }">
                   <input type="radio" v-model="tolovForm.tolov_turi" value="optom" />
@@ -213,7 +213,7 @@
                 </label>
                 <label class="yd-radio" :class="{ 'yd-radio--active': tolovForm.tolov_turi === 'chaka' }">
                   <input type="radio" v-model="tolovForm.tolov_turi" value="chaka" />
-                  <span>Chaka</span>
+                  <span>Chakana</span>
                 </label>
               </div>
             </div>
@@ -352,9 +352,9 @@ function formatDate(str) {
 }
 
 function tolovTurLabel(t) {
-  if (t === 'naqt') return 'Naqt'
+  if (t === 'naqt') return 'Naqd'
   if (t === 'optom') return 'Optom'
-  if (t === 'chaka') return 'Chaka'
+  if (t === 'chaka') return 'Chakana'
   return t
 }
 

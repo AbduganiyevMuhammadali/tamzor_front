@@ -706,7 +706,7 @@
                     </div>
                   </div>
                   <div class="fm-field">
-                    <label class="fm-label">Passport seriyasi</label>
+                    <label class="fm-label">Pasport seriyasi</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 10a2 2 0 100-4 2 2 0 000 4z"/><path d="M6 20c0-2.21 2.686-4 6-4s6 1.79 6 4"/></svg>
                       <input v-model="form.passport" v-maydon:passport.ota="f" class="fm-input" placeholder="AA 0000000"/>
@@ -917,7 +917,7 @@
                       <svg v-if="form.avtolavka" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                     </span>
                     <span class="fm-check-txt">
-                      <b>Won Sell (ko'chma savdo)</b>
+                      <b>Van Sell (ko'chma savdo)</b>
                       <small>Agent tovarni mashinaga yuklab yuradi: mobil sotuvi darhol yetkazilgan hisoblanadi, chiqim uning omboridan tushadi, kun oxirida qoldiq va naqd solishtiriladi</small>
                     </span>
                   </label>

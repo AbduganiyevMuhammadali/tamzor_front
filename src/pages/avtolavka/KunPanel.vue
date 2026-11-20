@@ -233,7 +233,7 @@ async function pulQabul() {
   band.value = 'pul'
   try {
     // Inkassatsiya yozuvi kun bo'yicha bitta — jami topshirilgan (oldingi reys + hozirgi) yoziladi
-    await hisobotApi.inkassatsiyaTopshir({ agent_id: props.agentId, sana: props.sana, topshirilgan_summa: oldinTopshirilgan.value + summa, izoh: pulFarq.value > 0.5 ? 'Won Sell: kamomad bilan qabul' : 'Won Sell: to\'liq' })
+    await hisobotApi.inkassatsiyaTopshir({ agent_id: props.agentId, sana: props.sana, topshirilgan_summa: oldinTopshirilgan.value + summa, izoh: pulFarq.value > 0.5 ? 'Van Sell: kamomad bilan qabul' : 'Van Sell: to\'liq' })
     korsat(pulFarq.value > 0.5 ? `Kassaga ${fmtSum(summa)} so'm qabul qilindi, kamomad ${fmtSum(pulFarq.value)}` : `Kassaga ${fmtSum(summa)} so'm to'liq qabul qilindi`, pulFarq.value > 0.5 ? 'ogoh' : 'ok')
     pulKiritildi.value = null
     await yangila(); emit('ozgardi')

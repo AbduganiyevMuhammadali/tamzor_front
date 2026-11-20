@@ -34,7 +34,7 @@ async function save() {
 onMounted(load)
 
 const HODISALAR = [
-  { k: 'buyurtma' as const, nom: 'Zakaz berdi', izoh: "Mijoz agent so'roviga rozi bo'lib zakaz berdi yoki Won Sell'dan sotib oldi. Zakaz bekor qilinsa ball qaytadi.", ishora: '+' },
+  { k: 'buyurtma' as const, nom: 'Zakaz berdi', izoh: "Mijoz agent so'roviga rozi bo'lib zakaz berdi yoki Van Sell'dan sotib oldi. Zakaz bekor qilinsa ball qaytadi.", ishora: '+' },
   { k: 'rad_etildi' as const, nom: 'Buyurtmani rad etdi', izoh: "Agent ilovada \"Rad etdi\" va sababni belgiladi. \"Do'kon yopiq\" sababi ball tushirmaydi.", ishora: '−' },
   { k: 'tolov_qabul' as const, nom: "Qarzni to'ladi", izoh: "Qarzdor mijozdan to'lov olindi: agent, dostavchik yoki kassa orqali. To'lov o'chirilsa ball qaytadi.", ishora: '+' },
   { k: 'tolov_surildi' as const, nom: "To'lov surildi", izoh: "Mijoz to'lamay \"falon kuni keling\" dedi. Agent ilovada yangi sanani belgiladi.", ishora: '−' },

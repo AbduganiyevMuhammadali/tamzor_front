@@ -18,7 +18,7 @@ const { data: d, yuklanmoqda } = useYuklash(() => tahlilApi.kirim({ dan: davr.da
 const IZOH = [
   { nom: 'Xarid summasi', matn: "Tanlangan davrdagi tasdiqlangan kirim (prixod) hujjatlari summasi, hujjat sanasi bo'yicha. Qoralamalar kirmaydi." },
   { nom: "To'lanmagan", matn: "Hujjat summasidan hujjatda ko'rsatilgan to'langan summa ayiriladi. Yetkazuvchiga umumiy qarz — Yetkazuvchilar hisobotida." },
-  { nom: "Ichki ko'chirish", matn: "Won Sell mashinasidan omborga qaytgan tovar xarid emas — bu yerda hisoblanmaydi." },
+  { nom: "Ichki ko'chirish", matn: "Van Sell mashinasidan omborga qaytgan tovar xarid emas — bu yerda hisoblanmaydi." },
   { nom: "12 oy", matn: "Tanlangan davr oxiridan oldingi 12 oy — mavsumiylikni ko'rish uchun." },
 ]
 const j = computed(() => d.value?.jami || {})

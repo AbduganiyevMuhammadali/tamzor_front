@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/* WON SELL — SOTUV QILISH (web, xodim nomidan).
+/* VAN SELL — SOTUV QILISH (web, xodim nomidan).
    Xodim ilovadan sota olmagan holat uchun: telefon buzilgan, internet yo'q, ilova ishlamadi.
    Omborchi yoki admin xodimni tanlaydi, uning mashinasidagi tovardan mijozga sotadi.
    Sotuv mobil ilovadagi sotuv bilan bir xil yo'ldan o'tadi (backend: createAriza):
@@ -318,7 +318,7 @@ const IKON = {
             </span>
           </button>
         </div>
-        <div v-if="!agentlar.length" class="ws-mut" style="margin-top:8px">Won Sell rejimidagi xodim yo'q — xodim nomidan sotish uchun Agentlar bo'limida xodim kartasida "Won Sell" belgisini yoqing.</div>
+        <div v-if="!agentlar.length" class="ws-mut" style="margin-top:8px">Van Sell rejimidagi xodim yo'q — xodim nomidan sotish uchun Agentlar bo'limida xodim kartasida "Van Sell" belgisini yoqing.</div>
         <div v-if="tayyor && tayyor.kun" class="ws-kun">
           <span class="ws-pill" :class="tayyor.kun.holat">{{ HOLAT[tayyor.kun.holat] || tayyor.kun.holat }}</span>
           <span>{{ fmtKun(sana) }} · {{ tayyor.kun.sotildi.hujjat_soni ? `${tayyor.kun.sotildi.hujjat_soni} ta sotuv, ${fmtSum(tayyor.kun.sotildi.summa)} so'm` : 'hali sotuv yo\'q' }} · naqd olingan {{ fmtSum(tayyor.kun.naqd) }} so'm</span>
@@ -390,8 +390,8 @@ const IKON = {
             </div>
             <div v-if="!tovarlar.length" class="ws-empty">
               <b>{{ sklad ? "Skladda sotiladigan tovar yo'q" : `${agent?.fullname}ning mashinasi bo'sh` }}</b>
-              <span>{{ sklad ? "Ombor → Prixod bilan kirim qiling (yoki ochiq zakazlar hamma qoldiqni band qilgan)." : 'Avval Won Sell markazida mashinaga yuklang, keyin sotish mumkin.' }}</span>
-              <RouterLink :to="{ path: '/avtolavka', query: { agent: String(agentId) } }" class="ws-link">Won Sell markazi ›</RouterLink>
+              <span>{{ sklad ? "Ombor → Prixod bilan kirim qiling (yoki ochiq zakazlar hamma qoldiqni band qilgan)." : 'Avval Van Sell markazida mashinaga yuklang, keyin sotish mumkin.' }}</span>
+              <RouterLink :to="{ path: '/avtolavka', query: { agent: String(agentId) } }" class="ws-link">Van Sell markazi ›</RouterLink>
             </div>
             <div v-else class="ws-tw">
               <table class="ws-t">

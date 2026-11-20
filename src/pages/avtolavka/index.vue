@@ -129,7 +129,7 @@ const agentQabulKutmoqda = (m: any) => (m.kun?.agent_qabul?.yuklash || 0) > (m.k
 /* Sarlavha ostidagi bir jumlalik holat */
 const sarlavha = computed(() => {
   const j = jami.value
-  if (!j.mashina) return 'Won Sell mashinasi yo\'q'
+  if (!j.mashina) return 'Van Sell mashinasi yo\'q'
   if (!bugunmi.value) return `${j.mashina} mashina · ${j.yopiq} tasi yopilgan`
   const q: string[] = []
   if (j.sorov) q.push(`${j.sorov} ta so'rov kutmoqda`)
@@ -145,7 +145,7 @@ async function yukla(jimgina = false) {
   try {
     const [d, k] = await Promise.all([avtolavkaApi.doska({ sana: sana.value }), avtolavkaApi.kalendar({ kun: 14 })])
     doska.value = d; kalendar.value = k
-  } catch (e) { console.error('Won Sell yuklanmadi', e) }
+  } catch (e) { console.error('Van Sell yuklanmadi', e) }
   finally { yuklanmoqda.value = false }
 }
 function kunSur(n: number) {
@@ -177,7 +177,7 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
       <div class="al-head-l">
         <span class="al-head-ic"><svg viewBox="0 0 24 24" v-html="IKON.mashina"/></span>
         <div>
-        <h1 class="al-h1">Won Sell</h1>
+        <h1 class="al-h1">Van Sell</h1>
         <p class="al-sub">
           {{ fmtSanaUzun(sana) }}<template v-if="bugunmi">, {{ fmtVaqt(hozir) }} holatiga</template>
           <span class="al-sep">·</span>{{ sarlavha }}
@@ -250,8 +250,8 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 
       <div v-if="yuklanmoqda && !doska" class="al-empty">Yuklanmoqda…</div>
       <div v-else-if="!mashinalar.length" class="al-empty">
-        <b>Won Sell rejimidagi agent yo'q</b>
-        <span>Agentlar → ro'yxat → agentni tahrirlash → "Won Sell (ko'chma savdo)" belgisini yoqing</span>
+        <b>Van Sell rejimidagi agent yo'q</b>
+        <span>Agentlar → ro'yxat → agentni tahrirlash → "Van Sell (ko'chma savdo)" belgisini yoqing</span>
       </div>
 
       <article v-for="m in mashinalar" :key="m.agent.id" class="al-row"

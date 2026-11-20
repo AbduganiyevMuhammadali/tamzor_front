@@ -72,7 +72,7 @@
             </div>
           </div>
 
-          <!-- Won Sell yangi reys: kun bo'yicha bitta yozuv — summa JAMI (oldingi + yangi) yoziladi -->
+          <!-- Van Sell yangi reys: kun bo'yicha bitta yozuv — summa JAMI (oldingi + yangi) yoziladi -->
           <div v-if="r.topshirilgan_summa > 0 && r.farq > 0.5 && r.holat !== 'kamomad'" class="ik-hint">
             Avval {{ fmtSum(r.topshirilgan_summa) }} topshirilgan, keyin yana {{ fmtSum(r.farq) }} yig'ildi — jami summani yozing: {{ fmtSum(r.yigilgan_summa) }}
           </div>

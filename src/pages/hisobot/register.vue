@@ -28,7 +28,7 @@ const IZOH = [
   { nom: 'Xarid (kirim)', matn: "Yetkazuvchidan kelgan tovar (prixod hujjati). Summa — kirim narxida." },
   { nom: 'Sotuv', matn: "Mijozga yetkazilgan tovar (ariza). Summa — sotuv narxida." },
   { nom: 'Qaytarish', matn: "Mijozdan qaytib kelgan tovar." },
-  { nom: "Ichki ko'chirish", matn: "Won Sell: mashinaga yuklash yoki mashinadan qabul. Har ko'chirish ikki yozuv — bir ombordan chiqdi, ikkinchisiga kirdi. Kompaniya zaxirasi o'zgarmaydi." },
+  { nom: "Ichki ko'chirish", matn: "Van Sell: mashinaga yuklash yoki mashinadan qabul. Har ko'chirish ikki yozuv — bir ombordan chiqdi, ikkinchisiga kirdi. Kompaniya zaxirasi o'zgarmaydi." },
   { nom: 'Kirdi / chiqdi', matn: "Yashil + — shu omborga kirdi, qizil − — shu ombordan chiqdi." },
 ]
 const HARAKATLAR = [
@@ -60,7 +60,7 @@ function och(r: any) { if (r.hujjat?.yol) router.push(r.hujjat.yol) }
         <KpiKarta nom="Sotuv (chiqdi)" :ikon="IKON.savat" :qiymat="k.sotuv?.summa" birlik="so'm" ton="ok" :izoh="`${fmtMiqdor(k.sotuv?.dona)} kg · sotuv narxida`"/>
         <KpiKarta nom="Qaytarish" :ikon="IKON.tugaydi" :qiymat="k.qaytarish?.summa" birlik="so'm" ton="warn" :izoh="`${fmtMiqdor(k.qaytarish?.dona)} kg mijozdan qaytdi`"/>
         <KpiKarta nom="Ichki ko'chirish" :ikon="IKON.mashina" :qiymat="`${fmtMiqdor(k.kochirish?.dona)} kg`" ton="neytral"
-          :izoh="`${k.kochirish?.son} ta · Won Sell va omborlar orasida, zaxira o'zgarmaydi`"/>
+          :izoh="`${k.kochirish?.son} ta · Van Sell va omborlar orasida, zaxira o'zgarmaydi`"/>
       </div>
 
       <section class="hs-karta">

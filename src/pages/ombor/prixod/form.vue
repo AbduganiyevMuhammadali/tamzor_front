@@ -791,7 +791,7 @@ function avatarColor(name) {
             <div class="pf-field" v-if="head.yetkazuvchi_id && !readonly">
               <label class="pf-lbl">To'lov turi</label>
               <div class="pf-radio-group">
-                <label v-for="t in [{ v:'naqt', l:'Naqt' }, { v:'optom', l:'Optom' }, { v:'chaka', l:'Chaka' }]" :key="t.v" class="pf-radio" :class="{ 'pf-radio--on': head.tolov_turi === t.v }" @click="head.tolov_turi = t.v">
+                <label v-for="t in [{ v:'naqt', l:'Naqd' }, { v:'optom', l:'Optom' }, { v:'chaka', l:'Chakana' }]" :key="t.v" class="pf-radio" :class="{ 'pf-radio--on': head.tolov_turi === t.v }" @click="head.tolov_turi = t.v">
                   <div class="pf-radio-dot" :class="{ 'pf-radio-dot--on': head.tolov_turi === t.v }"/>
                   {{ t.l }}
                 </label>

@@ -629,7 +629,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                     <option v-for="t in TURKUMLAR" :key="t" :value="t"/>
                   </datalist>
                   <button v-if="row.turkum && idx < bulkRows.length - 1" class="bulk-fill-btn"
-                    @click="fillDownField(idx, 'turkum')" title="Quyigilarga nusxalash">
+                    @click="fillDownField(idx, 'turkum')" title="Quyidagilarga nusxalash">
                     <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
                   </button>
                 </div>
@@ -641,7 +641,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                     <option v-for="s in SAVDO_YONALISHLARI" :key="s" :value="s"/>
                   </datalist>
                   <button v-if="row.savdoYonalishi && idx < bulkRows.length - 1" class="bulk-fill-btn"
-                    @click="fillDownField(idx, 'savdoYonalishi')" title="Quyigilarga nusxalash">
+                    @click="fillDownField(idx, 'savdoYonalishi')" title="Quyidagilarga nusxalash">
                     <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
                   </button>
                 </div>
@@ -786,7 +786,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                   <label class="fg-lbl">Turi</label>
                   <div class="tur-seg" role="radiogroup" aria-label="Tovar turi">
                     <button type="button" role="radio" :aria-checked="form.turi === 'tovar'" class="tur-opt" :class="form.turi === 'tovar' && 'tur-opt--on'" :disabled="readonly" @click="form.turi = 'tovar'">
-                      <b>Savdo tovari</b><small>Asosiy skladda turadi, agent va Won Sell sotadi</small>
+                      <b>Savdo tovari</b><small>Asosiy skladda turadi, agent va Van Sell sotadi</small>
                     </button>
                     <button type="button" role="radio" :aria-checked="form.turi === 'xom_ashyo'" class="tur-opt" :class="form.turi === 'xom_ashyo' && 'tur-opt--on'" :disabled="readonly" @click="form.turi = 'xom_ashyo'">
                       <b>Xom ashyo</b><small>Xom ashyo omborida turadi, sotilmaydi, ishlab chiqarishga beriladi</small>
@@ -1120,7 +1120,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                     </div>
                     <div>
                       <p class="ikpu-info-title">IKPU kodi haqida</p>
-                      <p class="ikpu-info-txt">IKPU (Identifikatsion Kod Produkta Uslubi) — soliq hisoboti uchun zarur bo'lgan mahsulot identifikatsiya kodi. Kodni Soliq qo'mitasining rasmiy saytidan topishingiz mumkin.</p>
+                      <p class="ikpu-info-txt">IKPU (mahsulot va xizmatlarning identifikatsiya kodi) — soliq hisoboti uchun zarur bo'lgan mahsulot identifikatsiya kodi. Kodni Soliq qo'mitasining rasmiy saytidan topishingiz mumkin.</p>
                     </div>
                   </div>
                 </div>

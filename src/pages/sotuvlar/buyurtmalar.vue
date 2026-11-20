@@ -339,7 +339,7 @@
               <textarea v-model="bekorSababi" rows="3" placeholder="Bekor qilish sababi..." style="padding:9px 11px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;resize:none;outline:none;font-family:inherit"/>
               <p class="bw-flow-hint" v-if="selected?.holat === 'yolda'" style="margin-top:4px">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Tovarlar ombordan chiqgan — bekor qilinsa qaytariladi
+                Tovarlar ombordan chiqqan — bekor qilinsa qaytariladi
               </p>
               <p class="bw-flow-hint" v-else-if="selected?.holat === 'yetkazildi'" style="margin-top:4px">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>

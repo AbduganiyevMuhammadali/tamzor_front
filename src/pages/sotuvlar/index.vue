@@ -6,7 +6,7 @@
       <div>
         <h1 class="pg-title">Arizalar</h1>
         <p class="pg-sub">
-          <span class="pg-sub-note" title="Won Sell (mashinadan) sotuvlari bu ro'yxatga kirmaydi — ular Won Sell → Sotuvlar sahifasida">Distributsiya buyurtmalari</span>
+          <span class="pg-sub-note" title="Van Sell (mashinadan) sotuvlari bu ro'yxatga kirmaydi — ular Van Sell → Sotuvlar sahifasida">Distributsiya buyurtmalari</span>
           <span class="pg-sub-badge pg-sub-badge--yangi">{{ stat.yangi || 0 }} yangi</span>
           <span class="pg-sub-badge pg-sub-badge--bekor">{{ stat.bekor || 0 }} bekor</span>
         </p>
@@ -434,8 +434,8 @@
                       <label>To'lov turi</label>
                       <select v-model="form.tolov_turi" class="m-det-in">
                         <option value="">—</option>
-                        <option value="naqt">Naqt</option>
-                        <option value="naqtsiz">Naqtsiz</option>
+                        <option value="naqt">Naqd</option>
+                        <option value="naqtsiz">Naqd pulsiz</option>
                         <option value="muddatli">Muddatli</option>
                       </select>
                     </div>

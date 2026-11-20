@@ -31,7 +31,7 @@ const IZOH = computed(() => [
   { nom: 'Naqd', matn: "Yig'ildi — agent qo'lidan o'tgan naqd: mashinadan naqd sotuv va mijozlardan qarz undirish. Topshirildi — kassir inkassatsiyada qabul qilgani. Kamomad — kassir qayd etgan yetishmovchilik." },
   { nom: 'Uzoqdan sotuv', matn: `Sotuv mijoz nuqtasidan ${d.value?.sotuv?.radius || 300} m dan uzoqda rasmiylashtirilgan — tekshirish kerak bo'lishi mumkin.` },
   { nom: 'Qamrov', matn: "Xodimga biriktirilgan faol mijozlardan shu davrda xarid qilganlari. Xarid qilmaganlar ro'yxati — keyingi tashrif uchun." },
-  { nom: 'Mashina kunlari', matn: "Won Sell uchun: har kuni ombordan yuklangan, sotilgan, omborga qaytgan tovar va topshirilgan naqd. Farq — tushuntirilmagan tovar yoki pul." },
+  { nom: 'Mashina kunlari', matn: "Van Sell uchun: har kuni ombordan yuklangan, sotilgan, omborga qaytgan tovar va topshirilgan naqd. Farq — tushuntirilmagan tovar yoki pul." },
 ])
 
 const s = computed(() => d.value?.sotuv?.jami || {})
@@ -92,7 +92,7 @@ function eksport() {
     </template>
     <template #filtr>
       <select v-model="tanlov" class="hs-sel xh-sel">
-        <option v-for="a in d?.agentlar_royxat || []" :key="a.id" :value="a.id">{{ a.nomi }}{{ a.avtolavka ? ' · Won Sell' : '' }}</option>
+        <option v-for="a in d?.agentlar_royxat || []" :key="a.id" :value="a.id">{{ a.nomi }}{{ a.avtolavka ? ' · Van Sell' : '' }}</option>
       </select>
     </template>
 
@@ -106,7 +106,7 @@ function eksport() {
         <div class="xh-pt">
           <h2>{{ ag.nomi }}</h2>
           <div class="xh-chips">
-            <span v-if="ag.avtolavka" class="hs-belgi hs-belgi--ok">Won Sell{{ ag.mashina_raqam ? ' · ' + ag.mashina_raqam : '' }}</span>
+            <span v-if="ag.avtolavka" class="hs-belgi hs-belgi--ok">Van Sell{{ ag.mashina_raqam ? ' · ' + ag.mashina_raqam : '' }}</span>
             <span v-else class="hs-belgi hs-belgi--n">Agent (buyurtma yozadi)</span>
             <span v-if="ag.hudud" class="xh-c">{{ ag.hudud }}</span>
             <span v-if="ag.telefon" class="xh-c">{{ ag.telefon }}</span>

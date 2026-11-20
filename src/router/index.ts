@@ -3,7 +3,7 @@ import { authStore } from '@/stores/auth'
 import { rejimStore, type Rejim } from '@/stores/rejim'
 
 /* meta.faqat — sahifa faqat shu biznes rejimida ochiladi (stores/rejim.ts).
-   D — distributsiyaga xos: agent, dostavchik, buyurtma zanjiri, Won Sell. */
+   D — distributsiyaga xos: agent, dostavchik, buyurtma zanjiri, Van Sell. */
 const D = { faqat: 'distributsiya' as Rejim }
 
 const router = createRouter({
@@ -101,7 +101,7 @@ router.beforeEach((to) => {
   // Login qilinmagan
   if (!loggedIn) return { name: 'Login' }
 
-  // Bu biznes rejimida yo'q sahifa (masalan, optomda agent yoki Won Sell sahifasi)
+  // Bu biznes rejimida yo'q sahifa (masalan, optomda agent yoki Van Sell sahifasi)
   if (!rejimStore.mos(to.meta.faqat as Rejim | undefined)) return { path: '/dashboard' }
 
   // Modulga ruxsat tekshiruvi

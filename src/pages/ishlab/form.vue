@@ -356,7 +356,7 @@ const IKON = {
               <label><input v-model="form.taqsimlash" type="radio" value="miqdor" :disabled="!chiqishTahrir" /> miqdor bo'yicha</label>
               <small v-if="form.taqsimlash === 'qiymat' && H.usul === 'miqdor'">— hamma navga chakana narx kiritilmagani uchun miqdor bo'yicha bo'linmoqda</small>
             </div>
-            <p v-if="chiqishTahrir && form.mah.some(q => q.tovar_id && !n(q.chakana_narx))" class="ic-hint">Chakana narx kiritilmasa, mahsulot agent va Won Sell ilovasidagi sotuv ro'yxatida chiqmaydi.</p>
+            <p v-if="chiqishTahrir && form.mah.some(q => q.tovar_id && !n(q.chakana_narx))" class="ic-hint">Chakana narx kiritilmasa, mahsulot agent va Van Sell ilovasidagi sotuv ro'yxatida chiqmaydi.</p>
 
             <div class="ic-sar">Qo'shimcha mahsulot <small>(kepak, qoldiq — sotiladigan bo'lsa; bahosi tannarxdan ayiriladi)</small></div>
             <div v-if="form.qsh.length" class="ic-tab ic-tab--qsh">

@@ -185,7 +185,7 @@
                 <div class="km-field">
                   <label>To'lov usuli</label>
                   <select v-model="addForm.tolov_usul" class="km-in">
-                    <option value="naqt">Naqt</option>
+                    <option value="naqt">Naqd</option>
                     <option value="karta">Karta</option>
                     <option value="bank">Bank</option>
                   </select>
@@ -384,7 +384,7 @@ function fmtShort(v: number|string) {
   if (Math.abs(n) >= 1e3) return (n/1e3).toFixed(0)+' ming'
   return String(Math.round(n))
 }
-function usulLabel(u: string) { return ({ naqt:'Naqt', karta:'Karta', bank:'Bank' } as any)[u] || u }
+function usulLabel(u: string) { return ({ naqt:'Naqd', karta:'Karta', bank:'Bank' } as any)[u] || u }
 function fmtDateTime(s: string) {
   if (!s) return '—'
   const d = new Date(s)

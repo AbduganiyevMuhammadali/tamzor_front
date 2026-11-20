@@ -88,7 +88,7 @@
                   <div v-for="ms in o.masullar" :key="ms.nom" class="im-ag">
                     <div class="im-ag-n"><b>{{ ms.nom }}</b><span>{{ ms.soni }} mijoz</span></div>
                     <select v-model="agentXarita[ms.nom]" class="im-sel">
-                      <option v-for="a in o.agentlar" :key="a.id" :value="a.id">{{ a.fullname }}<template v-if="a.avtolavka"> · Won Sell</template></option>
+                      <option v-for="a in o.agentlar" :key="a.id" :value="a.id">{{ a.fullname }}<template v-if="a.avtolavka"> · Van Sell</template></option>
                       <option value="yangi">＋ Yangi agent yaratish</option>
                       <option :value="null">Biriktirmaslik</option>
                     </select>

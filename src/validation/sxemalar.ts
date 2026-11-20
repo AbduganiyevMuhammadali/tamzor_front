@@ -97,7 +97,7 @@ export const dostavchiKassaQabul: Sxema = {
 export const agent: Sxema = {
   fullname:          m('Ism', 100, { majburiy: true, min: 2, xabar: 'Ism majburiy' }),
   telefon:           m('Telefon', 20),
-  passport:          m('Passport', 20),
+  passport:          m('Pasport', 20),
   tugilgan_sana:     sana("Tug'ilgan sana"),
   plan_summa:        s('Oylik plan summasi', { majburiy: true, min: 0, max: SUMMA_MAKS, xabar: 'Oylik plan summasi majburiy' }),
   bonus_foiz:        s('Bonus foizi', { min: 0, max: 100 }),

@@ -14,17 +14,17 @@ import { fmtMiqdor, davr, useYuklash, qisqa, fmt, foizFmt, kunOldin, csvYukla, I
 const { data: d, yuklanmoqda } = useYuklash(() => tahlilApi.ombor({ dan: davr.dan.value, gacha: davr.gacha.value }))
 
 const IZOH = [
-  { nom: 'Ombor qiymati', matn: "Barcha omborlar va Won Sell mashinalaridagi qoldiq × tannarx (o'rtacha kirim narxi). Brak ombori alohida ko'rsatiladi va jamiga kirmaydi." },
+  { nom: 'Ombor qiymati', matn: "Barcha omborlar va Van Sell mashinalaridagi qoldiq × tannarx (o'rtacha kirim narxi). Brak ombori alohida ko'rsatiladi va jamiga kirmaydi." },
   { nom: 'Zaxira kuni', matn: "Ombor qiymati ÷ davrdagi o'rtacha kunlik sotuv tannarxi. Ya'ni yangi kirim bo'lmasa, tovar taxminan necha kunga yetadi." },
   { nom: 'Kirdi', matn: "Faqat yetkazuvchidan xarid (prixod), kirim narxida. Mijozdan qaytgan tovar alohida." },
   { nom: 'Sotildi', matn: 'Sotilgan tovarning tannarxi — kirim bilan bir xil o\'lchovda solishtirish uchun (sotuv narxida emas).' },
-  { nom: "Ichki ko'chirish", matn: "Won Sell yuklash va qabuli — tovar asosiy ombor va mashina o'rtasida ko'chadi. Kompaniya zaxirasi o'zgarmaydi, shuning uchun kirim ham, sotuv ham emas." },
+  { nom: "Ichki ko'chirish", matn: "Van Sell yuklash va qabuli — tovar asosiy ombor va mashina o'rtasida ko'chadi. Kompaniya zaxirasi o'zgarmaydi, shuning uchun kirim ham, sotuv ham emas." },
   { nom: 'Yotib qolgan / tugayapti', matn: "Yotib qolgan — qoldig'i bor, davrda sotilmagan. Tugayapti — hozirgi sotuv sur'atida 14 kundan kamroqqa yetadi." },
 ]
 
 const j = computed(() => d.value?.jami || {})
 const h = computed(() => d.value?.harakat || {})
-const TUR_NOM: Record<string, string> = { asosiy: 'Asosiy ombor', xom_ashyo: 'Xom ashyo (sotilmaydi)', mashina: 'Won Sell mashinasi', brak: 'Brak (yaroqsiz)' }
+const TUR_NOM: Record<string, string> = { asosiy: 'Asosiy ombor', xom_ashyo: 'Xom ashyo (sotilmaydi)', mashina: 'Van Sell mashinasi', brak: 'Brak (yaroqsiz)' }
 const omborRang = (t: string, i: number) => (t === 'asosiy' ? RANG.brand : t === 'brak' ? RANG.err : ['#a78bfa', '#c4b5fd', '#8b5cf6', '#ddd6fe'][i % 4])
 const balans = computed(() => (h.value.kirim || 0) - (h.value.sotuv_tannarx || 0))
 
@@ -50,7 +50,7 @@ function eksport(tur: 'harakatsiz' | 'tugayapti') {
           :izoh="!j.zaxira_kun ? 'Davrda sotuv yo\'q' : j.zaxira_kun > 90 ? 'Zaxira ko\'p — pul muzlab qolgan' : j.zaxira_kun < 14 ? 'Kam — xarid rejalashtiring' : 'Me\'yorida'"/>
         <KpiKarta nom="Davrda kirdi (xarid)" :ikon="IKON.kirim" :qiymat="h.kirim" birlik="so'm" :izoh="`${fmtMiqdor(h.kirim_dona)} kg · kirim narxida`"/>
         <KpiKarta nom="Davrda sotildi" :ikon="IKON.savat" :qiymat="h.sotuv_tannarx" birlik="so'm" :izoh="`${fmtMiqdor(h.sotuv_dona)} kg · tannarxda`"/>
-        <KpiKarta nom="Mashinalarda" :ikon="IKON.mashina" :qiymat="j.mashina_qiymat" birlik="so'm" izoh="Won Sell agentlari qo'lidagi tovar" ton="neytral"/>
+        <KpiKarta nom="Mashinalarda" :ikon="IKON.mashina" :qiymat="j.mashina_qiymat" birlik="so'm" izoh="Van Sell agentlari qo'lidagi tovar" ton="neytral"/>
       </div>
 
       <div class="hs-tushuncha">
@@ -59,7 +59,7 @@ function eksport(tur: 'harakatsiz' | 'tugayapti') {
           Tanlangan davrda omborga <b>{{ qisqa(h.kirim) }}</b> so'mlik tovar kirdi, tannarxi <b>{{ qisqa(h.sotuv_tannarx) }}</b> bo'lgan tovar sotildi —
           zaxira <b :class="balans >= 0 ? 'hs-ok' : 'hs-warn'">{{ balans >= 0 ? qisqa(balans) + " ga ko'paydi" : qisqa(-balans) + ' ga kamaydi' }}</b>.
           <template v-if="h.qaytgan"> Mijozlardan {{ qisqa(h.qaytgan) }} lik tovar qaytdi.</template>
-          <template v-if="h.kochirish_son"> Won Sell uchun {{ fmtMiqdor(h.kochirish_dona) }} kg ichki ko'chirildi ({{ h.kochirish_son }} yozuv) — bu sotuv emas, hisobga kirmaydi.</template>
+          <template v-if="h.kochirish_son"> Van Sell uchun {{ fmtMiqdor(h.kochirish_dona) }} kg ichki ko'chirildi ({{ h.kochirish_son }} yozuv) — bu sotuv emas, hisobga kirmaydi.</template>
         </span>
       </div>
 

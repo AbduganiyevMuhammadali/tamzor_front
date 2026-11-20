@@ -176,7 +176,7 @@ const IKON = {
       <div class="as-head-l">
         <span class="as-head-ic"><svg viewBox="0 0 24 24" v-html="IKON.chek"/></span>
         <div>
-          <h1 class="as-h1">Won Sell sotuvlari</h1>
+          <h1 class="as-h1">Van Sell sotuvlari</h1>
           <p class="as-sub">Mashinadan joyida sotilgan cheklar. Distributsiya buyurtmalari bu yerda emas, ular Sotuvlar → Arizalar bo'limida.</p>
         </div>
       </div>
@@ -263,7 +263,7 @@ const IKON = {
       <div v-else-if="!rows.length && korinish === 'bekor'" class="as-empty"><b>Bu davrda bekor qilingan chek yo'q</b><span>Takror yoki xato chekni ochib, "Sotuvni bekor qilish" bosilsa shu yerda sabab bilan ko'rinadi.</span></div>
       <div v-else-if="!rows.length && korinish === 'takror'" class="as-empty"><b>Takror chek ehtimoli topilmadi</b><span>Bitta mijozga, bitta mashinadan, aynan bir xil summaga 2 soat ichida ikki chek bo'lsa shu yerda chiqadi.</span></div>
       <div v-else-if="!rows.length" class="as-empty">
-        <b>Bu davrda Won Sell sotuvi yo'q</b>
+        <b>Bu davrda Van Sell sotuvi yo'q</b>
         <span>Sotuvlar xodim telefonidagi ilovadan tushadi. Davrni o'zgartirib ko'ring yoki <RouterLink :to="{ path: '/avtolavka/sotuv', query: agentId ? { agent: String(agentId) } : {} }" class="as-link">xodim nomidan webdan soting</RouterLink>.</span>
       </div>
 
@@ -327,9 +327,9 @@ const IKON = {
 
           <div class="as-d-flow">
             <svg viewBox="0 0 24 24" v-html="IKON.mashina"/>
-            <span v-if="tanlangan.kanal === 'sklad'">Won Sell: <b>skladdan, xodimsiz</b> — admin webdan sotgan. Tovar asosiy skladdan chiqqan, naqd to'g'ridan-to'g'ri kassada (inkassatsiya shart emas).</span>
-            <span v-else-if="tanlangan.manba === 'web'">Won Sell: <b>{{ tanlangan.agent_nomi }}</b> nomidan <b>webdan</b> kiritilgan — tovar uning mashinasidan chiqqan, naqd uning kassasida.</span>
-            <span v-else>Won Sell: <b>{{ tanlangan.agent_nomi }}</b> mashinasidan joyida sotilgan va shu zahoti yetkazilgan. Tasdiqlash, yig'ish va dostavchik bosqichlari yo'q.</span>
+            <span v-if="tanlangan.kanal === 'sklad'">Van Sell: <b>skladdan, xodimsiz</b> — admin webdan sotgan. Tovar asosiy skladdan chiqqan, naqd to'g'ridan-to'g'ri kassada (inkassatsiya shart emas).</span>
+            <span v-else-if="tanlangan.manba === 'web'">Van Sell: <b>{{ tanlangan.agent_nomi }}</b> nomidan <b>webdan</b> kiritilgan — tovar uning mashinasidan chiqqan, naqd uning kassasida.</span>
+            <span v-else>Van Sell: <b>{{ tanlangan.agent_nomi }}</b> mashinasidan joyida sotilgan va shu zahoti yetkazilgan. Tasdiqlash, yig'ish va dostavchik bosqichlari yo'q.</span>
           </div>
 
           <div v-if="tanlangan.holat === 'bekor'" class="as-d-note bad">

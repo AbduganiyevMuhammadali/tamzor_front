@@ -57,7 +57,7 @@ const BARCHA_MODULLAR = [
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'approve', label:'Yakunlash',  svgPath:SVG.approve }] },
-  { module:'avtolavka',        label:'Won Sell',       svgPath:SVG.avtolavka,   color:'#fb923c', faqat:'distributsiya',
+  { module:'avtolavka',        label:'Van Sell',       svgPath:SVG.avtolavka,   color:'#fb923c', faqat:'distributsiya',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'approve', label:'Tasdiqlash', svgPath:SVG.approve }] },

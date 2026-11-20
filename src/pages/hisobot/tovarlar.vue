@@ -16,7 +16,7 @@ const IZOH = [
   { nom: 'Yalpi foyda va marja', matn: "Tushum − sotilgan kg × o'rtacha kirim narxi. Qaytarilgan tovar ayiriladi." },
   { nom: 'Yetadi (kun)', matn: "Hozirgi qoldiq ÷ davrdagi o'rtacha kunlik sotuv. 7 kundan kam — buyurtma berish vaqti." },
   { nom: 'Harakatsiz', matn: "Qoldig'i bor, lekin tanlangan davrda bir kg ham sotilmagan tovar — pul omborda yotibdi." },
-  { nom: 'Qoldiq', matn: "Barcha omborlar va Won Sell mashinalaridagi qoldiq (brak omboridan tashqari), tannarx bo'yicha qiymati bilan." },
+  { nom: 'Qoldiq', matn: "Barcha omborlar va Van Sell mashinalaridagi qoldiq (brak omboridan tashqari), tannarx bo'yicha qiymati bilan." },
 ]
 
 const filtr = ref<'' | 'A' | 'B' | 'C' | 'harakatsiz' | 'kam'>('')
