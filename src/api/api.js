@@ -132,6 +132,31 @@ async function yuklabOl(path, faylNomi) {
   setTimeout(() => URL.revokeObjectURL(url), 2000)
 }
 
+/* Biriktirilgan fayl (chek, audit rasmi) — /uploads endi token talab qiladi, shuning uchun <img src>/<a href> ishlamaydi.
+ * Fayl Bearer bilan blob qilib olinadi va yangi oynada ochiladi (brauzer ochmasa — yuklab olinadi).
+ * Oyna foydalanuvchi bosishi bilan SINXRON ochiladi, aks holda brauzer uni bloklaydi. */
+const API_ILDIZ = String(BASE).replace(/\/api\/v1\/?$/, '')
+const RASM_KENG = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif']
+export const faylTuri = (yol) => {
+  const k = String(yol || '').split('?')[0].split('.').pop().toLowerCase()
+  return RASM_KENG.includes(k) ? 'rasm' : k ? k.toUpperCase() : ''
+}
+export async function faylniOch(yol, nomi = 'chek') {
+  if (!yol) return
+  const oyna = window.open('', '_blank')
+  try {
+    const token = getToken()
+    const manzil = /^https?:/.test(yol) ? yol : API_ILDIZ + yol
+    const res = await fetch(manzil, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    if (res.status === 401) { window.dispatchEvent(new CustomEvent('sellz:session-expired')); throw new Error('session_expired') }
+    if (!res.ok) throw new Error(res.status === 404 ? 'Fayl topilmadi' : `Faylni ochib bo'lmadi (${res.status})`)
+    const url = URL.createObjectURL(await res.blob())
+    if (oyna) oyna.location.href = url
+    else { const a = document.createElement('a'); a.href = url; a.download = `${nomi}.${String(yol).split('.').pop()}`; document.body.appendChild(a); a.click(); a.remove() }
+    setTimeout(() => URL.revokeObjectURL(url), 60000)
+  } catch (e) { oyna?.close(); throw e }
+}
+
 export const api = {
   get:    (path, options)     => request(path, options),
   upload: (path, formData, method) => upload(path, formData, method),
@@ -312,6 +337,37 @@ export const tripSheetApi = {
 
 /* ── Avtolavka API (ko'chma savdo: yuklash → sotuv → qabul → solishtirma) ── */
 const qs = (params = {}) => { const q = new URLSearchParams(params).toString(); return q ? '?' + q : '' }
+
+/* Kassalar, plastik to'lovlar navbati, agent naqd/karta topshiruvlari (backend §17–19).
+ * Ruxsat: ko'rish — moliya:view, kassa CRUD — moliya:create, tasdiq/rad/tahrir — moliya:approve. */
+const j = (method, body) => ({ method, body: JSON.stringify(body ?? {}) })
+export const kassalarApi = {
+  list:        (params = {}) => request(`/kassalar${qs(params)}`),
+  getById:     (id)          => request(`/kassalar/${id}`),
+  viloyatlar:  ()            => request('/kassalar/viloyatlar'),
+  create:      (body)        => request('/kassalar', j('POST', body)),
+  update:      (id, body)    => request(`/kassalar/${id}`, j('PATCH', body)),
+  faol:        (id, faol)    => request(`/kassalar/${id}/faol`, j('PATCH', { faol })),
+  remove:      (id)          => request(`/kassalar/${id}`, { method: 'DELETE' }),
+  /** Agentlar qo'lidagi pul: [{ id, fullname, territoriya_id, super_agent_id, faol, pul }] */
+  agentlar:    (params = {}) => request(`/kassalar/agentlar${qs(params)}`),
+  /** Chek fayli (rasm yoki pdf/doc/docx/xls/xlsx, ≤10 MB) → { chekRasm, nomi, hajm, tur } */
+  chekYuklash: (fayl)        => { const fd = new FormData(); fd.append('chek', fayl, fayl.name); return upload('/kassalar/chek-yuklash', fd) },
+  plastik: {
+    list:     (params = {}) => request(`/kassalar/plastik-tolovlar${qs(params)}`),
+    getById:  (id)          => request(`/kassalar/plastik-tolovlar/${id}`),
+    tasdiqla: (id, body)    => request(`/kassalar/plastik-tolovlar/${id}/tasdiqla`, j('POST', body)),
+    rad:      (id, body)    => request(`/kassalar/plastik-tolovlar/${id}/rad`, j('POST', body)),
+    update:   (id, body)    => request(`/kassalar/plastik-tolovlar/${id}`, j('PATCH', body)),
+  },
+  topshiruv: {
+    list:     (params = {}) => request(`/kassalar/topshiruvlar${qs(params)}`),
+    getById:  (id)          => request(`/kassalar/topshiruvlar/${id}`),
+    tasdiqla: (id, body)    => request(`/kassalar/topshiruvlar/${id}/tasdiqla`, j('POST', body)),
+    rad:      (id, body)    => request(`/kassalar/topshiruvlar/${id}/rad`, j('POST', body)),
+  },
+}
+
 export const avtolavkaApi = {
   /** Boshqaruv markazi: har mashina, bitta kun (sana=YYYY-MM-DD) */
   doska:           (params = {}) => request(`/avtolavka/doska${qs(params)}`),
@@ -341,6 +397,9 @@ export const avtolavkaApi = {
   solishtirma:     (params = {}) => request(`/avtolavka/solishtirma${qs(params)}`),
   /** Kunlar bo'yicha qisqa solishtirma */
   kunlar:          (params = {}) => request(`/avtolavka/kunlar${qs(params)}`),
+  /** Sotuvdan qaytarishlar tarixi: dan, gacha, agent_id, mijoz_id, viloyat_id, page, limit */
+  qaytarishlar:    (params = {}) => request(`/avtolavka/qaytarishlar${qs(params)}`),
+  qaytarish:       (id)          => request(`/avtolavka/qaytarishlar/${id}`),
   /** Mashinadan sotuvlar jurnali: dan, gacha, agent_id, search, tolov=naqd|qarz, page */
   sotuvlar:        (params = {}) => request(`/avtolavka/sotuvlar${qs(params)}`),
   /** Sotuv qilish formasi: xodim mashinasidagi tovar, mijoz narxlari, mijoz qarzi, kun holati */
@@ -353,6 +412,8 @@ export const avtolavkaApi = {
 
 /* ── Agent API ─────────────────────────────────────────── */
 export const agentApi = {
+  /** Agent pul daftari: { agent, pul, davr, tarix } — dan, gacha, limit */
+  pul:         (id, params = {}) => request(`/agents/${id}/pul${qs(params)}`),
   /** Barcha agentlar (statistika bilan) */
   getAll:       (params = {}) => {
     const q = new URLSearchParams(params).toString()

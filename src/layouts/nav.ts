@@ -114,6 +114,7 @@ export const MODULLAR: Modul[] = [
     sahifalar: [
       { yol: '/avtolavka', nom: 'Yuk berish va qabul', izoh: 'Agentga yuk berish, undagi qoldiq, kun oxirida qabul', ikon: IK.mashina, aniq: true, badge: { k: 'avtolavka.yuklanmagan', ton: 'ish', matn: 'yuk berilmagan' }, kalit: 'kochma savdo yuk berish qoldiq astatka ostatka vansell van sell won sell markaz' },
       { yol: '/avtolavka/sotuvlar', nom: 'Sotuvlar', izoh: 'Agentlar sotgan cheklar: naqd, qarz, joy', ikon: IK.chek, kalit: 'Van Sell chek savdo jurnal naqd qarz' },
+      { yol: '/avtolavka/qaytarishlar', nom: 'Qaytarishlar', izoh: 'Agent mijozdan qaytarib olgan tovarlar', ikon: IK.qaytar, kalit: 'qaytarish vozvrat brak yaroqsiz' },
       { yol: '/avtolavka/sotuv', nom: 'Sotuv qilish', izoh: 'Agent nomidan yoki skladdan webdan sotish', ikon: IK.savat, kalit: 'Van Sell sotish sotuv kiritish agent nomidan qolda web naqd qarz' },
     ] },
   { key: 'mijozlar', perm: 'mijozlar', nom: 'Mijozlar', izoh: "Do'konlar, qarz va to'lovlar", ikon: IK.dokon, yol: '/mijozlar', zanjir: true,
@@ -139,7 +140,10 @@ export const MODULLAR: Modul[] = [
   { key: 'moliya', perm: 'moliya', nom: 'Moliya', izoh: 'Kassa, kunlik xarajatlar, qarz oldi-berdi', ikon: IK.hamyon, yol: '/moliya', zanjir: true,
     match: ['/moliya'],
     sahifalar: [
-      { yol: '/moliya', nom: 'Kassa', izoh: 'Kirim va chiqim harakati', ikon: IK.kassa, kalit: 'pul bank' },
+      { yol: '/moliya', nom: 'Kassa', izoh: 'Kirim va chiqim harakati', ikon: IK.kassa, aniq: true, kalit: 'pul bank jurnal' },
+      { yol: '/moliya/kassalar', nom: 'Kassalar', izoh: 'Naqd va plastik kassalar, balans', ikon: IK.hamyon, kalit: 'kassa plastik karta naqd balans uzcard humo', faqat: 'distributsiya' },
+      { yol: '/moliya/plastik', nom: "Plastik to'lovlar", izoh: "Agent qabul qilgan karta to'lovlarini tasdiqlash", ikon: IK.pul, kalit: 'plastik karta tolov tasdiqlash chek navbat', faqat: 'distributsiya' },
+      { yol: '/moliya/topshiruvlar', nom: 'Topshiruvlar', izoh: 'Agent topshirgan naqd va karta pulini qabul qilish', ikon: IK.kiruvchi, kalit: 'topshiruv naqd topshirish agent qolida inkassatsiya', faqat: 'distributsiya' },
       { yol: '/moliya/xarajatlar', nom: 'Kunlik xarajatlar', izoh: 'Kassadan rasxod: benzin, ovqat, ijara, ish haqi…', ikon: IK.chek, kalit: 'rasxod xarajat chiqim benzin ovqat ijara ish haqi' },
       { yol: '/moliya/qarzlar', nom: 'Qarz oldi-berdi', izoh: 'Uchinchi shaxslarga qarz berish va olish', ikon: IK.almash, kalit: 'qarz berish olish uchinchi shaxs dolg zaym' },
     ] },

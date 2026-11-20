@@ -53,8 +53,7 @@
           </div>
           <!-- Audit rasmlari (mobildan yuklangan) -->
           <div v-if="a.rasmlar && a.rasmlar.length" class="hp-audit-photos">
-            <img v-for="(r,i) in a.rasmlar" :key="i" :src="r" class="hp-photo-thumb"
-              loading="lazy" @click="lightbox = r" :alt="`audit rasm ${Number(i)+1}`"/>
+            <button v-for="(r,i) in a.rasmlar" :key="i" type="button" class="pl-link" style="margin-right:10px" @click="faylniOch(r, 'audit').catch(() => {})">Rasm {{ Number(i)+1 }}</button>
           </div>
           <div class="hp-card-ft">
             <span v-if="a.kirish_vaqt || a.chiqish_vaqt">🕐 {{ a.kirish_vaqt || '?' }} – {{ a.chiqish_vaqt || '?' }}</span>
@@ -142,7 +141,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 // @ts-ignore
-import { hisobotApi } from '@/api/api'
+import { hisobotApi, faylniOch } from '@/api/api'
 import { fonQatlam, sputnikQatlam } from '@/utils/xarita'
 // @ts-ignore
 import { useToast } from '@/composables/useToast'

@@ -95,7 +95,7 @@
               <span class="xr-usul">{{ USUL[r.tolov_usul] || r.tolov_usul }}</span>
               <small v-if="r.kim">{{ r.kim }}</small>
             </span>
-            <a v-if="r.chek_rasm" :href="r.chek_rasm" target="_blank" class="xr-chek" title="Chek rasmi"><img :src="r.chek_rasm" alt="chek"/></a>
+            <button v-if="r.chek_rasm" type="button" class="pl-link" title="Chek rasmini ochish" @click.stop="chekOch(r.chek_rasm)">Chek</button>
             <span v-else class="xr-chek xr-chek--yoq"/>
             <b class="xr-summa">−{{ fmt(r.summa) }}</b>
             <span class="xr-amal">
@@ -176,7 +176,8 @@
             <div class="xr-f full">
               <span>Chek rasmi (ixtiyoriy)</span>
               <div class="xr-rasm">
-                <img v-if="m.rasmUrl" :src="m.rasmUrl" alt="chek"/>
+                <img v-if="m.rasmUrl && m.rasmUrl.startsWith('blob:')" :src="m.rasmUrl" alt="chek"/>
+                <button v-else-if="m.rasmUrl" type="button" class="pl-link" @click="chekOch(m.rasmUrl)">Biriktirilgan chek</button>
                 <label class="xr-btn sm">
                   <input type="file" accept="image/*" capture="environment" hidden @change="rasmTanla"/>
                   {{ m.rasmUrl ? 'Almashtirish' : 'Rasm biriktirish' }}
@@ -235,7 +236,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
-import { api } from '@/api/api'
+import { api, faylniOch } from '@/api/api'
 import { useForma } from '@/validation/useForma'
 import * as sx from '@/validation/sxemalar'
 
@@ -430,6 +431,9 @@ async function turSaqla(t, u) {
   try { const r = await api.patch(`/xarajatlar/turlar/${t.id}`, u); Object.assign(t, { ...r, faol: !!r.faol, soni90: t.soni90 }); yukla() }
   catch (e) { xato.value = e.message || 'Saqlanmadi'; turlarYukla() }
 }
+
+// /uploads token talab qiladi — rasm <img src> bilan emas, Bearer bilan olinib yangi oynada ochiladi
+async function chekOch(y) { try { await faylniOch(y, 'chek') } catch (e) { if (e?.message !== 'session_expired') xato.value = e?.message || 'Chek ochilmadi' } }
 
 onMounted(() => { turlarYukla(); yukla() })
 </script>

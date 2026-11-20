@@ -83,6 +83,7 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input v-model="search" maxlength="100" @keydown.enter="qd.darhol()" placeholder="Mijoz yoki izoh..." class="ks-si"/>
           </div>
+          <button v-if="filterKassa !== ''" class="ks-tf on" title="Kassa filtrini olib tashlash" @click="kassaFiltrOl">{{ filterKassa === '0' ? "Kassaga bog'lanmagan" : (kassalar.find(k => String(k.id) === filterKassa)?.nomi || 'Kassa #' + filterKassa) }} ×</button>
           <div class="ks-tur-filter">
             <button class="ks-tf" :class="{ on: filterTur === '' }" @click="filterTur = ''; load()">Barchasi</button>
             <button class="ks-tf ks-tf--in" :class="{ on: filterTur === 'kirim' }" @click="filterTur = 'kirim'; load()">Kirim</button>
@@ -106,7 +107,7 @@
             <div class="ks-row-body">
               <div class="ks-row-top">
                 <span class="ks-row-kat">{{ h.kategoriya_label }}</span>
-                <span class="ks-row-usul">{{ usulLabel(h.tolov_usul) }}</span>
+                <span class="ks-row-usul">{{ h.tolov_turi_nomi || usulLabel(h.tolov_usul) }}</span>
               </div>
               <div class="ks-row-sub">
                 <span v-if="h.mijoz_nomi">{{ h.mijoz_nomi }}</span>
@@ -114,8 +115,7 @@
                 <span class="ks-row-date">· {{ fmtDateTime(h.sana) }}</span>
               </div>
             </div>
-            <img v-if="h.chek_rasm" :src="h.chek_rasm" class="ks-row-chek" loading="lazy"
-              title="To'lov cheki" alt="chek" @click.stop="lightbox = h.chek_rasm"/>
+            <button v-if="h.chek_rasm" type="button" class="pl-link" title="To'lov chekini ochish" @click.stop="chekOch(h.chek_rasm)">Chek</button>
             <div class="ks-row-right">
               <span class="ks-row-sum" :class="h.tur">{{ h.tur === 'chiqim' ? '−' : '+' }}{{ fmtSum(h.summa) }}</span>
               <span v-if="docLink(h)" class="ks-row-link">
@@ -192,6 +192,14 @@
                 </div>
               </div>
 
+              <div v-if="kassalar.length" class="km-field">
+                <label>Kassa</label>
+                <select v-model="addForm.kassa_id" class="km-in" @change="kassaTanlandi">
+                  <option value="">— Kassasiz (umumiy) —</option>
+                  <option v-for="k in kassalar.filter(x => x.faol)" :key="k.id" :value="k.id">{{ k.nomi }} · {{ k.tur === 'plastik' ? 'plastik' : 'naqd' }}</option>
+                </select>
+              </div>
+
               <div class="km-field">
                 <label>Izoh</label>
                 <input v-model="addForm.izoh" v-maydon:izoh="af" class="km-in" placeholder="Ixtiyoriy..."/>
@@ -223,15 +231,27 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useQidiruv } from '@/composables/useQidiruv'
 import { useForma, useSorovId } from '@/validation/useForma'
 import { tozala } from '@/validation/qoidalar'
 import * as sx from '@/validation/sxemalar'
 // @ts-ignore
-import { kassaApi, arizaApi } from '@/api/api'
+import { kassaApi, arizaApi, kassalarApi, faylniOch } from '@/api/api'
 
 const router = useRouter()
+const route = useRoute()
+/* Kassalar (backend §17): jurnalni bitta kassa bo'yicha filtrlash (?kassa_id=, 0 — kassaga bog'lanmagan) va
+   qo'lda kirim/chiqimda kassa tanlash. Eski backendda ro'yxat bo'sh qoladi — maydonlar ko'rinmaydi. */
+const kassalar = ref<any[]>([])
+const filterKassa = ref<string>(route.query.kassa_id != null ? String(route.query.kassa_id) : '')
+function kassaFiltrOl() { filterKassa.value = ''; router.replace({ query: { ...route.query, kassa_id: undefined } }); load() }
+function kassaTanlandi() {
+  // To'lov usuli kassa turiga mos bo'lishi kerak (naqd → naqt, plastik → karta), aks holda backend 400 beradi
+  const k = kassalar.value.find(x => x.id === addForm.kassa_id)
+  if (k) addForm.tolov_usul = k.tur === 'plastik' ? 'karta' : 'naqt'
+}
+async function chekOch(y: string) { try { await faylniOch(y, 'chek') } catch (e: any) { if (e?.message !== 'session_expired') showToast(e?.message || 'Chek ochilmadi', 'err') } }
 
 const PERIODS = [
   { key: 'today', label: 'Bugun' },
@@ -262,7 +282,7 @@ const mijozlar  = ref<any[]>([])
 const addModal = ref(false)
 const saving   = ref(false)
 const addErr   = ref('')
-const addForm  = reactive({ tur: 'kirim', kategoriya: 'mijoz_tolov', summa: null as number|null, tolov_usul: 'naqt', mijoz_id: '', izoh: '' })
+const addForm  = reactive({ tur: 'kirim', kategoriya: 'mijoz_tolov', summa: null as number|null, tolov_usul: 'naqt', mijoz_id: '', izoh: '', kassa_id: '' as number | '' })
 
 const lightbox = ref<string | null>(null)
 
@@ -280,11 +300,12 @@ const katOptions = computed(() => KAT_ALL.filter(k => k.tur === addForm.tur))
 
 const qd = useQidiruv<any>({
   matn: search, yuklanmoqda: loading,
-  kalit: () => [period.value, filterTur.value, filterKat.value],
+  kalit: () => [period.value, filterTur.value, filterKat.value, filterKassa.value],
   yukla: q => {
     const params: any = { period: period.value }
     if (filterTur.value) params.tur = filterTur.value
     if (filterKat.value) params.kategoriya = filterKat.value
+    if (filterKassa.value !== '') params.kassa_id = filterKassa.value
     if (q) params.search = q
     return kassaApi.hisobot(params)
   },
@@ -307,7 +328,7 @@ const af = useForma(sx.kassa, () => addForm)
 // bosilsa yoki javob yo'qolib qayta yuborilsa ham backend bitta yozuv yaratadi
 const sorov = useSorovId()
 function openAdd(tur: string) {
-  Object.assign(addForm, { tur, kategoriya: '', summa: null, tolov_usul: 'naqt', mijoz_id: '', izoh: '' })
+  Object.assign(addForm, { tur, kategoriya: '', summa: null, tolov_usul: 'naqt', mijoz_id: '', izoh: '', kassa_id: '' })
   setTur(tur)
   addErr.value = ''
   af.tozala()
@@ -330,6 +351,7 @@ async function saveAmal() {
         izoh: addForm.izoh,
       }),
       mijoz_id: addForm.mijoz_id || null,
+      ...(addForm.kassa_id ? { kassa_id: Number(addForm.kassa_id) } : {}),
       sorov_id: sorov.id.value,
     })
     sorov.yangila()
@@ -395,7 +417,7 @@ async function loadMijozlar() {
   try { const sp = await arizaApi.spravochnik(); mijozlar.value = sp.mijozlar || [] } catch (e: any) { showToast(e.message || "Mijozlar ro'yxatini yuklab bo'lmadi", 'err') }
 }
 
-onMounted(() => { load(); loadMijozlar() })
+onMounted(() => { load(); loadMijozlar(); kassalarApi.list().then((d: any) => { kassalar.value = d?.kassalar || [] }).catch(() => {}) })
 </script>
 
 <style scoped>

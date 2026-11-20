@@ -9,7 +9,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { useRoute, useRouter } from 'vue-router'
 // @ts-ignore
-import { api, avtolavkaApi } from '@/api/api'
+import { api, avtolavkaApi, kassalarApi, faylniOch } from '@/api/api'
 import { useSorovId } from '@/validation/useForma'
 import { qiymatXato } from '@/validation/qoidalar'
 import * as sx from '@/validation/sxemalar'
@@ -50,6 +50,30 @@ const narxQolda = ref<Record<number, boolean>>({})    // narx qo'lda o'zgartiril
 const tovarQidir = ref('')
 
 const tolov = ref<'naqd' | 'qisman' | 'qarz'>('naqd')
+/* To'lov usuli: naqd yoki plastik (backend §19). Plastik — faqat agent nomidan sotuvda: agent viloyatidagi
+   plastik kassa tanlanadi, chek fayli majburiy; to'lov "kutilmoqda" bo'lib Moliya → Plastik to'lovlar navbatiga tushadi */
+const usul = ref<'naqd' | 'plastik'>('naqd')
+const plKassa = ref<number | ''>('')
+const chek = ref<{ yol: string; nomi: string } | null>(null)
+const chekIzoh = ref('')
+const chekBand = ref(false)
+const chekXato = ref('')
+const plastikKassalar = computed<any[]>(() => (sklad.value ? [] : tayyor.value?.plastik_kassalar || []))
+const plastik = computed(() => usul.value === 'plastik')
+function plastikTozala() { usul.value = 'naqd'; plKassa.value = ''; chek.value = null; chekIzoh.value = ''; chekXato.value = '' }
+async function chekTanla(e: Event) {
+  const inp = e.target as HTMLInputElement, fayl = inp.files?.[0]
+  inp.value = ''
+  if (!fayl) return
+  chekXato.value = ''
+  if (fayl.size > 10 * 1024 * 1024) { chekXato.value = 'Fayl hajmi 10 MB dan oshmasin'; return }
+  if (!/\.(jpe?g|png|webp|gif|heic|heif|pdf|docx?|xlsx?)$/i.test(fayl.name)) { chekXato.value = 'Faqat rasm yoki PDF, Word, Excel fayli'; return }
+  chekBand.value = true
+  try { const r = await kassalarApi.chekYuklash(fayl); chek.value = { yol: r.chekRasm, nomi: r.nomi || fayl.name } }
+  catch (x: any) { chekXato.value = x?.message || 'Chek yuklanmadi' }
+  finally { chekBand.value = false }
+}
+async function chekKor() { if (chek.value) { try { await faylniOch(chek.value.yol, 'chek') } catch (x: any) { chekXato.value = x?.message || 'Chek ochilmadi' } } }
 const naqdMatn = ref('')
 const tolovSana = ref('')
 const izoh = ref('')
@@ -114,6 +138,10 @@ watch(() => [mijoz.value?.id, sana.value], () => {
   tolovSana.value = kunQosh(sana.value, Math.max(0, Number(mijoz.value?.tolov_muddati_kun ?? 7)))
 })
 watch(() => mijoz.value?.qarz_bloklangan, (b) => { if (b) tolov.value = 'naqd' })
+// Plastikda "to'liq qarzga" bo'lmaydi; agent almashsa kassa ro'yxati ham almashadi
+watch(usul, (u) => { if (u === 'plastik' && tolov.value === 'qarz') tolov.value = 'naqd' })
+watch(agentId, plastikTozala)
+watch(plastikKassalar, (k) => { if (plastik.value && !k.length) plastikTozala(); else if (k.length === 1 && plastik.value) plKassa.value = k[0].id })
 
 onMounted(async () => {
   await Promise.all([agentlarniYukla(), mijozlarniYukla()])
@@ -173,7 +201,12 @@ const muammo = computed(() => {
   if (o) return `"${o.tovar_nomi}" ${sklad.value ? 'skladda' : 'agentda'} ${fmtDona(o.qoldiq)} ${o.olchov} bor`
   const nx = qatorlar.value.find(q => q.narxsiz)
   if (nx) return `"${nx.tovar_nomi}" uchun narx kiriting`
-  if (tolov.value === 'qisman' && (naqd.value <= 0 || naqd.value >= jami.value)) return `Naqd summa 0 dan katta va ${fmtSum(jami.value)} dan kichik bo'lsin`
+  if (tolov.value === 'qisman' && (naqd.value <= 0 || naqd.value >= jami.value)) return `${plastik.value ? 'Plastik' : 'Naqd'} summa 0 dan katta va ${fmtSum(jami.value)} dan kichik bo'lsin`
+  if (plastik.value) {
+    if (!plKassa.value) return 'Plastik kassani tanlang'
+    if (chekBand.value) return 'Chek yuklanmoqda…'
+    if (!chek.value) return "Plastik to'lov uchun chek faylini biriktiring"
+  }
   if (qarz.value > 0.5) {
     if (mijoz.value.qarz_bloklangan) return 'Bu mijozga qarzga sotib bo\'lmaydi — faqat to\'liq naqd'
     if (limitOshadi.value) return `Kredit limiti ${fmtSum(mijoz.value.kredit_limit)} so'm — qarz limitdan oshadi`
@@ -211,6 +244,8 @@ async function sot() {
       tolov: tolov.value, naqd: naqd.value,
       tolov_sana: qarz.value > 0.5 ? tolovSana.value : null,
       izoh: izoh.value.trim() || null,
+      // Plastik maydonlari faqat plastikda yuboriladi (naqd sotuv avvalgidek)
+      ...(plastik.value ? { tolov_usuli: 'plastik', kassa_id: Number(plKassa.value), chek_rasm: chek.value!.yol, ...(chekIzoh.value.trim() ? { chek_izoh: chekIzoh.value.trim().slice(0, 255) } : {}) } : {}),
     })
     natija.value.qatorlar = qatorlar.value.map(q => ({ nomi: q.tovar_nomi, dona: q.dona, olchov: q.olchov, narx: q.narxi, summa: q.summa }))
     tasdiq.value = false
@@ -227,6 +262,7 @@ async function sot() {
 function yangiSotuv() {
   natija.value = null; mijozId.value = null; savatniTozala(); sorov.yangila()
   tolov.value = 'naqd'; naqdMatn.value = ''; izoh.value = ''; saqlashXato.value = ''
+  plastikTozala()
   tayyorYukla()
 }
 
@@ -268,7 +304,8 @@ const IKON = {
       <p><b>{{ natija.agent ? natija.agent.fullname + ' nomidan' : 'Skladdan, xodimsiz' }}</b> — <b>{{ natija.mijoz.nomi }}</b> ga, {{ fmtKun(natija.sana) }}</p>
       <div class="ws-done-pul">
         <div><span>Summa</span><b>{{ fmtSum(natija.summa) }}</b></div>
-        <div class="ok"><span>{{ natija.agent ? 'Naqd · xodim kassasiga' : 'Naqd · kassaga tushdi' }}</span><b>{{ fmtSum(natija.naqd) }}</b></div>
+        <div v-if="natija.tolov_usuli === 'plastik' && natija.plastik" class="warn"><span>Plastik · {{ natija.plastik.kassa_nomi }}</span><b>{{ fmtSum(natija.plastik.summa) }}</b><small>tasdiq kutilmoqda — <RouterLink to="/moliya/plastik">navbatda ko'rish</RouterLink></small></div>
+        <div v-else class="ok"><span>{{ natija.agent ? 'Naqd · xodim kassasiga' : 'Naqd · kassaga tushdi' }}</span><b>{{ fmtSum(natija.naqd) }}</b></div>
         <div :class="{ warn: natija.qarz > 0.5 }"><span>Qarzga</span><b>{{ fmtSum(natija.qarz) }}</b><small v-if="natija.tolov_sana">{{ fmtKun(natija.tolov_sana) }} gacha</small></div>
       </div>
       <table class="ws-done-t">
@@ -438,14 +475,39 @@ const IKON = {
             <div class="ws-jami"><span>Jami</span><b>{{ fmtSum(jami) }} <small>so'm</small></b></div>
 
             <div class="ws-tolov">
+              <template v-if="plastikKassalar.length">
+                <span class="ws-lbl">To'lov usuli</span>
+                <div class="ws-seg full">
+                  <button :class="{ on: usul === 'naqd' }" @click="usul = 'naqd'">Naqd</button>
+                  <button :class="{ on: usul === 'plastik' }" @click="usul = 'plastik'">Plastik (karta)</button>
+                </div>
+              </template>
               <span class="ws-lbl">To'lov</span>
               <div class="ws-seg full">
-                <button :class="{ on: tolov === 'naqd' }" @click="tolov = 'naqd'">Naqd</button>
+                <button :class="{ on: tolov === 'naqd' }" @click="tolov = 'naqd'">{{ plastik ? "To'liq" : 'Naqd' }}</button>
                 <button :class="{ on: tolov === 'qisman' }" :disabled="!!mijoz?.qarz_bloklangan" @click="tolov = 'qisman'">Qisman</button>
-                <button :class="{ on: tolov === 'qarz' }" :disabled="!!mijoz?.qarz_bloklangan" @click="tolov = 'qarz'">Qarzga</button>
+                <button :class="{ on: tolov === 'qarz' }" :disabled="!!mijoz?.qarz_bloklangan || plastik" :title="plastik ? 'Plastikda to\'liq qarzga sotib bo\'lmaydi' : ''" @click="tolov = 'qarz'">Qarzga</button>
               </div>
+              <template v-if="plastik">
+                <label class="ws-f">
+                  <span>Plastik kassa</span>
+                  <select class="ws-in" v-model="plKassa"><option value="">— Kassani tanlang —</option><option v-for="k in plastikKassalar" :key="k.id" :value="k.id">{{ k.nomi }}</option></select>
+                </label>
+                <div class="ws-f">
+                  <span>Chek (rasm yoki PDF) — majburiy</span>
+                  <div class="ws-chek">
+                    <label class="ws-btn"><input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" hidden @change="chekTanla"/>{{ chekBand ? 'Yuklanmoqda…' : chek ? 'Almashtirish' : 'Fayl tanlash' }}</label>
+                    <button v-if="chek" type="button" class="pl-link" @click="chekKor">{{ chek.nomi }}</button>
+                  </div>
+                  <small v-if="chekXato" class="fx-xato">{{ chekXato }}</small>
+                </div>
+                <label class="ws-f">
+                  <span>Chek izohi</span>
+                  <input class="ws-in" v-model="chekIzoh" maxlength="255" placeholder="Ixtiyoriy"/>
+                </label>
+              </template>
               <label v-if="tolov === 'qisman'" class="ws-f">
-                <span>Naqd olindi</span>
+                <span>{{ plastik ? 'Plastik summa' : 'Naqd olindi' }}</span>
                 <NumberInput css-class="ws-in" v-model="naqdMatn" :bosh="''" placeholder="0"/>
               </label>
               <label v-if="qarz > 0.5" class="ws-f">
@@ -455,7 +517,8 @@ const IKON = {
             </div>
 
             <dl class="ws-pul">
-              <div class="ok"><dt>Naqd · {{ agent?.fullname }} kassasiga</dt><dd>{{ fmtSum(naqd) }}</dd></div>
+              <div v-if="plastik" class="warn"><dt>Plastik · {{ plastikKassalar.find(k => k.id === plKassa)?.nomi || 'kassa' }} — tasdiq kutiladi</dt><dd>{{ fmtSum(naqd) }}</dd></div>
+              <div v-else class="ok"><dt>Naqd · {{ agent?.fullname }} kassasiga</dt><dd>{{ fmtSum(naqd) }}</dd></div>
               <div :class="{ warn: qarz > 0.5 }"><dt>Qarzga · mijoz balansiga</dt><dd>{{ fmtSum(qarz) }}</dd></div>
               <div v-if="mijoz && qarz > 0.5"><dt>Mijoz qarzi bo'ladi</dt><dd :class="{ neg: limitOshadi }">{{ yangiBalans < -0.5 ? fmtSum(-yangiBalans) : '0' }}<small v-if="mijoz.kredit_limit > 0"> / {{ fmtSum(mijoz.kredit_limit) }}</small></dd></div>
             </dl>
@@ -469,7 +532,7 @@ const IKON = {
             <p v-if="muammo && qatorlar.length" class="ws-muammo">{{ muammo }}</p>
             <p v-if="saqlashXato && !tasdiq" class="ws-muammo">{{ saqlashXato }}</p>
             <p v-if="sklad" class="ws-izoh">Sotuv <b>skladdan, xodimsiz</b> yoziladi: tovar asosiy skladdan chiqadi, naqd to'g'ridan-to'g'ri kassaga tushadi, qarz mijoz balansiga. Bonus hech kimga yozilmaydi.</p>
-            <p v-else class="ws-izoh">Sotuv <b>{{ agent?.fullname }}</b> nomidan yoziladi: tovar undagi yukdan chiqadi, naqdni u Inkassatsiyada topshiradi, bonus ham unga.</p>
+            <p v-else class="ws-izoh">Sotuv <b>{{ agent?.fullname }}</b> nomidan yoziladi: tovar undagi yukdan chiqadi, naqd uning qo'lida turadi (keyin topshiradi), bonus ham unga.</p>
           </section>
         </aside>
       </div>
@@ -660,6 +723,7 @@ textarea.ws-in { height:auto; padding:8px 9px; resize:vertical; width:100%; }
 .ws-jami b { font-size:24px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
 .ws-jami small { font-size:12.5px; font-weight:500; color:var(--mut); }
 .ws-tolov { display:flex; flex-direction:column; gap:10px; }
+.ws-chek { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .ws-lbl { font-size:12px; font-weight:600; color:var(--mut); }
 .ws-f { display:flex; flex-direction:column; gap:5px; }
 .ws-f > span { font-size:12px; font-weight:600; color:var(--mut); }

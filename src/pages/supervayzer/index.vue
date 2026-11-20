@@ -138,6 +138,14 @@
             :style="{background:agentColor(agent.id)+'15',color:agentColor(agent.id)}">{{ d }}</span>
         </div>
 
+        <!-- Agent qo'lidagi naqd (backend §17). Manfiy bo'lishi mumkin — qizil -->
+        <div v-if="agent.pul" class="sv-pul" @click.stop>
+          <span>Qo'lida: <b :class="{ 'pl-neg': agent.pul.qolda < 0 }">{{ fmtPul(agent.pul.qolda) }}</b> so'm</span>
+          <span v-if="Number(agent.pul.kutilmoqda_topshiruv)" class="pl-bg pl-bg--kut" title="Tasdiq kutayotgan topshiruv">topshiruv {{ fmtPul(agent.pul.kutilmoqda_topshiruv) }}</span>
+          <span v-if="Number(agent.pul.kutilmoqda_plastik)" class="pl-bg pl-bg--kut" title="Tasdiq kutayotgan plastik to'lov">plastik {{ fmtPul(agent.pul.kutilmoqda_plastik) }}</span>
+          <button v-if="pulKoradi" type="button" class="pl-link" @click.stop="pulAgent = agent">Pul daftari</button>
+        </div>
+
         <div class="sv-card-foot">
           <div class="sv-card-foot-actions" @click.stop>
             <button class="sv-ic-btn sv-ic-btn--edit" @click.stop="openEdit(agent)" title="Tahrirlash">
@@ -1009,13 +1017,16 @@
       </transition>
     </teleport>
 
+    <AgentPul :agent-id="pulAgent?.id || null" :agent-nomi="pulAgent?.fullname || ''" @yop="pulAgent = null"/>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
-import { agentApi } from '@/api/api'
+import { agentApi, kassalarApi } from '@/api/api'
+import AgentPul from '@/components/AgentPul.vue'
+import { authStore } from '@/stores/auth'
 import { fonQatlam } from '@/utils/xarita'
 import { useToast } from '@/composables/useToast'
 import { useForma } from '@/validation/useForma'
@@ -1098,6 +1109,10 @@ const formStep  = ref(0)
 const vanTugma  = ref(false)
 // Super agent (backend 2026-11-21): maydonlar javobda bo'lsagina ko'rsatiladi va yuboriladi
 const superQollab = ref(false)
+// Agent puli: qo'lidagi naqd va kutilayotganlar — /kassalar/agentlar (eski backendda yo'q, shunda ko'rsatilmaydi)
+const pulAgent = ref(null)
+const pulKoradi = computed(() => authStore.hasPerm('moliya', 'view'))
+const fmtPul = (v) => Math.round(Number(v) || 0).toLocaleString('ru-RU').replace(/,/g, ' ')
 const filterSuper = ref('')
 const superAgentlar = computed(() => agents.value.filter(a => a.super_agent))
 const superTanlov = computed(() => superAgentlar.value.filter(a => a.faol !== false && a.id !== modal.value?.id))
@@ -1262,6 +1277,10 @@ async function load() {
     superQollab.value = [...rawAgents, ...(sprav.value.agentlar || [])].some(a => a && 'super_agent' in a)
     agents.value = rawAgents.map(a => normalizeAgent({ ...a, super_agent: a.super_agent ?? spr.get(a.id)?.super_agent, super_agent_id: a.super_agent_id ?? spr.get(a.id)?.super_agent_id }))
     const ism = new Map(agents.value.map(a => [a.id, a.fullname]))
+    kassalarApi.agentlar().then(r => {
+      const pm = new Map((Array.isArray(r) ? r : r?.agentlar || []).map(x => [x.id, x.pul]))
+      agents.value.forEach(a => { if (pm.has(a.id)) a.pul = pm.get(a.id) })
+    }).catch(() => {})
     agents.value.forEach(a => { if (a.super_agent_id && !a.super_agent_nomi) a.super_agent_nomi = ism.get(a.super_agent_id) || '' })
 
     // Tanlangan agentni yangilaymiz
@@ -1303,6 +1322,7 @@ function normalizeAgent(a) {
     super_agent:       !!a.super_agent,
     super_agent_id:    a.super_agent_id   || null,
     super_agent_nomi:  a.super_agent_nomi || a.superAgent?.fullname || '',
+    pul:               a.pul || null,
     plan_summa,
     fakt_summa,
     plan_pct,
@@ -1989,6 +2009,8 @@ onUnmounted(() => { if (routeMap) routeMap.remove() })
 .sv-dot--sm { width:9px; height:9px; bottom:-1px; right:-1px; }
 .sv-dot--lg { width:13px; height:13px; bottom:-3px; right:-3px; }
 .sv-card-info { flex:1; min-width:0; }
+.sv-pul { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin-top:10px; padding-top:10px; border-top:1px dashed #e2e8f0; font-size:12.5px; color:#475569; }
+.sv-pul .pl-link { margin-left:auto; font-size:12.5px; }
 .sv-super { margin-left:6px; padding:1px 7px; border-radius:999px; background:#ede9fe; color:#6d28d9; font-size:10.5px; font-weight:700; vertical-align:middle; }
 .sv-chip--super { background:#ede9fe; color:#6d28d9; font-weight:700; }
 .sv-boysun { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:#475569; }

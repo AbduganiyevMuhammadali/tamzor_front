@@ -41,6 +41,7 @@ const router = createRouter({
         // Avtolavka — butun jarayon bitta markazda (yuklash, savdo, qabul, kassa, solishtirma)
         { path: 'avtolavka',             name: 'Avtolavka',            meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/index.vue') },
         { path: 'avtolavka/sotuvlar',    name: 'AvtolavkaSotuvlar',    meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/sotuvlar.vue') },
+        { path: 'avtolavka/qaytarishlar', name: 'AvtolavkaQaytarishlar', meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/qaytarishlar.vue') },
         { path: 'avtolavka/sotuv',       name: 'AvtolavkaSotuv',       meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/sotuv.vue') },
         { path: 'avtolavka/:eski(yuklash|qabul|solishtirma)', redirect: '/avtolavka' },
         // Optom — mijozga skladdan sotish va sotuvlar jurnali (agent / mashina yo'q)
@@ -50,6 +51,9 @@ const router = createRouter({
         { path: 'mijozlar/xarita',  name: 'MijozlarXarita',   meta: { module: 'mijozlar', ...D },         component: () => import('../pages/mijozlar/xarita.vue') },
         { path: 'mijozlar/oldi-berdi', name: 'MijozlarOldiBerdi', meta: { module: 'mijozlar' },    component: () => import('../pages/mijozlar/oldi-berdi.vue') },
         { path: 'moliya',           name: 'Moliya',           meta: { module: 'moliya' },           component: () => import('../pages/moliyalar/index.vue') },
+        { path: 'moliya/kassalar',     name: 'MoliyaKassalar',     meta: { module: 'moliya', tab: 'kassalar', ...D },     component: () => import('../pages/moliyalar/kassalar.vue') },
+        { path: 'moliya/plastik',      name: 'MoliyaPlastik',      meta: { module: 'moliya', tab: 'plastik', ...D },      component: () => import('../pages/moliyalar/kassalar.vue') },
+        { path: 'moliya/topshiruvlar', name: 'MoliyaTopshiruvlar', meta: { module: 'moliya', tab: 'topshiruvlar', ...D }, component: () => import('../pages/moliyalar/kassalar.vue') },
         { path: 'moliya/xarajatlar', name: 'MoliyaXarajatlar', meta: { module: 'moliya' },          component: () => import('../pages/moliyalar/xarajatlar.vue') },
         { path: 'moliya/qarzlar',   name: 'MoliyaQarzlar',    meta: { module: 'moliya' },           component: () => import('../pages/moliyalar/qarzlar.vue') },
         { path: 'ombor',              name: 'Ombor',            meta: { module: 'ombor' },            component: () => import('../pages/ombor/index.vue') },
