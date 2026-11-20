@@ -201,13 +201,13 @@ onMounted(() => { if (route.query.kassa_id && tab.value === 'plastik') pf.kassa_
         <thead><tr><th>Nomi</th><th>Tur</th><th>Viloyatlar</th><th class="r">Balans</th><th class="r">Kutilayotgan plastik</th><th>Faol</th><th></th></tr></thead>
         <tbody>
           <tr v-for="k in kassalar" :key="k.id">
-            <td><b>{{ k.nomi }}</b><small v-if="k.izoh">{{ k.izoh }}</small></td>
+            <td style="white-space:nowrap"><b>{{ k.nomi }}</b><small v-if="k.izoh">{{ k.izoh }}</small></td>
             <td><span class="pl-bg" :class="k.tur === 'plastik' ? 'pl-bg--pl' : 'pl-bg--ok'">{{ k.tur === 'plastik' ? 'Plastik' : 'Naqd' }}</span></td>
             <td>
               <template v-if="k.tur === 'plastik'"><span v-for="v in k.viloyatlar || []" :key="v.id" class="pl-bg" style="margin:1px 3px 1px 0">{{ v.nomi }}</span><span v-if="!(k.viloyatlar || []).length" class="pl-neg">viloyat biriktirilmagan</span></template>
               <span v-else class="pl-mut">—</span>
             </td>
-            <td class="r m" :class="{ 'pl-neg': k.balans < 0 }">{{ fmt(k.balans) }}<small>kirim {{ fmt(k.kirim) }} · chiqim {{ fmt(k.chiqim) }}<template v-if="Number(k.topshiruv_kirim)"> · topshiruv {{ fmt(k.topshiruv_kirim) }}</template></small></td>
+            <td class="r m" :class="{ 'pl-neg': k.balans < 0 }" :title="`Kirim ${fmt(k.kirim)} · chiqim ${fmt(k.chiqim)} · topshiruvdan ${fmt(k.topshiruv_kirim)}`">{{ fmt(k.balans) }}</td>
             <td class="r">
               <RouterLink v-if="Number(k.kutilmoqda_soni)" :to="{ path: '/moliya/plastik', query: { kassa_id: k.id } }" class="pl-link">{{ fmt(k.kutilmoqda_plastik) }} · {{ k.kutilmoqda_soni }} ta</RouterLink>
               <span v-else class="pl-mut">—</span>
