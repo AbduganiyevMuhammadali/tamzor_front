@@ -153,7 +153,7 @@ async function sorovTasdiqla() {
     const ozgardi = s.qatorlar.some((q: any) => Number(sorovYuk[q.tovar_id] || 0) !== Number(q.dona))
     if (ozgardi) await avtolavkaApi.yuklashUpdate(s.id, { qatorlar })
     const h = await avtolavkaApi.yuklashTasdiqla(s.id)
-    korsat(`${h.raqam}: ${fmtDona(h.jami_dona)} kg agentga o'tdi — agent ilovada qabul qilishini tasdiqlaydi`)
+    korsat(`${h.raqam}: ${fmtDona(h.jami_dona)} kg agentga o'tdi — agent darhol sota oladi`)
     await yangila(); emit('ozgardi')
   } catch (e: any) { korsat(e?.message || 'Tasdiqlashda xato', 'xato') }
   finally { band.value = '' }
@@ -312,7 +312,7 @@ function yuklashIzoh(x: any, vaqt: string) {
   if (!x.tovar.berildi.dona) return 'kutilmoqda'
   const aq = x.kun.agent_qabul
   if (!aq?.yuklash) return vaqt
-  return `${vaqt} · ${aq.qabul >= aq.yuklash ? 'agent qabul qildi ✓' : 'agent tasdig\'i kutilmoqda'}`
+  return `${vaqt} · ${aq.qabul >= aq.yuklash ? 'agent ilovada ko\'rdi ✓' : 'berildi'}`
 }
 
 /* ── Yuklash ma'lumotlari ── */
@@ -385,7 +385,7 @@ onMounted(yangila)
             <div class="kp-act-k"><span class="kp-act-ic"><svg class="kp-bi" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>Agent so'rovi · mobil ilovadan</div>
             <h3 class="kp-act-t">{{ sorov.raqam }} — agentga yuk berish</h3>
             <p class="kp-act-s">{{ fmtVaqt(sorov.createdAt) }} da yuborilgan<template v-if="sorov.izoh"> · «{{ sorov.izoh }}»</template>.
-              Miqdorni o'zgartirish mumkin. Tasdiqlansa tovar asosiy ombordan agent hisobiga o'tadi, agent esa ilovada qabul qilganini tasdiqlaydi.</p>
+              Miqdorni o'zgartirish mumkin. Tasdiqlansa tovar asosiy ombordan agent hisobiga o'tadi va u darhol sota oladi. Agent ilovada qabul qilganini tasdiqlaydi.</p>
           </div>
           <div class="kp-act-big"><b>{{ fmtDona(sorovJami.dona) }}</b><span>kg · {{ sorovJami.xil }} xil</span><span>{{ fmtMln(sorovJami.summa) }} so'm</span></div>
         </div>

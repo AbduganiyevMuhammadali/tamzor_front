@@ -136,13 +136,12 @@ export const MODULLAR: Modul[] = [
       { yol: '/ishlab', nom: 'Partiyalar', izoh: "Nima sarflandi, nima chiqdi, tannarx", ikon: IK.zavod, badge: { k: 'ishlab.jarayonda', ton: 'ish', matn: 'jarayonda' }, kalit: 'ishlab chiqarish sex tannarx xom ashyo partiya proizvodstvo' },
       { yol: '/ishlab/yangi', nom: 'Yangi partiya', izoh: 'Xom ashyo → mahsulot, omborga kirim', ikon: IK.quti, kalit: 'yangi partiya ishlab chiqarish' },
     ] },
-  { key: 'moliya', perm: 'moliya', nom: 'Moliya', izoh: 'Kassa, kunlik xarajatlar, qarz oldi-berdi, inkassatsiya', ikon: IK.hamyon, yol: '/moliya', zanjir: true,
+  { key: 'moliya', perm: 'moliya', nom: 'Moliya', izoh: 'Kassa, kunlik xarajatlar, qarz oldi-berdi', ikon: IK.hamyon, yol: '/moliya', zanjir: true,
     match: ['/moliya'],
     sahifalar: [
       { yol: '/moliya', nom: 'Kassa', izoh: 'Kirim va chiqim harakati', ikon: IK.kassa, kalit: 'pul bank' },
       { yol: '/moliya/xarajatlar', nom: 'Kunlik xarajatlar', izoh: 'Kassadan rasxod: benzin, ovqat, ijara, ish haqi…', ikon: IK.chek, kalit: 'rasxod xarajat chiqim benzin ovqat ijara ish haqi' },
       { yol: '/moliya/qarzlar', nom: 'Qarz oldi-berdi', izoh: 'Uchinchi shaxslarga qarz berish va olish', ikon: IK.almash, kalit: 'qarz berish olish uchinchi shaxs dolg zaym' },
-      { yol: '/hisobot/inkassatsiya', nom: 'Inkassatsiya', izoh: "Agentlardan naqd qabul qilish", ikon: IK.pul, perm: 'hisobot', badge: { k: 'moliya.inkassatsiya', ton: 'ish', matn: 'topshirmagan' }, kalit: 'naqd topshirish', faqat: 'distributsiya' },
     ] },
 
   /* ── Tahlil ── */

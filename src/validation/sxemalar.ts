@@ -99,6 +99,7 @@ export const agent: Sxema = {
   telefon:           m('Telefon', 20),
   passport:          m('Pasport', 20),
   tugilgan_sana:     sana("Tug'ilgan sana"),
+  territoriya_id:    s('Hudud (viloyat)', { majburiy: true, min: 1, xabar: 'Hududni (viloyatni) tanlang' }),
   plan_summa:        s('Oylik plan summasi', { majburiy: true, min: 0, max: SUMMA_MAKS, xabar: 'Oylik plan summasi majburiy' }),
   bonus_foiz:        s('Bonus foizi', { min: 0, max: 100 }),
   kredit_limit:      s('Kredit limiti', { min: 0, max: SUMMA_MAKS }),

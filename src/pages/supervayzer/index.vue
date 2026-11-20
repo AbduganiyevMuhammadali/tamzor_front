@@ -51,6 +51,10 @@
         <option value="">Barcha hududlar</option>
         <option v-for="t in sprav.territoriyalar" :key="t.id" :value="t.id">{{ t.nomi }}</option>
       </select>
+      <select v-if="superAgentlar.length" class="sv-fsel" v-model="filterSuper">
+        <option value="">Barcha super agentlar</option>
+        <option v-for="s in superAgentlar" :key="s.id" :value="s.id">{{ s.fullname }} ({{ boysunuvchilar(s.id).length }})</option>
+      </select>
       <div class="sv-sort-group">
         <button v-for="s in SORTS" :key="s.key" :class="['sv-sort-btn',sortBy===s.key&&'sv-sort-btn--on']" @click="sortBy=s.key">{{ s.label }}</button>
       </div>
@@ -89,10 +93,10 @@
             <span class="sv-dot" :class="agent.online?'sv-dot--on':'sv-dot--off'"/>
           </div>
           <div class="sv-card-info">
-            <div class="sv-card-name">{{ agent.fullname }}</div>
+            <div class="sv-card-name">{{ agent.fullname }}<span v-if="agent.super_agent" class="sv-super" :title="`Super agent · ${boysunuvchilar(agent.id).length} ta agent biriktirilgan`">Super · {{ boysunuvchilar(agent.id).length }}</span></div>
             <div class="sv-card-meta">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              {{ agent.hudud || '—' }}
+              {{ agent.hudud || '—' }}<template v-if="agent.super_agent_nomi"> · {{ agent.super_agent_nomi }}</template>
             </div>
           </div>
           <span class="sv-plan-badge" :style="planBadge(agent.plan_pct)">{{ agent.plan_pct }}%</span>
@@ -220,6 +224,13 @@
                 {{ selectedAgent.telefon||'—' }}
               </span>
               <span class="sv-chip sv-chip--plan" :style="planBadge(selectedAgent.plan_pct)">Plan: {{ selectedAgent.plan_pct }}%</span>
+              <span v-if="selectedAgent.super_agent" class="sv-chip sv-chip--super">Super agent</span>
+              <span v-if="selectedAgent.super_agent_nomi" class="sv-chip">Super agenti: {{ selectedAgent.super_agent_nomi }}</span>
+            </div>
+            <div v-if="selectedAgent.super_agent" class="sv-boysun">
+              <b>Biriktirilgan agentlar ({{ boysunuvchilar(selectedAgent.id).length }}):</b>
+              <button v-for="b in boysunuvchilar(selectedAgent.id)" :key="b.id" type="button" class="sv-boysun-a" @click="selectAgent(b)">{{ b.fullname }}<small v-if="b.hudud"> · {{ b.hudud }}</small></button>
+              <span v-if="!boysunuvchilar(selectedAgent.id).length" class="sv-dash">hali agent biriktirilmagan — agentni tahrirlab, "Kimga bo'ysunadi" maydonida tanlang</span>
             </div>
           </div>
           <div class="sv-detail-hd-right">
@@ -736,7 +747,7 @@
 
                 <!-- Hudud tanlash — karta ko'rinishida -->
                 <div class="fm-field fm-field--full">
-                  <label class="fm-label">Hudud (territoriya) <span class="fm-req">*</span></label>
+                  <label class="fm-label">Hudud (viloyat) <span class="fm-req">*</span></label>
                   <div class="fm-hudud-grid">
                     <button
                       v-for="t in sprav.territoriyalar" :key="t.id"
@@ -757,6 +768,31 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- Super agent: agentlarni boshqaruvchi agent. Maydonlar faqat backend qo'llasa chiqadi -->
+                <template v-if="superQollab">
+                  <div class="fm-field">
+                    <label class="fm-label">Kimga bo'ysunadi (super agent)</label>
+                    <select v-model="form.super_agent_id" class="fm-input fm-input--sel">
+                      <option value="">— Super agent yo'q —</option>
+                      <option v-for="s in superTanlov" :key="s.id" :value="s.id">{{ s.fullname }}{{ s.hudud ? ' · ' + s.hudud : '' }}</option>
+                    </select>
+                    <small v-if="!superTanlov.length" class="fm-hint">Hali super agent yo'q — avval biror agentga "Super agent" belgisini qo'ying</small>
+                  </div>
+                  <div class="fm-field">
+                    <label class="fm-label">Roli</label>
+                    <label class="fm-check-card" :class="{ 'fm-check-card--on': form.super_agent }">
+                      <input type="checkbox" v-model="form.super_agent" class="fm-check-input"/>
+                      <span class="fm-check-box">
+                        <svg v-if="form.super_agent" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                      <span class="fm-check-txt">
+                        <b>Super agent</b>
+                        <small>Unga boshqa agentlar biriktiriladi{{ modal.id && boysunuvchilar(modal.id).length ? ` · hozir ${boysunuvchilar(modal.id).length} ta agent biriktirilgan` : '' }}</small>
+                      </span>
+                    </label>
+                  </div>
+                </template>
 
                 <div class="fm-grid2">
                   <div class="fm-field">
@@ -1055,11 +1091,17 @@ const formErr   = ref('')
 const f = useForma(sx.agent, () => form.value)
 // Maydon qaysi qadamda — xato bo'lsa o'sha qadam ochiladi
 const MAYDON_QADAM = { fullname: 0, telefon: 0, passport: 0, tugilgan_sana: 0, plan_summa: 1, bonus_foiz: 1, kredit_limit: 1, max_chegirma: 1, ish_boshlagan: 1,
-  boshlanish_manzil: 3, mashina_raqam: 3, radius_km: 3, login: 3, parol: 3 }
+  territoriya_id: 1, super_agent_id: 1, boshlanish_manzil: 3, mashina_raqam: 3, radius_km: 3, login: 3, parol: 3 }
 const qadamXato = (qadam) => Object.keys(f.xatolar.value).find(k => MAYDON_QADAM[k] === qadam)
 const saving    = ref(false)
 const formStep  = ref(0)
 const vanTugma  = ref(false)
+// Super agent (backend 2026-11-21): maydonlar javobda bo'lsagina ko'rsatiladi va yuboriladi
+const superQollab = ref(false)
+const filterSuper = ref('')
+const superAgentlar = computed(() => agents.value.filter(a => a.super_agent))
+const superTanlov = computed(() => superAgentlar.value.filter(a => a.faol !== false && a.id !== modal.value?.id))
+const boysunuvchilar = (id) => agents.value.filter(a => a.super_agent_id === id)
 
 function emptyForm() {
   return {
@@ -1067,7 +1109,7 @@ function emptyForm() {
     territoriya_id:'', plan_summa:'', bonus_foiz:'', ish_boshlagan:'',
     tashrif_kunlari:[], boshlanish_manzil:'', transport:'',
     kredit_limit:'', max_chegirma:'', izoh:'',
-    mashina_raqam:'', radius_km:'', avtolavka:true,
+    mashina_raqam:'', radius_km:'', avtolavka:true, super_agent:false, super_agent_id:'',
     login:'', parol:''
   }
 }
@@ -1108,6 +1150,8 @@ function openEdit(agent) {
     mashina_raqam:     agent.mashina_raqam || '',
     radius_km:         agent.radius_km || '',
     avtolavka:         !!agent.avtolavka,
+    super_agent:       !!agent.super_agent,
+    super_agent_id:    agent.super_agent_id || '',
     login:             agent.login || '',
     parol:             '',   // hech qachon to'ldirilmaydi — bo'sh qolsa o'zgarmaydi
   }
@@ -1153,7 +1197,11 @@ async function saveAgent() {
       territoriya_id: form.value.territoriya_id ? Number(form.value.territoriya_id) : null,
       login:          form.value.login || null,
       parol:          form.value.parol || null,
+      super_agent:    !!form.value.super_agent,
+      super_agent_id: form.value.super_agent_id ? Number(form.value.super_agent_id) : null,
     }
+    // Eski backend noma'lum maydonga 400 beradi — super agent maydonlari faqat qo'llansa yuboriladi
+    if (!superQollab.value) { delete body.super_agent; delete body.super_agent_id }
     if (isEdit) {
       await agentApi.update(modal.value.id, body)
       toast.success('Agent yangilandi', `${form.value.fullname} ma'lumotlari saqlandi`)
@@ -1209,7 +1257,12 @@ async function load() {
     // Backend dan kelgan agentlar statistika bilan
     const rawAgents = statsRes?.agentlar || []
 
-    agents.value = rawAgents.map(a => normalizeAgent(a))
+    // Super agent ma'lumoti statistikada bo'lmasa — spravochnikdan olinadi
+    const spr = new Map((sprav.value.agentlar || []).map(a => [a.id, a]))
+    superQollab.value = [...rawAgents, ...(sprav.value.agentlar || [])].some(a => a && 'super_agent' in a)
+    agents.value = rawAgents.map(a => normalizeAgent({ ...a, super_agent: a.super_agent ?? spr.get(a.id)?.super_agent, super_agent_id: a.super_agent_id ?? spr.get(a.id)?.super_agent_id }))
+    const ism = new Map(agents.value.map(a => [a.id, a.fullname]))
+    agents.value.forEach(a => { if (a.super_agent_id && !a.super_agent_nomi) a.super_agent_nomi = ism.get(a.super_agent_id) || '' })
 
     // Tanlangan agentni yangilaymiz
     if (selectedAgent.value) {
@@ -1247,6 +1300,9 @@ function normalizeAgent(a) {
     territoriya_id:    a.territoriya_id  || null,
     territoriya:       a.territoriya     || null,
     hudud:             a.territoriya?.nomi || '',
+    super_agent:       !!a.super_agent,
+    super_agent_id:    a.super_agent_id   || null,
+    super_agent_nomi:  a.super_agent_nomi || a.superAgent?.fullname || '',
     plan_summa,
     fakt_summa,
     plan_pct,
@@ -1277,6 +1333,8 @@ const filteredAgents = computed(() => {
   let list = agents.value
   if (searchQ.value) { const q=searchQ.value.toLowerCase(); list=list.filter(a=>a.fullname?.toLowerCase().includes(q)) }
   if (filterHudud.value) list = list.filter(a => a.territoriya_id == filterHudud.value)
+  // Super agent filtri: uning o'zi va unga biriktirilgan agentlar
+  if (filterSuper.value) list = list.filter(a => a.super_agent_id == filterSuper.value || a.id == filterSuper.value)
   return [...list].sort((a,b)=>{
     if (sortBy.value==='plan')     return b.plan_pct - a.plan_pct
     if (sortBy.value==='mijozlar') return b.mijozlar_soni - a.mijozlar_soni
@@ -1931,6 +1989,12 @@ onUnmounted(() => { if (routeMap) routeMap.remove() })
 .sv-dot--sm { width:9px; height:9px; bottom:-1px; right:-1px; }
 .sv-dot--lg { width:13px; height:13px; bottom:-3px; right:-3px; }
 .sv-card-info { flex:1; min-width:0; }
+.sv-super { margin-left:6px; padding:1px 7px; border-radius:999px; background:#ede9fe; color:#6d28d9; font-size:10.5px; font-weight:700; vertical-align:middle; }
+.sv-chip--super { background:#ede9fe; color:#6d28d9; font-weight:700; }
+.sv-boysun { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:#475569; }
+.sv-boysun-a { padding:3px 9px; border:1px solid #ddd6fe; border-radius:999px; background:#f5f3ff; color:#5b21b6; font-size:12px; cursor:pointer; }
+.sv-boysun-a:hover { background:#ede9fe; }
+.fm-hint { display:block; margin-top:4px; font-size:11.5px; color:#94a3b8; }
 .sv-card-name { font-size:14.5px; font-weight:800; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sv-card-meta { display:flex; align-items:center; gap:4px; font-size:11.5px; color:#94a3b8; margin-top:2px; }
 .sv-card-meta svg { flex-shrink:0; }

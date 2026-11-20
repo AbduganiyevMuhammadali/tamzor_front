@@ -35,10 +35,14 @@ watch(() => [filter.ombor, filter.turkum], load)
 // Turkumlar (filter uchun)
 const turkumlar = computed(() => [...new Set(rows.value.map(r => r.turkum))].sort())
 const omborlar  = computed(() => [...new Set(rows.value.map(r => r.ombor))].sort())
+// Brak omborlari (umumiy "Brak ombori" va "Agent: <ism> (brak)") sotilmaydi — jami qoldiqqa qo'shilmaydi,
+// faqat aynan shu ombor tanlanganda hisoblanadi
+const brakmi = (o) => /\(brak\)\s*$/i.test(o || '') || /^brak ombori$/i.test((o || '').trim())
+const sotiladigan = computed(() => (filter.ombor && brakmi(filter.ombor)) ? rows.value : rows.value.filter(r => !brakmi(r.ombor)))
 
 // Jami
-const jamiDona    = computed(() => rows.value.reduce((s, r) => s + r.qoldiq_dona, 0))
-const jamiSumma    = computed(() => rows.value.reduce((s, r) => s + r.qoldiq_summa, 0))
+const jamiDona    = computed(() => sotiladigan.value.reduce((s, r) => s + r.qoldiq_dona, 0))
+const jamiSumma    = computed(() => sotiladigan.value.reduce((s, r) => s + r.qoldiq_summa, 0))
 const jamiKirim    = computed(() => rows.value.reduce((s, r) => s + Number(r.kirim_dona || 0), 0))
 const jamiChiqim   = computed(() => rows.value.reduce((s, r) => s + Number(r.chiqim_dona || 0), 0))
 const aylanishFoiz = computed(() => jamiKirim.value > 0 ? Math.min(100, (jamiChiqim.value / jamiKirim.value) * 100) : 0)
@@ -253,7 +257,7 @@ const sparkPoints = computed(() => {
                 <span v-else class="qd-muted">—</span>
               </td>
               <td class="qd-td">
-                <span class="qd-ombor-tag">{{ r.ombor }}</span>
+                <span class="qd-ombor-tag" :class="{ 'qd-ombor-tag--brak': brakmi(r.ombor) }" :title="brakmi(r.ombor) ? 'Brak — sotilmaydi, jami qoldiqqa kirmaydi' : ''">{{ r.ombor }}</span>
               </td>
               <td class="qd-td qd-td--r qd-td--num">{{ fmtSum(r.kirim_dona) }}</td>
               <td class="qd-td qd-td--r qd-td--num">
@@ -544,4 +548,5 @@ const sparkPoints = computed(() => {
   .qd-drawer { width:100vw; }
   .qd-drawer-stats { grid-template-columns:1fr 1fr; }
 }
+.qd-ombor-tag--brak { background:#fef2f2 !important; color:#b91c1c !important; border-color:#fecaca !important; }
 </style>

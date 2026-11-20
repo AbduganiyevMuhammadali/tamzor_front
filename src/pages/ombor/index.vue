@@ -84,8 +84,9 @@
             <button class="od-chip" :class="{ 'od-chip--on': activeOmbor === '' }" @click="activeOmbor = ''">Barchasi</button>
             <button
               class="od-chip"
-              :class="{ 'od-chip--on': activeOmbor === o }"
+              :class="{ 'od-chip--on': activeOmbor === o, 'od-chip--brak': brakmi(o) }"
               v-for="o in omborlar" :key="o"
+              :title="brakmi(o) ? 'Brak ombori — sotilmaydi, sotiladigan qoldiqqa kirmaydi' : ''"
               @click="activeOmbor = o"
             >{{ o }}</button>
           </div>
@@ -201,7 +202,9 @@ async function load() {
 
 onMounted(load)
 
-const omborlar = computed(() => [...new Set(qoldiqlar.value.map(q => q.ombor).filter(Boolean))])
+// Brak omborlari: umumiy "Brak ombori" va har agentning "Agent: <ism> (brak)" — sotilmaydi, ro'yxat oxirida
+const brakmi = (o) => /\(brak\)\s*$/i.test(o || '') || /^brak ombori$/i.test((o || '').trim())
+const omborlar = computed(() => [...new Set(qoldiqlar.value.map(q => q.ombor).filter(Boolean))].sort((a, b) => Number(brakmi(a)) - Number(brakmi(b))))
 
 const filteredQoldiqlar = computed(() =>
   activeOmbor.value
@@ -409,4 +412,5 @@ const navCards = [
 @media (max-width: 1400px) { .od-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 1100px) { .od-main-grid { grid-template-columns: 1fr; } .od-nav-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 700px)  { .od-kpi-grid { grid-template-columns: repeat(2, 1fr); } .od-nav-grid { grid-template-columns: 1fr 1fr; } .od-page { padding: 16px; } }
+.od-chip--brak { border-style:dashed; color:#b91c1c; }
 </style>

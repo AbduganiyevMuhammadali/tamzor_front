@@ -11,6 +11,9 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input class="hap-search" v-model="search" placeholder="Agent qidirish..."/>
         </div>
+        <div class="hap-period" title="Agentlarni guruhlash">
+          <button v-for="g in GURUHLAR" :key="g.key" class="hap-pbtn" :class="{ on: guruh === g.key }" @click="guruh = g.key">{{ g.label }}</button>
+        </div>
         <div class="hap-period">
           <button v-for="p in PERIODS" :key="p.key"
             class="hap-pbtn" :class="{ on: period === p.key }"
@@ -70,14 +73,24 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(a, i) in filtered" :key="a.id">
+          <template v-for="g in guruhlar" :key="g.kalit">
+          <tr v-if="guruh !== 'yoq'" class="hap-guruh">
+            <td colspan="2"><b>{{ g.nom }}</b><small>{{ g.agentlar.length }} ta agent</small></td>
+            <td class="r hap-mono">{{ fmtSum(g.plan) }}</td>
+            <td class="r hap-mono" style="color:#10b981;font-weight:700">{{ fmtSum(g.fakt) }}</td>
+            <td><div class="hap-plan"><div class="hap-plan-bar"><div :style="{ width: Math.min(g.pct,100)+'%', background: planColor(g.pct) }"/></div><span :style="{ color: planColor(g.pct) }">{{ g.pct }}%</span></div></td>
+            <td class="r hap-mono" style="color:#f59e0b">{{ fmtSum(g.qolgan) }}</td>
+            <td class="r">{{ g.savdo }}</td>
+            <td class="r hap-mono" style="color:#10b981;font-weight:800">+{{ fmtSum(g.bonus) }}</td>
+          </tr>
+          <tr v-for="(a, i) in g.agentlar" :key="a.id">
             <td class="hap-num">{{ i + 1 }}</td>
             <td>
               <div class="hap-agent">
                 <div class="hap-av" :style="{ background: avatarColor(a.id) }">{{ (a.fullname||'?')[0].toUpperCase() }}</div>
                 <div>
                   <div class="hap-agent-name">{{ a.fullname }}</div>
-                  <div class="hap-agent-sub">{{ a.territoriya?.nomi || '—' }}</div>
+                  <div class="hap-agent-sub">{{ a.territoriya?.nomi || '—' }}<template v-if="a.super_agent"> · super agent</template><template v-else-if="superNomi(a)"> · {{ superNomi(a) }}</template></div>
                 </div>
               </div>
             </td>
@@ -93,6 +106,7 @@
             <td class="r">{{ a.buyurtmalar_soni || 0 }}</td>
             <td class="r hap-mono" style="color:#10b981;font-weight:800">+{{ fmtSum(a.bonus_summa) }}</td>
           </tr>
+          </template>
           <tr v-if="!filtered.length"><td colspan="8" class="hap-empty">Agent topilmadi</td></tr>
         </tbody>
       </table>
@@ -120,6 +134,32 @@ const period   = ref('month')
 const agentlar = ref<any[]>([])
 const kpi      = ref<any>({})
 
+/* Guruhlash: viloyat (agent.territoriya) yoki super agent bo'yicha — har guruhning jami qatori bilan */
+const GURUHLAR = [
+  { key: 'yoq',      label: 'Guruhsiz' },
+  { key: 'viloyat',  label: 'Viloyat' },
+  { key: 'super',    label: 'Super agent' },
+]
+const guruh = ref('yoq')
+const ismlar = computed(() => new Map(agentlar.value.map(a => [a.id, a.fullname])))
+const superNomi = (a: any) => a.super_agent_nomi || a.superAgent?.fullname || (a.super_agent_id ? ismlar.value.get(a.super_agent_id) : '') || ''
+const guruhlar = computed(() => {
+  const m = new Map<string, { kalit: string; nom: string; agentlar: any[] }>()
+  for (const a of filtered.value) {
+    let kalit = 'hammasi', nom = ''
+    if (guruh.value === 'viloyat') { kalit = 'v' + (a.territoriya_id ?? a.territoriya?.id ?? 0); nom = a.territoriya?.nomi || 'Viloyat belgilanmagan' }
+    // Super agentning o'zi ham o'z guruhida turadi
+    else if (guruh.value === 'super') { const sid = a.super_agent ? a.id : a.super_agent_id; kalit = 's' + (sid || 0); nom = sid ? (ismlar.value.get(sid) || superNomi(a) || 'Super agent') : 'Super agentsiz' }
+    if (!m.has(kalit)) m.set(kalit, { kalit, nom, agentlar: [] })
+    m.get(kalit)!.agentlar.push(a)
+  }
+  return [...m.values()].map(g => {
+    const j = (k: string) => g.agentlar.reduce((s, a) => s + (Number(a[k]) || 0), 0)
+    const plan = j('plan_summa'), fakt = j('fakt_summa')
+    return { ...g, plan, fakt, pct: plan > 0 ? Math.round(fakt / plan * 100) : 0, qolgan: j('qolgan_plan'), savdo: j('buyurtmalar_soni'), bonus: j('bonus_summa') }
+  }).sort((a, b) => b.fakt - a.fakt)
+})
+
 const filtered = computed(() => {
   const q = search.value.toLowerCase().trim()
   return q ? agentlar.value.filter(a => a.fullname?.toLowerCase().includes(q)) : agentlar.value
@@ -128,8 +168,10 @@ const filtered = computed(() => {
 async function load() {
   loading.value = true
   try {
-    const res = await agentApi.statistika(period.value)
-    agentlar.value = (res.agentlar || []).sort((a: any, b: any) => (b.plan_pct||0) - (a.plan_pct||0))
+    const [res, spr] = await Promise.all([agentApi.statistika(period.value), agentApi.spravochnik().catch(() => null)])
+    // Super agent maydonlari statistikada bo'lmasa — spravochnikdan to'ldiriladi
+    const sm = new Map<number, any>((spr?.agentlar || []).map((a: any) => [a.id, a]))
+    agentlar.value = (res.agentlar || []).map((a: any) => ({ ...a, super_agent: a.super_agent ?? sm.get(a.id)?.super_agent, super_agent_id: a.super_agent_id ?? sm.get(a.id)?.super_agent_id, territoriya_id: a.territoriya_id ?? sm.get(a.id)?.territoriya_id, territoriya: a.territoriya ?? sm.get(a.id)?.territoriya })).sort((a: any, b: any) => (b.plan_pct||0) - (a.plan_pct||0))
     kpi.value = res.kpi || {}
   } catch { agentlar.value = []; kpi.value = {} }
   finally { loading.value = false }
@@ -156,6 +198,9 @@ onMounted(load)
 
 <style scoped>
 .hap-page { display:flex; flex-direction:column; gap:16px; }
+.hap-guruh td { background:#f5f3ff; border-top:2px solid #ddd6fe; }
+.hap-guruh b { font-size:13.5px; color:#4c1d95; }
+.hap-guruh small { margin-left:8px; font-size:11.5px; color:#7c3aed; }
 .hap-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .hap-head-left { display:flex; align-items:center; gap:10px; }
 .hap-title { font-size:18px; font-weight:900; color:#1e293b; margin:0; }
