@@ -19,7 +19,7 @@ const IZOH = [
   { nom: 'Tannarx', matn: "Sotilgan kg × tovarning o'rtacha kirim narxi (so'nggi 90 kundagi xaridlar bo'yicha, miqdorga qarab og'irlikli)." },
   { nom: 'Yalpi foyda va marja', matn: 'Foyda = sof tushum − tannarx. Marja = foyda ÷ tushum. Marja 18% — har 100 so\'m savdodan 18 so\'m foyda qoladi.' },
   { nom: 'Mijozlar qarzi', matn: "Mijoz balansi manfiy bo'lsa — qarz. Qarzning yoshi: to'lovlar eng eski savdolarni yopadi, qolgan qarz eng yangi savdolarga tegishli." },
-  { nom: 'Ombor qiymati', matn: "Barcha omborlardagi (Van Sell mashinalari ham) qoldiq × tannarx. Brak hisobga olinmaydi. Zaxira kuni = qiymat ÷ kunlik sotuv tannarxi." },
+  { nom: 'Ombor qiymati', matn: "Barcha omborlardagi (agentlardagi tovar ham) qoldiq × tannarx. Brak hisobga olinmaydi. Zaxira kuni = qiymat ÷ kunlik sotuv tannarxi." },
   { nom: "Ichki ko'chirish", matn: "Van Sell yuklash/qabuli tovarni bir ombordan boshqasiga ko'chiradi — bu sotuv ham, xarid ham emas, hisobotlarda alohida." },
   { nom: 'Taqqoslash', matn: "Kartalardagi foiz — tanlangan davrni undan oldingi xuddi shuncha kunlik davr bilan solishtirish." },
 ]
@@ -52,7 +52,7 @@ const qadamlar = computed(() => {
       tushuncha: 'Yetkazuvchidan tovar keladi va omborga kirim qilinadi', yol: '/hisobot/kirim' },
     { n: 2, ikon: IKON.ombor, nom: 'Ombor', qiymat: x.ombor.qiymat, izoh: `${fmtMiqdor(x.ombor.dona)} kg · ${x.ombor.tovar_turi} xil tovar`,
       tagi: x.ombor.zaxira_kun ? `~${x.ombor.zaxira_kun} kunga yetadi` : 'Sotuv yo\'q — zaxira kuni noma\'lum', tagiTon: '',
-      tushuncha: `Tovar saqlanadi${x.ombor.mashinalar ? `; ${qisqa(x.ombor.mashinalar)} si avtolavka mashinalarida` : ''}${x.ombor.xom_ashyo ? `; ${qisqa(x.ombor.xom_ashyo)} si xom ashyo` : ''}`, yol: '/hisobot/ombor' },
+      tushuncha: `Tovar saqlanadi${x.ombor.mashinalar ? `; ${qisqa(x.ombor.mashinalar)} si agentlarda` : ''}${x.ombor.xom_ashyo ? `; ${qisqa(x.ombor.xom_ashyo)} si xom ashyo` : ''}`, yol: '/hisobot/ombor' },
     { n: 3, ikon: IKON.savat, nom: 'Sotuv', qiymat: x.sotuv.sof_tushum, izoh: `${x.sotuv.buyurtma} buyurtma · ${x.sotuv.mijoz} mijoz`,
       tagi: `Foyda ${qisqa(x.sotuv.foyda)} · marja ${foizFmt(x.sotuv.marja)}`, tagiTon: x.sotuv.foyda >= 0 ? 'ok' : 'err',
       tushuncha: `Tannarxi ${qisqa(x.sotuv.tannarx)} bo'lgan tovar sotildi`, yol: '/hisobot/sotuv' },

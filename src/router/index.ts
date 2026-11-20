@@ -26,20 +26,18 @@ const router = createRouter({
         /* ── Agentlar bo'limi ──────────────────────────────────────
            Agentga oid barcha sahifa shu bo'lim ostida. Eski yo'llar
            (hisobot/agent-*) pastda yangisiga redirect qilinadi. */
-        { path: 'agentlar',           redirect: '/agentlar/nazorat' },
-        { path: 'agentlar/nazorat',   name: 'AgentNazorat',  meta: { module: 'supervayzer', ...D }, component: () => import('../pages/hisobot/agent-monitoring.vue') },
+        { path: 'agentlar',           redirect: '/agentlar/royxat' },
+        { path: 'agentlar/nazorat',   redirect: '/agentlar/royxat' },
         { path: 'agentlar/online',    name: 'AgentOnline',   meta: { module: 'supervayzer', ...D }, component: () => import('../pages/hisobot/agent-online.vue') },
         { path: 'agentlar/royxat',    name: 'AgentRoyxat',   meta: { module: 'supervayzer', ...D }, component: () => import('../pages/supervayzer/index.vue') },
         { path: 'agentlar/plan',      name: 'AgentPlan',     meta: { module: 'supervayzer', ...D }, component: () => import('../pages/hisobot/agentlar.vue') },
-        { path: 'agentlar/marshrut',  name: 'AgentMarshrutReja', meta: { module: 'supervayzer', ...D }, component: () => import('../pages/hisobot/reja.vue') },
-        { path: 'agentlar/mobil',     name: 'AgentMobil',    meta: { module: 'supervayzer', ...D }, component: () => import('../pages/hisobot/mobil.vue') },
-        { path: 'sotuvlar',              name: 'Sotuvlar',          meta: { module: 'sotuvlar', ...D }, redirect: '/sotuvlar/buyurtmalar' },
-        { path: 'sotuvlar/buyurtmalar',  name: 'SotuvlarBuyurtmalar', meta: { module: 'sotuvlar', ...D }, component: () => import('../pages/sotuvlar/buyurtmalar.vue') },
-        { path: 'sotuvlar/arizalar',     name: 'SotuvlarArizalar',    meta: { module: 'sotuvlar', ...D }, component: () => import('../pages/sotuvlar/index.vue') },
-        { path: 'sotuvlar/hisobot',      name: 'SotuvlarHisobot',     meta: { module: 'sotuvlar', ...D }, component: () => import('../pages/hisobot/sotuv.vue') },
-        { path: 'sotuvlar/dostavchilar', name: 'SotuvlarDostavchilar',meta: { module: 'sotuvlar', ...D }, component: () => import('../pages/dostavchilar/index.vue') },
-        { path: 'sotuvlar/trip-sheet',   name: 'SotuvlarTripSheet',   meta: { module: 'sotuvlar', ...D }, component: () => import('../pages/dostavchilar/tripSheet.vue') },
-        { path: 'sotuvlar/qaytarish',    name: 'SotuvlarQaytarish',   meta: { module: 'sotuvlar', ...D }, component: () => import('../pages/dostavchilar/qaytarish.vue') },
+        { path: 'agentlar/marshrut',  redirect: '/agentlar/royxat' },
+        { path: 'agentlar/mobil',     redirect: '/agentlar/royxat' },
+        /* Distributsiya zanjiri (buyurtma, ariza, dostavchik, trip sheet, yig'ish) olib tashlangan — faqat Van Sell.
+           Eski havolalar yangi joyiga yo'naltiriladi. */
+        { path: 'sotuvlar',              redirect: '/avtolavka/sotuvlar' },
+        { path: 'sotuvlar/hisobot',      redirect: '/hisobot/sotuv' },
+        { path: 'sotuvlar/:eski(.*)',    redirect: '/avtolavka/sotuvlar' },
         // Avtolavka — butun jarayon bitta markazda (yuklash, savdo, qabul, kassa, solishtirma)
         { path: 'avtolavka',             name: 'Avtolavka',            meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/index.vue') },
         { path: 'avtolavka/sotuvlar',    name: 'AvtolavkaSotuvlar',    meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/sotuvlar.vue') },
@@ -59,8 +57,8 @@ const router = createRouter({
         { path: 'ombor/prixod/:id', name: 'PrixodForm',       meta: { module: 'ombor' },            component: () => import('../pages/ombor/prixod/form.vue') },
         { path: 'ombor/qoldiqlar',  name: 'OmborQoldiqlar',   meta: { module: 'ombor' },            component: () => import('../pages/ombor/qoldiqlar.vue') },
         { path: 'ombor/partiya',    name: 'OmborPartiya',     meta: { module: 'ombor' },            component: () => import('../pages/ombor/partiya.vue') },
-        { path: 'ombor/yigish',     name: 'OmborYigish',      meta: { module: 'ombor', ...D },            component: () => import('../pages/ombor/yigish.vue') },
-        { path: 'ombor/qaytarish-qabul', name: 'OmborQaytarishQabul', meta: { module: 'ombor', ...D }, component: () => import('../pages/ombor/qaytarish-qabul.vue') },
+        { path: 'ombor/yigish',     redirect: '/ombor' },
+        { path: 'ombor/qaytarish-qabul', redirect: '/ombor' },
         { path: 'ishlab',           name: 'Ishlab',           meta: { module: 'ishlab' },           component: () => import('../pages/ishlab/index.vue') },
         { path: 'ishlab/:id',       name: 'IshlabForm',       meta: { module: 'ishlab' },           component: () => import('../pages/ishlab/form.vue') },
         { path: 'yetkazuvchilar',     name: 'Yetkazuvchilar',     meta: { module: 'ombor' },   component: () => import('../pages/yetkazuvchilar/index.vue') },
@@ -116,7 +114,7 @@ router.beforeEach((to) => {
 
     const modules = rejimStore.isOptom.value
       ? ['dashboard','sotuvlar','mijozlar','moliya','ombor','hisobot','foydalanuvchilar','sozlamalar']
-      : ['dashboard','supervayzer','sotuvlar','mijozlar','moliya','ombor','hisobot','foydalanuvchilar','sozlamalar']
+      : ['dashboard','avtolavka','supervayzer','mijozlar','moliya','ombor','hisobot','foydalanuvchilar','sozlamalar']
     // Optomda "sotuvlar" ruxsati skladdan sotish sahifasini ochadi (buyurtma zanjiri yo'q)
     const yol = (m: string) => (m === 'sotuvlar' && rejimStore.isOptom.value ? '/sotuv' : `/${m}`)
     for (const m of modules) {

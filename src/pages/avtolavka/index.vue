@@ -13,14 +13,14 @@ const route = useRoute()
 const router = useRouter()
 
 const BOSQICH = [
-  { nom: 'Yuklash kutilmoqda', rang: '#94a3b8' },
+  { nom: 'Yuk berish kutilmoqda', rang: '#94a3b8' },
   { nom: 'Savdoda', rang: '#7c3aed' },
   { nom: 'Topshirmoqda', rang: '#d97706' },
   { nom: 'Kun yopildi', rang: '#059669' },
 ]
 const KAMOMAD = '#dc2626'
 const HOLAT_RANG: Record<string, string> = { ochiq: '#7c3aed', topshirilmoqda: '#d97706', yopiq: '#059669', kamomad: KAMOMAD }
-const HOLAT_NOM: Record<string, string> = { bosh: 'Chiqmagan', ochiq: 'Savdoda', topshirilmoqda: 'Topshirilmoqda', yopiq: 'Yopiq', kamomad: 'Kamomad' }
+const HOLAT_NOM: Record<string, string> = { bosh: 'Yuk olmagan', ochiq: 'Savdoda', topshirilmoqda: 'Topshirilmoqda', yopiq: 'Yopiq', kamomad: 'Kamomad' }
 const S0 = 7, S1 = 20                     // kun yo'li: 07:00 → 20:00
 
 const bugun = () => new Date().toISOString().slice(0, 10)
@@ -77,7 +77,7 @@ function signal(m: any) {
 }
 function tipMatn(e: any) {
   switch (e.tur) {
-    case 'yuklash': return `Yuklandi ${e.raqam} · ${fmtDona(e.dona)} kg`
+    case 'yuklash': return `Yuk berildi ${e.raqam} · ${fmtDona(e.dona)} kg`
     case 'sotuv': return `${e.mijoz} · ${e.naqd ? 'naqd' : 'qarzga'} ${fmtSum(e.summa)}${e.uzoq ? ` · mijozdan ${e.masofa >= 1000 ? (e.masofa / 1000).toFixed(1) + ' km' : e.masofa + ' m'} uzoqda` : ''}`
     case 'sorov': return `Agent so'rovi ${e.raqam} · ${fmtDona(e.dona)} kg${e.holat === 'qoralama' ? ' · omborchida' : e.holat === 'bekor' ? ' · bekor' : ''}`
     case 'agent_qabul': return `Agent yukni qabul qildi ${e.raqam}`
@@ -118,7 +118,7 @@ function cta(m: any) {
   // Agent ilovadan kutayotgan ish birinchi
   if (m.sorovlar?.length) return 'So\'rovni ko\'rish'
   if (m.kun_yopish && m.bosqich < 3 && !m.topshirish.tovar) return 'Topshirishni qabul qilish'
-  if (m.bosqich === 0) return 'Tavsiya bo\'yicha yuklash'
+  if (m.bosqich === 0) return 'Tavsiya bo\'yicha yuk berish'
   if (m.bosqich === 1) return 'Kunni yopish'
   if (m.bosqich === 2) return !m.topshirish.tovar ? 'Qoldiqni qabul qilish' : 'Pulni qabul qilish'
   return 'Hisobot'
@@ -129,15 +129,15 @@ const agentQabulKutmoqda = (m: any) => (m.kun?.agent_qabul?.yuklash || 0) > (m.k
 /* Sarlavha ostidagi bir jumlalik holat */
 const sarlavha = computed(() => {
   const j = jami.value
-  if (!j.mashina) return 'Van Sell mashinasi yo\'q'
-  if (!bugunmi.value) return `${j.mashina} mashina · ${j.yopiq} tasi yopilgan`
+  if (!j.mashina) return 'Van Sell agenti yo\'q'
+  if (!bugunmi.value) return `${j.mashina} agent · ${j.yopiq} tasi yopilgan`
   const q: string[] = []
   if (j.sorov) q.push(`${j.sorov} ta so'rov kutmoqda`)
   if (j.topshirishga_keldi) q.push(`${j.topshirishga_keldi} tasi topshirishga keldi`)
   if (j.yolda) q.push(`${j.yolda} tasi yo'lda`)
-  if (j.yuklanmagan) q.push(`${j.yuklanmagan} tasi skladda`)
+  if (j.yuklanmagan) q.push(`${j.yuklanmagan} tasi yuk olmagan`)
   if (j.yopiq) q.push(`${j.yopiq} tasi yopildi`)
-  return `${j.mashina} mashina · ${q.join(' · ')}`
+  return `${j.mashina} agent · ${q.join(' · ')}`
 })
 
 async function yukla(jimgina = false) {
@@ -201,7 +201,7 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
       <div class="al-k">
         <span class="al-k-ic"><svg viewBox="0 0 24 24" v-html="IKON.quti"/></span>
         <div class="al-k-b">
-          <span class="al-k-l">Mashinalardagi tovar</span>
+          <span class="al-k-l">Agentlardagi tovar</span>
           <b class="al-k-v">{{ fmtMln(jami.tovar_mashinada) }}<small>{{ fmtMlnU(jami.tovar_mashinada) }}</small></b>
           <span class="al-k-s">sotuv narxida, hali topshirilmagan</span>
         </div>
@@ -238,13 +238,13 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
     <!-- ═══ MASHINALAR ═══ -->
     <section class="al-card">
       <div class="al-card-hd">
-        <h2><span class="al-h2-ic"><svg viewBox="0 0 24 24" v-html="IKON.mashina"/></span>Mashinalar</h2>
+        <h2><span class="al-h2-ic"><svg viewBox="0 0 24 24" v-html="IKON.mashina"/></span>Agentlar</h2>
         <div class="al-leg">
           <span><i class="lg sotuv"/>Naqd savdo</span>
           <span><i class="lg qarz"/>Qarzga</span>
           <span><i class="lg sotmaslik"/>Savdosiz tashrif</span>
           <span><i class="lg tolov"/>Qarz to'lovi</span>
-          <span><i class="lg op"/>Yuklash · qabul · kassa</span>
+          <span><i class="lg op"/>Yuk berish · qabul · kassa</span>
         </div>
       </div>
 
@@ -260,7 +260,7 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 
         <div class="al-id">
           <div class="al-id-top">
-            <span class="al-plate">{{ m.agent.mashina_raqam || '— — —' }}</span>
+            <span v-if="m.agent.mashina_raqam" class="al-plate">{{ m.agent.mashina_raqam }}</span>
             <span class="al-st"><i/>{{ holatNom(m) }}</span>
           </div>
           <div v-if="bugunmi && (m.sorovlar?.length || (m.kun_yopish && m.bosqich < 3) || m.kun.uzoq_sotuv || agentQabulKutmoqda(m))" class="al-flags">
@@ -270,9 +270,9 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
             <span v-if="m.kun.uzoq_sotuv" class="al-flag uzoq" title="Mijoz nuqtasidan uzoqda qilingan sotuvlar">{{ m.kun.uzoq_sotuv }} uzoqdan sotuv</span>
           </div>
           <div class="al-name">{{ m.agent.fullname }}</div>
-          <div class="al-cap" :title="`Mashinadagi yuk: ${yukFoiz(m)}%`">
+          <div class="al-cap" :title="`Agentdagi yuk: ${yukFoiz(m)}%`">
             <span class="al-cap-bar"><i :style="{ width: yukFoiz(m) + '%' }"/></span>
-            <span>{{ m.bosqich === 0 ? 'Yuklanmagan' : `${yukFoiz(m)}% yuk` }}</span>
+            <span>{{ m.bosqich === 0 ? 'Yuk berilmagan' : `${yukFoiz(m)}% yuk` }}</span>
           </div>
         </div>
 
@@ -303,12 +303,12 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 
             <span v-if="m.bosqich === 1 && bugunmi" class="al-pos" :style="{ left: mashinaX(m) + '%' }"/>
             <div v-if="m.bosqich === 0" class="al-road-msg">
-              {{ bugunmi ? 'Mashina skladda — yuklash kutilmoqda' : 'Bu kuni chiqmagan' }}
+              {{ bugunmi ? 'Yuk berilmagan — yuk berish kutilmoqda' : 'Bu kuni yuk olmagan' }}
             </div>
           </div>
 
           <dl class="al-nums">
-            <div><dt>Mashinada</dt><dd>{{ fmtDona(m.mashina.dona) }} <small>kg</small></dd><dd class="s">{{ fmtSum(m.mashina.summa) }} so'm</dd></div>
+            <div><dt>Agentda</dt><dd>{{ fmtDona(m.mashina.dona) }} <small>kg</small></dd><dd class="s">{{ fmtSum(m.mashina.summa) }} so'm</dd></div>
             <div><dt>Sotildi</dt><dd>{{ fmtDona(m.tovar.sotildi.dona) }} <small>kg</small></dd><dd class="s">{{ fmtSum(m.pul.sotuv_jami) }} so'm</dd></div>
             <div><dt>Qo'lda naqd</dt><dd :class="{ o: !m.pul.inkassatsiya && m.pul.naqd_olindi > 0 }">{{ fmtSum(m.pul.inkassatsiya ? 0 : m.pul.naqd_olindi) }}</dd><dd class="s">{{ m.pul.inkassatsiya ? 'kassaga topshirilgan' : 'so\'m' }}</dd></div>
             <div><dt>Qarzga</dt><dd>{{ fmtSum(m.pul.qarzga_sotuv) }}</dd><dd class="s">so'm</dd></div>
@@ -333,11 +333,11 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
       <div class="al-card-hd">
         <div>
           <h2><span class="al-h2-ic"><svg viewBox="0 0 24 24" v-html="IKON.kalendar"/></span>So'nggi 14 kun</h2>
-          <p>Har katak — bir mashinaning bir kuni. Kunni ochish uchun katakni bosing.</p>
+          <p>Har katak — bir agentning bir kuni. Kunni ochish uchun katakni bosing.</p>
         </div>
         <div class="al-leg">
           <span v-for="(c, k) in HOLAT_RANG" :key="k"><i class="sq" :style="{ background: c }"/>{{ HOLAT_NOM[k] }}</span>
-          <span><i class="sq bosh"/>Chiqmagan</span>
+          <span><i class="sq bosh"/>Yuk olmagan</span>
         </div>
       </div>
       <div class="al-mx-grid" :style="{ gridTemplateColumns: `180px repeat(${kalendar.kunlar.length}, 1fr)` }">

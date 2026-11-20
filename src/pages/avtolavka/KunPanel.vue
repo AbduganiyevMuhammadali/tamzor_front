@@ -17,7 +17,7 @@ const props = defineProps<{ agentId: number; sana: string }>()
 const emit = defineEmits<{ (e: 'yop'): void; (e: 'ozgardi'): void }>()
 
 const BOSQICH = [
-  { nom: 'Yuklash kutilmoqda', rang: '#94a3b8' },
+  { nom: 'Yuk berish kutilmoqda', rang: '#94a3b8' },
   { nom: 'Savdoda', rang: '#7c3aed' },
   { nom: 'Topshirmoqda', rang: '#d97706' },
   { nom: 'Kun yopildi', rang: '#059669' },
@@ -66,11 +66,11 @@ const yangiReysYuklash = computed(() => {
 // Oldingi reysda topshirilgan naqd — inkassatsiya kun bo'yicha jami, yangi reysda faqat qolgani qabul qilinadi
 const oldinTopshirilgan = computed(() => (qaytaOchish.value && r.value?.pul?.inkassatsiya ? Number(r.value.pul.topshirildi || 0) : 0))
 async function qaytaOch() {
-  if (!confirm(`${r.value.agent.fullname}ning bugungi kuni qayta ochilsinmi?\n\nYangi reys: mashinaga yana yuklanadi, sotuvlar shu kunga qo'shiladi, kun oxirida tovar va naqd yana topshiriladi.`)) return
+  if (!confirm(`${r.value.agent.fullname}ning bugungi kuni qayta ochilsinmi?\n\nYangi reys: agentga yana yuk beriladi, sotuvlar shu kunga qo'shiladi, kun oxirida tovar va naqd yana topshiriladi.`)) return
   band.value = 'och'
   try {
     await avtolavkaApi.kunQaytaOch({ agent_id: props.agentId })
-    korsat("Kun qayta ochildi — yangi reys uchun mashinaga yuklang (yoki agent ilovadan so'raydi)")
+    korsat("Kun qayta ochildi — yangi reys uchun agentga yuk bering (yoki agent ilovadan so'raydi)")
     await yangila(); emit('ozgardi')
   } catch (e: any) { korsat(e?.message || "Kunni qayta ochib bo'lmadi", 'xato') }
   finally { band.value = '' }
@@ -123,11 +123,11 @@ async function yukla() {
   const qatorlar = yukQatorlar.value
     .filter((q: any) => Number(yuk[q.tovar_id]) > 0)
     .map((q: any) => ({ tovar_id: q.tovar_id, dona: Number(yuk[q.tovar_id]), narx: q.narx }))
-  if (!qatorlar.length) return korsat('Yuklash uchun kamida bitta tovar tanlang', 'xato')
+  if (!qatorlar.length) return korsat('Yuk berish uchun kamida bitta tovar tanlang', 'xato')
   band.value = 'yuklash'
   try {
     const h = await avtolavkaApi.yuklashCreate({ agent_id: props.agentId, sana: props.sana, tasdiqla: true, izoh: yangiReysYuklash.value ? 'Yangi reys yuklashi' : 'Ertalabki yuklash', qatorlar })
-    korsat(`${h.raqam}: ${fmtDona(h.jami_dona)} kg mashinaga yuklandi — agent yo'lga chiqishi mumkin`)
+    korsat(`${h.raqam}: ${fmtDona(h.jami_dona)} kg agentga berildi — agent yo'lga chiqishi mumkin`)
     await yangila(); emit('ozgardi')
   } catch (e: any) { korsat(e?.message || 'Yuklashda xato', 'xato') }
   finally { band.value = '' }
@@ -153,7 +153,7 @@ async function sorovTasdiqla() {
     const ozgardi = s.qatorlar.some((q: any) => Number(sorovYuk[q.tovar_id] || 0) !== Number(q.dona))
     if (ozgardi) await avtolavkaApi.yuklashUpdate(s.id, { qatorlar })
     const h = await avtolavkaApi.yuklashTasdiqla(s.id)
-    korsat(`${h.raqam}: ${fmtDona(h.jami_dona)} kg mashinaga o'tdi — agent ilovada qabul qilishini tasdiqlaydi`)
+    korsat(`${h.raqam}: ${fmtDona(h.jami_dona)} kg agentga o'tdi — agent ilovada qabul qilishini tasdiqlaydi`)
     await yangila(); emit('ozgardi')
   } catch (e: any) { korsat(e?.message || 'Tasdiqlashda xato', 'xato') }
   finally { band.value = '' }
@@ -206,7 +206,7 @@ async function qabulQil() {
       agent_id: props.agentId, sana: props.sana, izoh: izoh.value || null,
       qatorlar: qabulQatorlar.value.map((t: any) => ({ tovar_id: t.tovar_id, qabul_dona: Number(sanaldi[t.tovar_id] ?? t.qoldiq), brak_dona: Number(brak[t.tovar_id] || 0) })),
     })
-    korsat(h._bosh ? `${h.raqam}: mashina bo'sh — qabul qilindi, kun yopildi` : h._farq?.farq_bor ? `${h.raqam}: qabul qilindi, ${fmtDona(h.farq_dona)} kg farq agentda qoldi` : `${h.raqam}: qoldiq to'liq skladga qaytdi`, h._farq?.farq_bor ? 'ogoh' : 'ok')
+    korsat(h._bosh ? `${h.raqam}: agentda tovar qolmagan — qabul qilindi, kun yopildi` : h._farq?.farq_bor ? `${h.raqam}: qabul qilindi, ${fmtDona(h.farq_dona)} kg farq agentda qoldi` : `${h.raqam}: qoldiq to'liq skladga qaytdi`, h._farq?.farq_bor ? 'ogoh' : 'ok')
     izoh.value = ''; tovarTafsilot.value = false
     await yangila(); emit('ozgardi')
   } catch (e: any) { korsat(e?.message || 'Qabulda xato', 'xato') }
@@ -251,7 +251,7 @@ const tovarOqim = computed(() => {
     { k: 'skladga', nom: 'Skladga qaytdi', v: t.topshirildi.dona, c: 'var(--ink2)' },
     { k: 'brak', nom: 'Brak', v: t.brak.dona, c: '#d97706' },
     topsh ? { k: 'farq', nom: 'Farq — agentda', v: Math.max(0, t.farq.dona), c: '#dc2626' }
-          : { k: 'mashina', nom: 'Hali mashinada', v: t.kun_oxiri.dona, c: '#94a3b8' },
+          : { k: 'mashina', nom: 'Hali agentda', v: t.kun_oxiri.dona, c: '#94a3b8' },
   ].filter(q => q.v > 0.001)
   return { jami, qismlar }
 })
@@ -276,7 +276,7 @@ const VOQEA_RANG: Record<string, string> = {
 const SOROV_HOLAT: Record<string, string> = { qoralama: 'omborchida', tasdiqlangan: 'tasdiqlandi', bekor: 'bekor' }
 function voqeaMatn(v: any) {
   switch (v.tur) {
-    case 'yuklash': return { t: `Yuklandi · ${v.raqam}`, s: `${fmtDona(v.dona)} kg · ${fmtMln(v.summa)} so'm` }
+    case 'yuklash': return { t: `Yuk berildi · ${v.raqam}`, s: `${fmtDona(v.dona)} kg · ${fmtMln(v.summa)} so'm` }
     case 'sotuv': return { t: v.mijoz, s: `${v.naqd ? 'Naqd' : 'Qarzga'} sotuv · ${fmtDona(v.dona)} kg · ${fmtSum(v.summa)} so'm${v.uzoq ? ` · mijoz nuqtasidan ${fmtMasofa(v.masofa)} uzoqda` : ''}` }
     case 'sorov': return { t: `Agent so'rovi · ${v.raqam}`, s: `${fmtDona(v.dona)} kg · ${fmtMln(v.summa)} so'm · ${SOROV_HOLAT[v.holat] || v.holat}${v.sabab ? ' — ' + v.sabab : ''}` }
     case 'agent_qabul': return { t: 'Agent yukni qabul qildi', s: `${v.raqam} · ${fmtDona(v.dona)} kg — ilovada tasdiqladi` }
@@ -285,7 +285,7 @@ function voqeaMatn(v: any) {
     case 'mijozda': return { t: v.mijoz, s: 'Agent hozir shu mijozda' }
     case 'tolov': return { t: v.mijoz, s: `Qarz to'lovi · ${fmtSum(v.summa)} so'm naqd` }
     case 'qabul': return { t: `Qoldiq skladga · ${v.raqam}`, s: `${fmtDona(v.dona)} kg${v.brak ? ` · brak ${fmtDona(v.brak)}` : ''}${v.farq ? ` · farq ${fmtDona(v.farq)}` : ' · farqsiz'}` }
-    case 'kun_ochildi': return { t: 'Kun qayta ochildi', s: `${(v.soni || 1) + 1}-reys — yana yuklash, savdo va topshirish` }
+    case 'kun_ochildi': return { t: 'Kun qayta ochildi', s: `${(v.soni || 1) + 1}-reys — yana yuk berish, savdo va topshirish` }
     case 'kassa': return { t: 'Pul kassaga', s: `${fmtSum(v.summa)} so'm${v.kutilgan - v.summa > 0.5 ? ` · kamomad ${fmtSum(v.kutilgan - v.summa)}` : ' · to\'liq'}` }
   }
   return { t: v.tur, s: '' }
@@ -298,7 +298,7 @@ const stansiyalar = computed(() => {
   const vaqtOf = (tur: string) => { const v = [...y].reverse().find((e: any) => e.tur === tur); return v ? fmtVaqt(v.vaqt) : '' }
   const birinchiSotuv = y.find((e: any) => e.tur === 'sotuv')
   return [
-    { nom: 'Yuklash', izoh: yuklashIzoh(x, vaqtOf('yuklash')), tayyor: x.tovar.berildi.dona > 0 },
+    { nom: 'Yuk berish', izoh: yuklashIzoh(x, vaqtOf('yuklash')), tayyor: x.tovar.berildi.dona > 0 },
     { nom: 'Savdo', izoh: (x.kun.tashrif ? `${x.kun.tashrif} tashrif · ${x.kun.savdo} savdo` : (birinchiSotuv ? fmtVaqt(birinchiSotuv.vaqt) : '—'))
         + (x.kun.uzoq_sotuv ? ` · ${x.kun.uzoq_sotuv} uzoqdan` : ''), tayyor: x.bosqich >= 2 || (x.bosqich === 1 && x.tovar.sotildi.dona > 0) },
     { nom: 'Topshirish', izoh: [x.topshirish.tovar ? 'tovar ✓' : 'tovar', x.topshirish.pul ? 'pul ✓' : 'pul'].join(' · '), tayyor: x.topshirish.tovar && x.topshirish.pul },
@@ -353,10 +353,10 @@ onMounted(yangila)
       <header class="kp-hd">
         <div class="kp-hd-n">
           <div class="kp-hd-top">
-            <span class="kp-plate">{{ r.agent.mashina_raqam || '— — —' }}</span>
+            <span v-if="r.agent.mashina_raqam" class="kp-plate">{{ r.agent.mashina_raqam }}</span>
             <span class="kp-st-b"><i/>{{ holatNomi }}</span>
             <span v-if="qaytaOchish" class="kp-cap">{{ qaytaOchish.soni + 1 }}-reys</span>
-            <span v-if="bosqich === 1 || bosqich === 2" class="kp-cap">mashinada {{ Math.round(tolish * 100) }}% yuk</span>
+            <span v-if="bosqich === 1 || bosqich === 2" class="kp-cap">agentda {{ Math.round(tolish * 100) }}% yuk</span>
           </div>
           <h2 class="kp-name">{{ r.agent.fullname }}</h2>
           <div class="kp-date">{{ fmtSanaUzun(sana) }}<template v-if="bugunmi"> · bugun</template>
@@ -383,9 +383,9 @@ onMounted(yangila)
         <div class="kp-act-hd">
           <div>
             <div class="kp-act-k"><span class="kp-act-ic"><svg class="kp-bi" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>Agent so'rovi · mobil ilovadan</div>
-            <h3 class="kp-act-t">{{ sorov.raqam }} — mashinaga yuklash</h3>
+            <h3 class="kp-act-t">{{ sorov.raqam }} — agentga yuk berish</h3>
             <p class="kp-act-s">{{ fmtVaqt(sorov.createdAt) }} da yuborilgan<template v-if="sorov.izoh"> · «{{ sorov.izoh }}»</template>.
-              Miqdorni o'zgartirish mumkin. Tasdiqlansa tovar asosiy ombordan agent mashinasiga o'tadi, agent esa ilovada qabul qilganini tasdiqlaydi.</p>
+              Miqdorni o'zgartirish mumkin. Tasdiqlansa tovar asosiy ombordan agent hisobiga o'tadi, agent esa ilovada qabul qilganini tasdiqlaydi.</p>
           </div>
           <div class="kp-act-big"><b>{{ fmtDona(sorovJami.dona) }}</b><span>kg · {{ sorovJami.xil }} xil</span><span>{{ fmtMln(sorovJami.summa) }} so'm</span></div>
         </div>
@@ -407,7 +407,7 @@ onMounted(yangila)
           <button class="kp-ghost kp-ghost--rad" :disabled="band === 'sorov'" @click="sorovRad">Rad etish</button>
           <button class="kp-go" :disabled="band === 'sorov' || !sorovJami.dona" @click="sorovTasdiqla">
             <span v-if="band === 'sorov'" class="kp-spin kp-spin--w"/><svg class="kp-bi" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
-            Tasdiqlash va yuklash
+            Tasdiqlash va yuk berish
           </button>
         </div>
       </section>
@@ -417,11 +417,11 @@ onMounted(yangila)
         <div class="kp-act-hd">
           <div>
             <div class="kp-act-k"><span class="kp-act-ic"><svg class="kp-bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span>Keyingi qadam</div>
-            <h3 class="kp-act-t">{{ yangiReysYuklash ? 'Yangi reys: yuklash' : 'Ertalabki yuklash' }}</h3>
-            <p class="kp-act-s" v-if="yangiReysYuklash">Kun {{ fmtVaqt(qaytaOchish.vaqt) }} da qayta ochildi. Mashinaga yuklang yoki agent ilovadan so'rasin.
+            <h3 class="kp-act-t">{{ yangiReysYuklash ? 'Yangi reys: yuk berish' : 'Ertalabki yuk berish' }}</h3>
+            <p class="kp-act-s" v-if="yangiReysYuklash">Kun {{ fmtVaqt(qaytaOchish.vaqt) }} da qayta ochildi. Agentga yuk bering yoki agent ilovadan so'rasin.
               Chiqish bekor bo'lsa — <button class="kp-link" :disabled="band === 'qabul'" @click="qabulQil">kunni yana yopish</button>.</p>
-            <p class="kp-act-s" v-if="tavsiya?.manba === 'ortacha'">Tavsiya: oxirgi {{ tavsiya.ish_kunlari }} ish kunidagi o'rtacha sotuv + 20% zaxira − mashinadagi qoldiq, blokka yaxlitlangan</p>
-            <p class="kp-act-s" v-else-if="tavsiya?.manba === 'oxirgi'">Sotuv tarixi yo'q — oxirgi yuklash ({{ tavsiya.oxirgi?.raqam }}) asosida</p>
+            <p class="kp-act-s" v-if="tavsiya?.manba === 'ortacha'">Tavsiya: oxirgi {{ tavsiya.ish_kunlari }} ish kunidagi o'rtacha sotuv + 20% zaxira − agentdagi qoldiq, blokka yaxlitlangan</p>
+            <p class="kp-act-s" v-else-if="tavsiya?.manba === 'oxirgi'">Sotuv tarixi yo'q — oxirgi berilgan yuk ({{ tavsiya.oxirgi?.raqam }}) asosida</p>
             <p class="kp-act-s" v-else>Tarix yo'q — tovarlarni qidirib qo'shing</p>
           </div>
           <div class="kp-act-big"><b>{{ fmtDona(yukJami.dona) }}</b><span>kg · {{ yukJami.xil }} xil</span><span>{{ fmtMln(yukJami.summa) }} so'm</span></div>
@@ -431,7 +431,7 @@ onMounted(yangila)
           <div v-for="q in yukQatorlar" :key="q.tovar_id" class="kp-row" :class="{ nol: !Number(yuk[q.tovar_id]) }">
             <div class="kp-row-n">
               <b>{{ q.tovar_nomi }}</b>
-              <span>{{ q.ortacha ? `kuniga ~${fmtDona(q.ortacha)}` : 'qo\'shimcha' }}<template v-if="q.mashinada"> · mashinada {{ fmtDona(q.mashinada) }}</template> · omborda {{ fmtDona(q.omborda) }}</span>
+              <span>{{ q.ortacha ? `kuniga ~${fmtDona(q.ortacha)}` : 'qo\'shimcha' }}<template v-if="q.mashinada"> · agentda {{ fmtDona(q.mashinada) }}</template> · omborda {{ fmtDona(q.omborda) }}</span>
             </div>
             <div class="kp-step">
               <button @click="yukQadam(q, -1)" :disabled="!Number(yuk[q.tovar_id])">−</button>
@@ -454,7 +454,7 @@ onMounted(yangila)
           <button class="kp-ghost" @click="tavsiyaniQoy">Tavsiyaga qaytarish</button>
           <button class="kp-go" :disabled="band === 'yuklash' || !yukJami.dona" @click="yukla">
             <span v-if="band === 'yuklash'" class="kp-spin kp-spin--w"/><svg class="kp-bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            Yuklash va tasdiqlash
+            Yuk berish va tasdiqlash
           </button>
         </div>
       </section>
@@ -474,7 +474,7 @@ onMounted(yangila)
         </div>
         <div v-if="yoldaEslatma" class="kp-note">
           <svg class="kp-note-ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-          <span>Agent hali yo'lda — {{ yoldaEslatma }}. Topshirish odatda mashina qaytgach, kun oxirida qilinadi.</span>
+          <span>Agent hali yo'lda — {{ yoldaEslatma }}. Topshirish odatda agent qaytgach, kun oxirida qilinadi.</span>
         </div>
 
         <div class="kp-two">
@@ -488,9 +488,9 @@ onMounted(yangila)
             <template v-else>
               <div class="kp-half-v">{{ fmtDona(qabulJami.kutilgan) }} <small>kg</small></div>
               <!-- Mashina bo'sh (hammasi sotilgan) bo'lsa ham qabul qilinadi — shu hujjat kunni yopadi -->
-              <div class="kp-half-s">{{ qabulQatorlar.length ? `mashinada bo'lishi kerak · ${qabulQatorlar.length} xil` : "mashina bo'sh — hammasi sotilgan, qabul kunni yopadi" }}</div>
+              <div class="kp-half-s">{{ qabulQatorlar.length ? `agentda bo'lishi kerak · ${qabulQatorlar.length} xil` : "agentda tovar qolmagan — hammasi sotilgan, qabul kunni yopadi" }}</div>
               <button v-if="!tovarTafsilot" class="kp-go kp-go--w" :disabled="band === 'qabul'" @click="qabulQil">
-                <span v-if="band === 'qabul'" class="kp-spin kp-spin--w"/><svg class="kp-bi" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{{ qabulQatorlar.length ? 'Hammasi joyida — qabul qilish' : "Bo'sh mashinani qabul qilish" }}
+                <span v-if="band === 'qabul'" class="kp-spin kp-spin--w"/><svg class="kp-bi" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{{ qabulQatorlar.length ? 'Hammasi joyida — qabul qilish' : "Qoldiqsiz qabul qilish" }}
               </button>
               <button v-if="qabulQatorlar.length" class="kp-link" @click="tovarTafsilot = !tovarTafsilot">{{ tovarTafsilot ? 'Yig\'ish' : 'Farq bor — sanab kiritish' }}</button>
             </template>
@@ -565,7 +565,7 @@ onMounted(yangila)
       <section v-else-if="!bugunmi && bosqich < 3" class="kp-verdict warn">
         <svg class="kp-verdict-ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
         <div>
-          <div class="kp-verdict-t">{{ bosqich === 0 ? 'Bu kuni mashina chiqmagan' : 'Kun yopilmagan' }}</div>
+          <div class="kp-verdict-t">{{ bosqich === 0 ? 'Bu kuni agent yuk olmagan' : 'Kun yopilmagan' }}</div>
           <div class="kp-verdict-s" v-if="bosqich > 0">{{ !r.topshirish.tovar ? 'Qoldiq skladga topshirilmagan. ' : '' }}{{ !r.topshirish.pul ? 'Naqd kassaga topshirilmagan.' : '' }}</div>
         </div>
       </section>
@@ -609,7 +609,7 @@ onMounted(yangila)
 
       <div v-else-if="bosqich > 0 && tab === 'tovar'" class="kp-tbl">
         <table>
-          <thead><tr><th>Tovar</th><th>Boshi</th><th>Berildi</th><th>Sotildi</th><th>Qaytdi</th><th>Skladga</th><th>Brak</th><th>Mashinada</th></tr></thead>
+          <thead><tr><th>Tovar</th><th>Boshi</th><th>Berildi</th><th>Sotildi</th><th>Qaytdi</th><th>Skladga</th><th>Brak</th><th>Agentda</th></tr></thead>
           <tbody>
             <tr v-for="t in r.tovarlar" :key="t.tovar_id" :class="{ farq: r.topshirish.tovar && t.farq > 0.001 }">
               <td><b>{{ t.tovar_nomi }}</b></td><td class="m">{{ t.kun_boshi ? fmtDona(t.kun_boshi) : '' }}</td><td>{{ fmtDona(t.berildi) }}</td><td>{{ fmtDona(t.sotildi) }}</td>

@@ -1,6 +1,6 @@
 /* Asosiy navigatsiya — yagona manba.
-   Modullar biznes jarayoni tartibida: agent mijozga boradi → buyurtma →
-   ombor yig'adi → yetkazish / avtolavka → pul kassaga. "zanjir" belgisi
+   Modullar biznes jarayoni tartibida (Van Sell): agentga yuk beriladi →
+   agent mijozga joyida sotadi → qoldiq va naqd qabul qilinadi → pul kassaga. "zanjir" belgisi
    bor modullar menyuda shu oqim bo'yicha bog'langan holda ko'rsatiladi.
    badge: /navbat javobidagi kalit ('ombor.yigish'); ton: 'ish' — bajarilishi
    kerak bo'lgan ish (relsdagi umumiy songa qo'shiladi), 'ogoh' — e'tibor,
@@ -101,15 +101,20 @@ export const MODULLAR: Modul[] = [
       { yol: '/sotuv', nom: 'Sotuv qilish', izoh: 'Mijozga skladdan sotish: naqd, qisman, qarzga', ikon: IK.savat, aniq: true, kalit: 'sotish savdo chek kassa naqd qarz optom' },
       { yol: '/sotuv/jurnal', nom: 'Sotuvlar jurnali', izoh: 'Barcha cheklar: naqd, qarz, bekor qilingan', ikon: IK.chek, kalit: 'jurnal chek savdo tarix' },
     ] },
-  { key: 'agentlar', perm: 'supervayzer', nom: 'Agentlar', izoh: 'Dalada: tashrif, marshrut, reja', ikon: IK.agent, yol: '/agentlar/nazorat', zanjir: true, faqat: 'distributsiya',
+  /* Van Sell: agentga yuk beriladi → agent sotadi → qoldiq va naqdni topshiradi. Hisob agent bo'yicha. */
+  { key: 'agentlar', perm: 'supervayzer', nom: 'Agentlar', izoh: "Agentlar, ularning rejasi va natijasi", ikon: IK.agent, yol: '/agentlar/royxat', zanjir: true, faqat: 'distributsiya',
     match: ['/agentlar', '/supervayzer'],
     sahifalar: [
-      { yol: '/agentlar/nazorat', nom: 'Nazorat', izoh: 'Tashriflar va anomaliyalar', ikon: IK.koz, kalit: 'monitoring tashrif' },
-      { yol: '/agentlar/online', nom: 'Xaritada jonli', izoh: 'Agentlar hozir qayerda', ikon: IK.pin, badge: { k: 'agentlar.online', ton: 'info', matn: 'online' }, kalit: 'gps xarita' },
-      { yol: '/agentlar/royxat', nom: "Agentlar ro'yxati", izoh: 'Profil, reja, Van Sell belgisi', ikon: IK.royxat, match: ['/supervayzer'], kalit: 'supervayzer' },
+      { yol: '/agentlar/royxat', nom: "Agentlar ro'yxati", izoh: 'Agent qo\'shish, profil, reja', ikon: IK.royxat, match: ['/supervayzer'], kalit: 'supervayzer agent xodim' },
+      { yol: '/hisobot/xodim', nom: 'Agent hisoboti', izoh: 'Bitta agent: savdo, reja, naqd, qarz, kunlar', ikon: IK.osish, perm: 'hisobot', kalit: 'agent xodim hodim hisobot ish natija' },
       { yol: '/agentlar/plan', nom: 'Plan-fakt', izoh: 'Reja bajarilishi', ikon: IK.nishon, kalit: 'plan reja' },
-      { yol: '/agentlar/marshrut', nom: 'Marshrut rejasi', izoh: 'Kunlik mijozlar ketma-ketligi', ikon: IK.marshrut },
-      { yol: '/agentlar/mobil', nom: 'Mobil hisobotlar', izoh: 'Audit va sotmaslik sabablari', ikon: IK.telefon, kalit: 'audit sotmaslik' },
+      { yol: '/agentlar/online', nom: 'Xaritada jonli', izoh: 'Agentlar hozir qayerda', ikon: IK.pin, badge: { k: 'agentlar.online', ton: 'info', matn: 'online' }, kalit: 'gps xarita' },
+    ] },
+  { key: 'avtolavka', perm: 'avtolavka', nom: 'Van Sell', izoh: 'Agentga yuk berish → savdo → qoldiq va naqdni qabul qilish', ikon: IK.mashina, yol: '/avtolavka', zanjir: true, faqat: 'distributsiya',
+    sahifalar: [
+      { yol: '/avtolavka', nom: 'Yuk berish va qabul', izoh: 'Agentga yuk berish, undagi qoldiq, kun oxirida qabul', ikon: IK.mashina, aniq: true, badge: { k: 'avtolavka.yuklanmagan', ton: 'ish', matn: 'yuk berilmagan' }, kalit: 'kochma savdo yuk berish qoldiq astatka ostatka vansell van sell won sell markaz' },
+      { yol: '/avtolavka/sotuvlar', nom: 'Sotuvlar', izoh: 'Agentlar sotgan cheklar: naqd, qarz, joy', ikon: IK.chek, kalit: 'Van Sell chek savdo jurnal naqd qarz' },
+      { yol: '/avtolavka/sotuv', nom: 'Sotuv qilish', izoh: 'Agent nomidan yoki skladdan webdan sotish', ikon: IK.savat, kalit: 'Van Sell sotish sotuv kiritish agent nomidan qolda web naqd qarz' },
     ] },
   { key: 'mijozlar', perm: 'mijozlar', nom: 'Mijozlar', izoh: "Do'konlar, qarz va to'lovlar", ikon: IK.dokon, yol: '/mijozlar', zanjir: true,
     sahifalar: [
@@ -117,22 +122,11 @@ export const MODULLAR: Modul[] = [
       { yol: '/mijozlar/oldi-berdi', nom: 'Oldi-berdi', izoh: "Qarz va to'lovlar tarixi", ikon: IK.almash, badge: { k: 'mijozlar.qarzdor', ton: 'ogoh', matn: 'qarzdor' }, kalit: 'qarz balans akt sverka' },
       { yol: '/mijozlar/xarita', nom: 'Xaritada', izoh: 'Mijozlar joylashuvi', ikon: IK.xarita, faqat: 'distributsiya' },
     ] },
-  { key: 'sotuvlar', perm: 'sotuvlar', nom: 'Sotuvlar', izoh: 'Buyurtmadan yetkazishgacha', ikon: IK.chek, yol: '/sotuvlar/buyurtmalar', zanjir: true, faqat: 'distributsiya',
-    sahifalar: [
-      { yol: '/sotuvlar/buyurtmalar', nom: 'Buyurtmalar', izoh: "Jo'natish sanasi bo'yicha", ikon: IK.kalendar, match: ['/sotuvlar'], kalit: 'zakaz' },
-      { yol: '/sotuvlar/arizalar', nom: 'Arizalar', izoh: 'Hujjatlar va tasdiqlash', ikon: IK.hujjat, badge: { k: 'sotuvlar.yangi', ton: 'ish', matn: 'tasdiqlanmagan' }, kalit: 'zakaz tasdiqlash' },
-      { yol: '/sotuvlar/dostavchilar', nom: 'Dostavchilar', izoh: "Yo'ldagi buyurtmalar", ikon: IK.velo, badge: { k: 'sotuvlar.yolda', ton: 'info', matn: "yo'lda" }, kalit: 'yetkazish kuryer' },
-      { yol: '/sotuvlar/trip-sheet', nom: 'Trip sheet', izoh: 'Kunlik yetkazish varaqasi', ikon: IK.varaq, kalit: 'reys' },
-      { yol: '/sotuvlar/qaytarish', nom: 'Qaytarish va brak', izoh: 'Yetkazishdagi qaytarmalar', ikon: IK.qaytar, kalit: 'vozvrat' },
-      { yol: '/sotuvlar/hisobot', nom: 'Sotuv hisoboti', izoh: "Davr bo'yicha tahlil", ikon: IK.osish },
-    ] },
-  { key: 'ombor', perm: 'ombor', nom: 'Ombor', izoh: "Kirim, qoldiq va yig'ish", ikon: IK.ombor, yol: '/ombor', zanjir: true,
+  { key: 'ombor', perm: 'ombor', nom: 'Ombor', izoh: "Kirim va qoldiq", ikon: IK.ombor, yol: '/ombor', zanjir: true,
     match: ['/ombor', '/yetkazuvchilar'],
     sahifalar: [
       { yol: '/ombor', nom: 'Ombor holati', izoh: "Umumiy ko'rinish", ikon: IK.qatlam, aniq: true, kalit: 'sklad' },
       { yol: '/ombor/prixod', nom: 'Kirim (prixod)', izoh: 'Yetkazuvchidan kelgan tovar', ikon: IK.quti, badge: { k: 'ombor.prixod', ton: 'ish', matn: 'qoralama' }, kalit: 'prixod kirim' },
-      { yol: '/ombor/yigish', nom: "Buyurtmalarni yig'ish", izoh: 'Tasdiqlangan buyurtmalar navbati', ikon: IK.yigish, badge: { k: 'ombor.yigish', ton: 'ish', matn: 'navbatda' }, kalit: 'komplektatsiya', faqat: 'distributsiya' },
-      { yol: '/ombor/qaytarish-qabul', nom: 'Qaytarish qabuli', izoh: 'Agent qaytargan tovar', ikon: IK.kiruvchi, badge: { k: 'ombor.qaytarish', ton: 'ish', matn: 'kutmoqda' }, kalit: 'vozvrat', faqat: 'distributsiya' },
       { yol: '/ombor/qoldiqlar', nom: 'Qoldiqlar', izoh: "Tovar bo'yicha qoldiq", ikon: IK.qutilar, badge: { k: 'ombor.kam', ton: 'ogoh', matn: 'kam' }, kalit: 'ostatka' },
       { yol: '/ombor/partiya', nom: 'Partiyalar', izoh: 'Partiya va yaroqlilik muddati', ikon: IK.yorliq },
       { yol: '/yetkazuvchilar', nom: 'Yetkazuvchilar', izoh: "Qarz va to'lovlar", ikon: IK.zavod, kalit: 'postavshik' },
@@ -141,12 +135,6 @@ export const MODULLAR: Modul[] = [
     sahifalar: [
       { yol: '/ishlab', nom: 'Partiyalar', izoh: "Nima sarflandi, nima chiqdi, tannarx", ikon: IK.zavod, badge: { k: 'ishlab.jarayonda', ton: 'ish', matn: 'jarayonda' }, kalit: 'ishlab chiqarish sex tannarx xom ashyo partiya proizvodstvo' },
       { yol: '/ishlab/yangi', nom: 'Yangi partiya', izoh: 'Xom ashyo → mahsulot, omborga kirim', ikon: IK.quti, kalit: 'yangi partiya ishlab chiqarish' },
-    ] },
-  { key: 'avtolavka', perm: 'avtolavka', nom: 'Van Sell', izoh: 'Mashinadan savdo (avtolavka): yuklash → kassa', ikon: IK.mashina, yol: '/avtolavka', zanjir: true, faqat: 'distributsiya',
-    sahifalar: [
-      { yol: '/avtolavka', nom: 'Van Sell markazi', izoh: 'Mashinalar, kun yo\'li, solishtirma', ikon: IK.mashina, badge: { k: 'avtolavka.yuklanmagan', ton: 'ish', matn: 'yuklanmagan' }, kalit: 'kochma savdo furgon vansell van sell won sell' },
-      { yol: '/avtolavka/sotuvlar', nom: 'Sotuvlar', izoh: 'Mashinadan sotilgan cheklar: naqd, qarz, joy', ikon: IK.chek, kalit: 'Van Sell avtolavka chek savdo jurnal naqd qarz' },
-      { yol: '/avtolavka/sotuv', nom: 'Sotuv qilish', izoh: 'Xodim nomidan webdan sotish: naqd, qisman, qarzga', ikon: IK.savat, kalit: 'Van Sell sotish sotuv kiritish xodim nomidan qolda web naqd qarz' },
     ] },
   { key: 'moliya', perm: 'moliya', nom: 'Moliya', izoh: 'Kassa, kunlik xarajatlar, qarz oldi-berdi, inkassatsiya', ikon: IK.hamyon, yol: '/moliya', zanjir: true,
     match: ['/moliya'],
@@ -162,8 +150,8 @@ export const MODULLAR: Modul[] = [
     sahifalar: [
       { yol: '/hisobot', nom: "Umumiy ko'rinish", izoh: 'Tovar va pul aylanishi bir qarashda', ikon: IK.pirog, aniq: true, kalit: 'hisobot umumiy biznes' },
       { yol: '/hisobot/biznes', nom: 'Biznes holati', izoh: "Sof foyda, biznes qiymati va salomatlik ko'rsatkichlari", ikon: IK.puls, kalit: 'biznes holati salomatlik sof foyda balans kapital' },
-      { yol: '/hisobot/xodim', nom: 'Xodim hisoboti', izoh: 'Bitta agent: savdo, reja, tashrif, naqd, qarz, mashina', ikon: IK.agent, kalit: 'agent xodim hodim hisobot ish natija', faqat: 'distributsiya' },
       { yol: '/hisobot/sotuv', nom: 'Sotuv va foyda', izoh: 'Tushum, foyda, marja — agent, turkum, mijoz', ikon: IK.osish, kalit: 'savdo foyda marja tushum' },
+      { yol: '/hisobot/xodim', nom: 'Agent hisoboti', izoh: 'Bitta agent: savdo, reja, naqd, qarz, kunlar', ikon: IK.agent, kalit: 'agent xodim hodim hisobot ish natija', faqat: 'distributsiya' },
       { yol: '/hisobot/tovarlar', nom: 'Tovarlar (ABC)', izoh: 'Pul topadigan va yotib qolgan tovarlar', ikon: IK.savat, kalit: 'abc tovar aylanma' },
       { yol: '/hisobot/reyting', nom: 'Mijozlar reytingi', izoh: "Ishonchli va xavfli mijozlar, rad sabablari, to'lov va'dalari", ikon: IK.yulduz, kalit: 'reyting ball ishonch rad etish vada kritik', faqat: 'distributsiya' },
       { yol: '/hisobot/qarzlar', nom: 'Mijozlar qarzi', izoh: "Debitorka: qarz yoshi, muddati o'tgan", ikon: IK.dokon, kalit: 'debitorka qarz nasiya' },

@@ -28,10 +28,10 @@ const IZOH = computed(() => [
   { nom: 'Sof tushum va foyda', matn: "Shu xodim yozgan va yetkazilgan buyurtmalar, yetkazilgan kuni bo'yicha. Qoida \"Sotuv va foyda\" hisoboti bilan bir xil: tannarx — so'nggi 90 kundagi o'rtacha kirim narxi, qaytarishlar ayiriladi." },
   { nom: 'Oylik reja', matn: "Agent kartasidagi oylik reja va tanlangan davr oxirigacha shu oyda yetkazilgan savdo. Bonus — savdo × agent bonus foizi." },
   { nom: 'Tashrif → savdo', matn: "Savdo bilan tugagan tashriflar ÷ jami tashriflar. \"Sotilmadi\" — agent sabab ko'rsatib chiqqan tashriflar." },
-  { nom: 'Naqd', matn: "Yig'ildi — agent qo'lidan o'tgan naqd: mashinadan naqd sotuv va mijozlardan qarz undirish. Topshirildi — kassir inkassatsiyada qabul qilgani. Kamomad — kassir qayd etgan yetishmovchilik." },
+  { nom: 'Naqd', matn: "Yig'ildi — agent qo'lidan o'tgan naqd: naqd sotuv va mijozlardan qarz undirish. Topshirildi — kassir inkassatsiyada qabul qilgani. Kamomad — kassir qayd etgan yetishmovchilik." },
   { nom: 'Uzoqdan sotuv', matn: `Sotuv mijoz nuqtasidan ${d.value?.sotuv?.radius || 300} m dan uzoqda rasmiylashtirilgan — tekshirish kerak bo'lishi mumkin.` },
   { nom: 'Qamrov', matn: "Xodimga biriktirilgan faol mijozlardan shu davrda xarid qilganlari. Xarid qilmaganlar ro'yxati — keyingi tashrif uchun." },
-  { nom: 'Mashina kunlari', matn: "Van Sell uchun: har kuni ombordan yuklangan, sotilgan, omborga qaytgan tovar va topshirilgan naqd. Farq — tushuntirilmagan tovar yoki pul." },
+  { nom: 'Kunlar', matn: "Har kuni agentga berilgan, sotilgan, omborga qaytgan tovar va topshirilgan naqd. Farq — tushuntirilmagan tovar yoki pul." },
 ])
 
 const s = computed(() => d.value?.sotuv?.jami || {})
@@ -84,7 +84,7 @@ function eksport() {
 </script>
 
 <template>
-  <HisobotSahifa :ikon="IKON.agent" nom="Xodim hisoboti" savol="Bu xodim qanday ishladi: qancha sotdi, qayerga bordi, pulni to'liq topshirdimi"
+  <HisobotSahifa :ikon="IKON.agent" nom="Agent hisoboti" savol="Bu agent qanday ishladi: qancha sotdi, qayerga bordi, pulni to'liq topshirdimi"
     :izohlar="IZOH" :yuklanmoqda="yuklanmoqda">
     <template #amal>
       <button class="hs-btn hs-btn--s" :disabled="!d" @click="eksport"><svg viewBox="0 0 24 24" v-html="IKON.yuklab"/>Excel</button>
@@ -201,7 +201,7 @@ function eksport() {
       <section v-if="d.avtolavka" class="hs-karta">
         <div class="hs-karta-hd">
           <span class="hs-karta-ic"><svg viewBox="0 0 24 24" v-html="IKON.mashina"/></span>
-          <div class="hs-kt"><h2>Mashina kunlari</h2><p>Yuklandi → sotildi → omborga qaytdi, naqd → kassa · qatorni bosing — o'sha kun paneli ochiladi</p></div>
+          <div class="hs-kt"><h2>Agent kunlari</h2><p>Yuk berildi → sotildi → omborga qaytdi, naqd → kassa · qatorni bosing — o'sha kun paneli ochiladi</p></div>
         </div>
         <div class="hs-karta-b hs-karta-b--0 hs-jw">
           <table class="hs-jadval">
@@ -224,7 +224,7 @@ function eksport() {
                 <td v-if="k.bosqich < 3" class="r hs-mut" title="Kun hali yopilmagan — naqd kassaga topshirilgach solishtiriladi">ochiq</td>
                 <td v-else class="r" :class="{ 'hs-err': k.naqd_farq > 0.5 }">{{ Math.abs(k.naqd_farq) > 0.5 ? fmt(k.naqd_farq) : '—' }}</td>
               </tr>
-              <tr v-if="!d.avtolavka.kunlar.length"><td colspan="10"><div class="hs-bosh">Bu davrda mashina ishlamagan</div></td></tr>
+              <tr v-if="!d.avtolavka.kunlar.length"><td colspan="10"><div class="hs-bosh">Bu davrda agent yuk olmagan</div></td></tr>
             </tbody>
             <tfoot v-if="d.avtolavka.kunlar.length > 1"><tr>
               <td colspan="2"><b>Jami {{ d.avtolavka.kunlar.length }} kun</b></td>

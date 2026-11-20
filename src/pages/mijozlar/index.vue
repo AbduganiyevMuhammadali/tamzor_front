@@ -96,15 +96,6 @@
           <option v-for="a in sprav.agentlar" :key="a.id" :value="a.id">{{ a.fullname }}</option>
         </select>
       </div>
-      <!-- Kanal: distributsiya mijozi (agent zakaz oladi, dostavchik yetkazadi) yoki Van Sell mijozi (agent mashinadan sotadi) -->
-      <div class="mj-fsel-wrap" :class="{ on: fKanal }">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        <select class="mj-fsel" v-model="fKanal" @change="page=1; load()">
-          <option value="">Kanal</option>
-          <option value="distributsiya">Distributsiya</option>
-          <option value="avtolavka">Van Sell</option>
-        </select>
-      </div>
       <div class="mj-fsel-wrap" :class="{ on: fSinf }">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
         <select class="mj-fsel" v-model="fSinf" @change="page=1; load()">
@@ -193,7 +184,7 @@
                   <div class="mj-agent-av">{{ m.agent.fullname?.charAt(0) }}</div>
                   <div class="mj-stack">
                     <span class="mj-agent-nom">{{ m.agent.fullname }}</span>
-                    <span class="mj-kanal" :class="m.agent.avtolavka ? 'mj-kanal--avto' : 'mj-kanal--dist'" :title="m.agent.avtolavka ? 'Van Sell mijozi — agent mashinadan sotadi' : 'Distributsiya mijozi — agent zakaz oladi, dostavchik yetkazadi'">{{ m.agent.avtolavka ? 'Van Sell' : 'distributsiya' }}</span>
+                    <span v-if="!m.agent.avtolavka" class="mj-kanal mj-kanal--dist" title="Bu agent Van Sell agenti emas — Agentlar ro'yxatida uni tahrirlab, Van Sell belgisini yoqing">Van Sell emas</span>
                   </div>
                 </div>
                 <span class="mj-dash" v-else>—</span>
@@ -337,7 +328,7 @@
                   <div class="mj-kv"><span class="mj-k">Hudud</span><span class="mj-v">{{ detailMijoz.territoriya?.nomi || '—' }}</span></div>
                   <div class="mj-kv"><span class="mj-k">Kategoriya</span><span class="mj-v">{{ detailMijoz.kategoriya?.nomi || '—' }}</span></div>
                   <div class="mj-kv"><span class="mj-k">Agent</span><span class="mj-v">{{ detailMijoz.agent?.fullname || '—' }}</span></div>
-                  <div class="mj-kv"><span class="mj-k">Kanal</span><span class="mj-v">{{ detailMijoz.agent ? (detailMijoz.agent.avtolavka ? 'Van Sell — mashinadan sotuv' : 'Distributsiya — zakaz, dostavchik yetkazadi') : '—' }}</span></div>
+                  
                   <div class="mj-kv"><span class="mj-k">Tashrif kunlari</span><span class="mj-v">{{ detailMijoz.tashrif_kunlari || '—' }}</span></div>
                 </div>
               </div>

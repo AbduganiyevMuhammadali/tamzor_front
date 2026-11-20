@@ -14,17 +14,17 @@ import { fmtMiqdor, davr, useYuklash, qisqa, fmt, foizFmt, kunOldin, csvYukla, I
 const { data: d, yuklanmoqda } = useYuklash(() => tahlilApi.ombor({ dan: davr.dan.value, gacha: davr.gacha.value }))
 
 const IZOH = [
-  { nom: 'Ombor qiymati', matn: "Barcha omborlar va Van Sell mashinalaridagi qoldiq × tannarx (o'rtacha kirim narxi). Brak ombori alohida ko'rsatiladi va jamiga kirmaydi." },
+  { nom: 'Ombor qiymati', matn: "Barcha omborlar va agentlardagi qoldiq × tannarx (o'rtacha kirim narxi). Brak ombori alohida ko'rsatiladi va jamiga kirmaydi." },
   { nom: 'Zaxira kuni', matn: "Ombor qiymati ÷ davrdagi o'rtacha kunlik sotuv tannarxi. Ya'ni yangi kirim bo'lmasa, tovar taxminan necha kunga yetadi." },
   { nom: 'Kirdi', matn: "Faqat yetkazuvchidan xarid (prixod), kirim narxida. Mijozdan qaytgan tovar alohida." },
   { nom: 'Sotildi', matn: 'Sotilgan tovarning tannarxi — kirim bilan bir xil o\'lchovda solishtirish uchun (sotuv narxida emas).' },
-  { nom: "Ichki ko'chirish", matn: "Van Sell yuklash va qabuli — tovar asosiy ombor va mashina o'rtasida ko'chadi. Kompaniya zaxirasi o'zgarmaydi, shuning uchun kirim ham, sotuv ham emas." },
+  { nom: "Ichki ko'chirish", matn: "Agentga yuk berish va qabul — tovar asosiy ombor va agent o'rtasida ko'chadi. Kompaniya zaxirasi o'zgarmaydi, shuning uchun kirim ham, sotuv ham emas." },
   { nom: 'Yotib qolgan / tugayapti', matn: "Yotib qolgan — qoldig'i bor, davrda sotilmagan. Tugayapti — hozirgi sotuv sur'atida 14 kundan kamroqqa yetadi." },
 ]
 
 const j = computed(() => d.value?.jami || {})
 const h = computed(() => d.value?.harakat || {})
-const TUR_NOM: Record<string, string> = { asosiy: 'Asosiy ombor', xom_ashyo: 'Xom ashyo (sotilmaydi)', mashina: 'Van Sell mashinasi', brak: 'Brak (yaroqsiz)' }
+const TUR_NOM: Record<string, string> = { asosiy: 'Asosiy ombor', xom_ashyo: 'Xom ashyo (sotilmaydi)', mashina: 'Agentdagi tovar', brak: 'Brak (yaroqsiz)' }
 const omborRang = (t: string, i: number) => (t === 'asosiy' ? RANG.brand : t === 'brak' ? RANG.err : ['#a78bfa', '#c4b5fd', '#8b5cf6', '#ddd6fe'][i % 4])
 const balans = computed(() => (h.value.kirim || 0) - (h.value.sotuv_tannarx || 0))
 
@@ -50,7 +50,7 @@ function eksport(tur: 'harakatsiz' | 'tugayapti') {
           :izoh="!j.zaxira_kun ? 'Davrda sotuv yo\'q' : j.zaxira_kun > 90 ? 'Zaxira ko\'p — pul muzlab qolgan' : j.zaxira_kun < 14 ? 'Kam — xarid rejalashtiring' : 'Me\'yorida'"/>
         <KpiKarta nom="Davrda kirdi (xarid)" :ikon="IKON.kirim" :qiymat="h.kirim" birlik="so'm" :izoh="`${fmtMiqdor(h.kirim_dona)} kg · kirim narxida`"/>
         <KpiKarta nom="Davrda sotildi" :ikon="IKON.savat" :qiymat="h.sotuv_tannarx" birlik="so'm" :izoh="`${fmtMiqdor(h.sotuv_dona)} kg · tannarxda`"/>
-        <KpiKarta nom="Mashinalarda" :ikon="IKON.mashina" :qiymat="j.mashina_qiymat" birlik="so'm" izoh="Van Sell agentlari qo'lidagi tovar" ton="neytral"/>
+        <KpiKarta nom="Agentlarda" :ikon="IKON.mashina" :qiymat="j.mashina_qiymat" birlik="so'm" izoh="Van Sell agentlari qo'lidagi tovar" ton="neytral"/>
       </div>
 
       <div class="hs-tushuncha">
@@ -88,7 +88,7 @@ function eksport(tur: 'harakatsiz' | 'tugayapti') {
       <section class="hs-karta">
         <div class="hs-karta-hd">
           <span class="hs-karta-ic"><svg viewBox="0 0 24 24" v-html="IKON.qutilar"/></span>
-          <div class="hs-kt"><h2>Omborlar va mashinalar</h2><p>Tovar qayerda turibdi</p></div>
+          <div class="hs-kt"><h2>Omborlar va agentlar</h2><p>Tovar qayerda turibdi</p></div>
         </div>
         <div class="hs-karta-b hs-karta-b--0 hs-jw">
           <table class="hs-jadval">

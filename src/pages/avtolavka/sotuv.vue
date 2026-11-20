@@ -170,7 +170,7 @@ const muammo = computed(() => {
   if (!mijoz.value) return 'Mijozni tanlang'
   if (!qatorlar.value.length) return 'Kamida bitta tovar miqdorini kiriting'
   const o = qatorlar.value.find(q => q.ortiq)
-  if (o) return `"${o.tovar_nomi}" ${sklad.value ? 'skladda' : 'mashinada'} ${fmtDona(o.qoldiq)} ${o.olchov} bor`
+  if (o) return `"${o.tovar_nomi}" ${sklad.value ? 'skladda' : 'agentda'} ${fmtDona(o.qoldiq)} ${o.olchov} bor`
   const nx = qatorlar.value.find(q => q.narxsiz)
   if (nx) return `"${nx.tovar_nomi}" uchun narx kiriting`
   if (tolov.value === 'qisman' && (naqd.value <= 0 || naqd.value >= jami.value)) return `Naqd summa 0 dan katta va ${fmtSum(jami.value)} dan kichik bo'lsin`
@@ -255,7 +255,7 @@ const IKON = {
         <span class="ws-head-ic"><svg viewBox="0 0 24 24" v-html="IKON.savat"/></span>
         <div>
           <h1 class="ws-h1">Sotuv qilish</h1>
-          <p class="ws-sub">Skladdan — xodimsiz: tovar asosiy skladdan chiqadi, naqd kassaga, qarz mijoz balansiga. Xodim nomidan — ilova ishlamay qolganda: uning mashinasidan chiqadi, naqd uning kassasiga.</p>
+          <p class="ws-sub">Skladdan — xodimsiz: tovar asosiy skladdan chiqadi, naqd kassaga, qarz mijoz balansiga. Xodim nomidan — ilova ishlamay qolganda: tovar agentdagi yukdan chiqadi, naqd uning hisobiga.</p>
         </div>
       </div>
       <RouterLink :to="{ path: '/avtolavka/sotuvlar', query: agentId ? { agent: String(agentId) } : {} }" class="ws-btn">Sotuvlar jurnali ›</RouterLink>
@@ -291,7 +291,7 @@ const IKON = {
       <section class="ws-card">
         <div class="ws-sec">
           <span class="ws-n">1</span>
-          <div class="ws-sec-t"><b>Qayerdan sotiladi</b><small>Skladdan (xodimsiz) yoki xodim nomidan uning mashinasidan</small></div>
+          <div class="ws-sec-t"><b>Qayerdan sotiladi</b><small>Skladdan (xodimsiz) yoki agent nomidan undagi yukdan</small></div>
           <div class="ws-sana">
             <div class="ws-seg">
               <button :class="{ on: sana === bugun() }" @click="sana = bugun()">Bugun</button>
@@ -312,8 +312,8 @@ const IKON = {
               <b>{{ a.fullname }}</b>
               <small>
                 <template v-if="a.mashina_raqam">{{ a.mashina_raqam }} · </template>
-                <template v-if="a.qoldiq.tovar_soni">mashinada {{ a.qoldiq.tovar_soni }} xil, {{ fmtMln(a.qoldiq.summa) }} so'm</template>
-                <template v-else>mashina bo'sh</template>
+                <template v-if="a.qoldiq.tovar_soni">agentda {{ a.qoldiq.tovar_soni }} xil, {{ fmtMln(a.qoldiq.summa) }} so'm</template>
+                <template v-else>tovar yo'q</template>
               </small>
             </span>
           </button>
@@ -382,20 +382,20 @@ const IKON = {
           <section class="ws-card">
             <div class="ws-sec">
               <span class="ws-n">3</span>
-              <div class="ws-sec-t"><b>{{ sklad ? 'Skladdagi tovar' : 'Mashinadagi tovar' }}</b><small>{{ tovarlar.length }} xil · {{ tayyor.ombor }}{{ sklad ? ' · boshqa zakazlarga band qilingani ayirilgan' : '' }}</small></div>
+              <div class="ws-sec-t"><b>{{ sklad ? 'Skladdagi tovar' : 'Agentdagi tovar' }}</b><small>{{ tovarlar.length }} xil · {{ tayyor.ombor }}{{ sklad ? ' · boshqa zakazlarga band qilingani ayirilgan' : '' }}</small></div>
               <label v-if="tovarlar.length > 6" class="ws-q">
                 <svg viewBox="0 0 24 24" v-html="IKON.qidir"/>
                 <input v-model="tovarQidir" placeholder="Tovar qidirish"/>
               </label>
             </div>
             <div v-if="!tovarlar.length" class="ws-empty">
-              <b>{{ sklad ? "Skladda sotiladigan tovar yo'q" : `${agent?.fullname}ning mashinasi bo'sh` }}</b>
-              <span>{{ sklad ? "Ombor → Prixod bilan kirim qiling (yoki ochiq zakazlar hamma qoldiqni band qilgan)." : 'Avval Van Sell markazida mashinaga yuklang, keyin sotish mumkin.' }}</span>
+              <b>{{ sklad ? "Skladda sotiladigan tovar yo'q" : `${agent?.fullname}da tovar yo'q` }}</b>
+              <span>{{ sklad ? "Ombor → Prixod bilan kirim qiling (yoki ochiq zakazlar hamma qoldiqni band qilgan)." : 'Avval Van Sell markazida agentga yuk bering, keyin sotish mumkin.' }}</span>
               <RouterLink :to="{ path: '/avtolavka', query: { agent: String(agentId) } }" class="ws-link">Van Sell markazi ›</RouterLink>
             </div>
             <div v-else class="ws-tw">
               <table class="ws-t">
-                <thead><tr><th>Tovar</th><th class="r">{{ sklad ? 'Skladda' : 'Mashinada' }}</th><th class="r">Narx</th><th class="r">Miqdor</th><th class="r">Summa</th></tr></thead>
+                <thead><tr><th>Tovar</th><th class="r">{{ sklad ? 'Skladda' : 'Agentda' }}</th><th class="r">Narx</th><th class="r">Miqdor</th><th class="r">Summa</th></tr></thead>
                 <tbody>
                   <tr v-for="t in korinadi" :key="t.tovar_id" :class="{ on: son(miqdor[t.tovar_id]) > 0, bad: ortiqmi(t) }">
                     <td class="nm"><b>{{ t.tovar_nomi }}</b><small v-if="t.turkum">{{ t.turkum }}</small></td>
@@ -427,7 +427,7 @@ const IKON = {
               <b>Chek</b>
               <span>{{ qatorlar.length }} xil</span>
             </div>
-            <div v-if="!qatorlar.length" class="ws-chek-0">{{ sklad ? 'Skladdagi' : 'Mashinadagi' }} tovarlardan miqdor kiriting</div>
+            <div v-if="!qatorlar.length" class="ws-chek-0">{{ sklad ? 'Skladdagi' : 'Agentdagi' }} tovarlardan miqdor kiriting</div>
             <ul v-else class="ws-chek-l">
               <li v-for="q in qatorlar" :key="q.tovar_id" :class="{ bad: q.ortiq || q.narxsiz }">
                 <span class="ws-chek-n"><b>{{ q.tovar_nomi }}</b><small>{{ fmtDona(q.dona) }} {{ q.olchov }} × {{ fmtSum(q.narxi) }}</small></span>
@@ -469,7 +469,7 @@ const IKON = {
             <p v-if="muammo && qatorlar.length" class="ws-muammo">{{ muammo }}</p>
             <p v-if="saqlashXato && !tasdiq" class="ws-muammo">{{ saqlashXato }}</p>
             <p v-if="sklad" class="ws-izoh">Sotuv <b>skladdan, xodimsiz</b> yoziladi: tovar asosiy skladdan chiqadi, naqd to'g'ridan-to'g'ri kassaga tushadi, qarz mijoz balansiga. Bonus hech kimga yozilmaydi.</p>
-            <p v-else class="ws-izoh">Sotuv <b>{{ agent?.fullname }}</b> nomidan yoziladi: tovar uning mashinasidan chiqadi, naqdni u Inkassatsiyada topshiradi, bonus ham unga.</p>
+            <p v-else class="ws-izoh">Sotuv <b>{{ agent?.fullname }}</b> nomidan yoziladi: tovar undagi yukdan chiqadi, naqdni u Inkassatsiyada topshiradi, bonus ham unga.</p>
           </section>
         </aside>
       </div>
@@ -492,7 +492,7 @@ const IKON = {
             <div><dt>Naqd</dt><dd class="pos">{{ fmtSum(naqd) }} so'm</dd></div>
             <div v-if="qarz > 0.5"><dt>Qarzga</dt><dd class="warn">{{ fmtSum(qarz) }} so'm · {{ fmtKun(tolovSana) }} gacha</dd></div>
           </dl>
-          <p class="ws-modal-p">{{ sklad ? `Tovar asosiy skladdan chiqadi, naqd kassaga tushadi; sotuv ${fmtKun(sana)} kuniga yoziladi.` : `Tovar ${agent?.fullname}ning mashinasidan chiqadi va sotuv uning ${fmtKun(sana)} kuniga yoziladi.` }} Yozilgan sotuv bekor qilinmaydi, xato faqat vozvrat (qaytarish) bilan to'g'rilanadi. Tovar va summani tekshirib oling.</p>
+          <p class="ws-modal-p">{{ sklad ? `Tovar asosiy skladdan chiqadi, naqd kassaga tushadi; sotuv ${fmtKun(sana)} kuniga yoziladi.` : `Tovar ${agent?.fullname}dagi yukdan chiqadi va sotuv uning ${fmtKun(sana)} kuniga yoziladi.` }} Yozilgan sotuv bekor qilinmaydi, xato faqat vozvrat (qaytarish) bilan to'g'rilanadi. Tovar va summani tekshirib oling.</p>
           <p v-if="saqlashXato" class="ws-muammo">{{ saqlashXato }}</p>
           <div class="ws-modal-ft">
             <button class="ws-btn" :disabled="saqlanmoqda" @click="tasdiq = false">Ortga</button>

@@ -28,7 +28,7 @@ const IZOH = [
   { nom: 'Xarid (kirim)', matn: "Yetkazuvchidan kelgan tovar (prixod hujjati). Summa — kirim narxida." },
   { nom: 'Sotuv', matn: "Mijozga yetkazilgan tovar (ariza). Summa — sotuv narxida." },
   { nom: 'Qaytarish', matn: "Mijozdan qaytib kelgan tovar." },
-  { nom: "Ichki ko'chirish", matn: "Van Sell: mashinaga yuklash yoki mashinadan qabul. Har ko'chirish ikki yozuv — bir ombordan chiqdi, ikkinchisiga kirdi. Kompaniya zaxirasi o'zgarmaydi." },
+  { nom: "Ichki ko'chirish", matn: "Van Sell: agentga yuk berish yoki agentdan qabul. Har ko'chirish ikki yozuv — bir ombordan chiqdi, ikkinchisiga kirdi. Kompaniya zaxirasi o'zgarmaydi." },
   { nom: 'Kirdi / chiqdi', matn: "Yashil + — shu omborga kirdi, qizil − — shu ombordan chiqdi." },
 ]
 const HARAKATLAR = [

@@ -44,10 +44,10 @@ const SVG = {
 const BARCHA_MODULLAR = [
   { module:'dashboard',        label:'Bosh sahifa',     svgPath:SVG.dashboard,   color:'#a78bfa',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye }] },
-  { module:'supervayzer',      label:'Supervayzer',     svgPath:SVG.supervayzer, color:'#34d399', faqat:'distributsiya',
+  { module:'supervayzer',      label:'Agentlar',        svgPath:SVG.supervayzer, color:'#34d399', faqat:'distributsiya',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'manage',  label:'Boshqarish', svgPath:SVG.manage }] },
-  { module:'sotuvlar',         label:'Sotuvlar',        svgPath:SVG.sotuvlar,    color:'#a78bfa',
+  { module:'sotuvlar',         label:'Sotuvlar',        svgPath:SVG.sotuvlar,    color:'#a78bfa', faqat:'optom',
     actions:[{ key:'view',    label:"Ko'rish",    svgPath:SVG.eye },
              { key:'create',  label:'Yaratish',   svgPath:SVG.plus },
              { key:'edit',    label:'Tahrirlash', svgPath:SVG.edit },

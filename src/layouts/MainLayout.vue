@@ -107,7 +107,7 @@ const NAVBAT_MATN: Record<string, () => string> = {
   'ombor.yigish':          () => "Yig'ish navbatidagi buyurtmalar",
   'ombor.qaytarish':       () => 'Qabul kutayotgan qaytarishlar',
   'ombor.prixod':          () => 'Tasdiqlanmagan prixodlar',
-  'avtolavka.yuklanmagan': () => 'Yuklanmagan mashinalar',
+  'avtolavka.yuklanmagan': () => 'Yuk berilmagan agentlar',
   'moliya.inkassatsiya':   () => `Topshirilmagan naqd · ${fmtSum(navbat.value?.moliya?.inkassatsiya_summa)} so'm`,
 }
 const ishlar = computed(() => {

@@ -4,7 +4,7 @@
     <div class="hp-head">
       <div>
         <h1 class="hp-title">Inkassatsiya</h1>
-        <p class="hp-sub">Agent va dostavchik naqd yig'gan pulni kassaga topshirish solishtiruvi — dostavchik yetkazishda olgan naqd ham shu yerda</p>
+        <p class="hp-sub">Agent yig'gan naqd pulni kassaga topshirishi: qancha yig'di, qancha topshirdi, farqi</p>
       </div>
       <div class="hp-tabs">
         <button class="hp-tab" :class="tab === 'kunlik' && 'is-on'" @click="tab = 'kunlik'">Kunlik</button>

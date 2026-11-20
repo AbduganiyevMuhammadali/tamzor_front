@@ -184,7 +184,7 @@ const osishKlass = (k: { o: number | null; teskari?: boolean }) =>
 
 /* ── Mashinalar (bugun, jonli) ────────────────────────── */
 const BOSQICH = [
-  { nom: 'Chiqmagan',    rang: '#94a3b8' },
+  { nom: 'Yuk olmagan',    rang: '#94a3b8' },
   { nom: 'Savdoda',      rang: '#7c3aed' },
   { nom: 'Topshirmoqda', rang: '#d97706' },
   { nom: 'Kun yopildi',  rang: '#059669' },
@@ -212,9 +212,9 @@ const ogoh = computed(() => {
     const q = [j.kamomad_tovar > 0 ? `${fmtMiqdor(j.kamomad_tovar)} kg tovar` : '', j.kamomad_pul > 0 ? pulQ(j.kamomad_pul) : ''].filter(Boolean)
     r.push({ ton: 'xato', matn: 'Kamomad bor', izoh: q.join(' · '), yol: '/avtolavka', ikon: IK.qalqon })
   }
-  if (j.topshirishga_keldi) r.push({ ton: 'ish', matn: `${j.topshirishga_keldi} ta mashina topshirishga keldi`, izoh: 'qoldiq va pulni qabul qiling', yol: '/avtolavka', ikon: IK.mashina })
-  if (j.sorov) r.push({ ton: 'ish', matn: `${j.sorov} ta yuklash so'rovi`, izoh: 'tasdiqlash kutmoqda', yol: '/avtolavka', ikon: IK.quti })
-  if (j.yuklanmagan) r.push({ ton: 'info', matn: `${j.yuklanmagan} ta mashina hali chiqmagan`, izoh: 'bugun yuklash qilinmagan', yol: '/avtolavka', ikon: IK.mashina })
+  if (j.topshirishga_keldi) r.push({ ton: 'ish', matn: `${j.topshirishga_keldi} ta agent topshirishga keldi`, izoh: 'qoldiq va pulni qabul qiling', yol: '/avtolavka', ikon: IK.mashina })
+  if (j.sorov) r.push({ ton: 'ish', matn: `${j.sorov} ta yuk so'rovi`, izoh: 'tasdiqlash kutmoqda', yol: '/avtolavka', ikon: IK.quti })
+  if (j.yuklanmagan) r.push({ ton: 'info', matn: `${j.yuklanmagan} ta agent hali yuk olmagan`, izoh: 'bugun yuk berilmagan', yol: '/avtolavka', ikon: IK.mashina })
   const d = asos.value?.debitorlik
   if (d?.muddati_otgan > 0) r.push({ ton: 'xato', matn: "Muddati o'tgan qarz", izoh: `${pulQ(d.muddati_otgan)} · ${fmtNum(d.qarzdor_soni)} qarzdor`, yol: '/hisobot/qarzlar', ikon: IK.dokon })
   const oh = asos.value?.ombor_holati
@@ -300,7 +300,7 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
 
       <div v-if="mashinalar.length" class="hero-r">
         <div class="hero-r-hd">
-          <span>Mashinalar</span><b>{{ mashinalar.length }}</b>
+          <span>Agentlar</span><b>{{ mashinalar.length }}</b>
         </div>
         <div class="hero-bar" role="img" :aria-label="bosqichlar.map(b => `${b.nom}: ${b.son}`).join(', ')">
           <i v-for="b in bosqichlar.filter(x => x.son)" :key="b.nom" :style="{ flex: b.son, background: b.rang }"/>
@@ -309,7 +309,7 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
           <li v-for="b in bosqichlar" :key="b.nom" :class="{ nol: !b.son }"><i :style="{ background: b.rang }"/>{{ b.nom }}<b>{{ b.son }}</b></li>
         </ul>
         <div class="hero-r-ft">
-          <span>Mashinalarda tovar<b>{{ pulQ(DJ.tovar_mashinada || 0) }}</b></span>
+          <span>Agentlarda tovar<b>{{ pulQ(DJ.tovar_mashinada || 0) }}</b></span>
           <span>Xodimlar qo'lida naqd<b>{{ pulQ(DJ.naqd_qolda || 0) }}</b></span>
         </div>
       </div>
@@ -339,7 +339,7 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
       <article v-if="mashinalar.length" class="karta">
         <header class="k-hd">
           <span class="ik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="IK.mashina"/></span>
-          <div class="k-t"><b>Mashinalar</b><small>bugun · jonli, har daqiqada yangilanadi</small></div>
+          <div class="k-t"><b>Agentlar</b><small>bugun · jonli, har daqiqada yangilanadi</small></div>
           <router-link to="/avtolavka" class="k-link">Van Sell markazi →</router-link>
         </header>
         <div class="mashinalar">
@@ -357,7 +357,7 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
             <div class="mash-yuk">
               <div class="mash-yuk-t"><span>Yukdan sotildi</span><b>{{ sotildiFoiz(m) }}%</b></div>
               <div class="trek"><i :style="{ width: sotildiFoiz(m) + '%' }"/></div>
-              <div class="mash-yuk-t mut"><span>Mashinada</span><span>{{ fmtMiqdor(m.mashina?.dona || 0) }} kg · {{ fmtShort(m.mashina?.summa || 0) }}</span></div>
+              <div class="mash-yuk-t mut"><span>Agentda</span><span>{{ fmtMiqdor(m.mashina?.dona || 0) }} kg · {{ fmtShort(m.mashina?.summa || 0) }}</span></div>
             </div>
             <div v-if="m.sorovlar?.length || keldi(m) || m.holat === 'kamomad'" class="mash-flag">
               <span v-if="m.holat === 'kamomad'" class="f xato">Kamomad</span>

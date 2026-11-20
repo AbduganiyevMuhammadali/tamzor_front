@@ -16,9 +16,9 @@ const { data: d, yuklanmoqda } = useYuklash(() => tahlilApi.biznes({ dan: davr.d
 
 const IZOH = [
   { nom: 'Sof foyda', matn: "Yalpi foyda (sof tushum − tannarx) − operatsion xarajatlar (ish haqi, ijara, kommunal, transport va boshqa kassa chiqimlari) + boshqa daromad. Yetkazuvchiga to'lov xarajat emas — u tovar tannarxida hisoblangan." },
-  { nom: 'Biznes qiymati (sof qiymat)', matn: "Kassadagi pul + ombordagi va mashinalardagi tovar (tannarxda) + mijozlar qarzi − yetkazuvchilarga qarzimiz. Biznes hozir sotilsa va hamma qarzlar yopilsa, egasida qoladigan qiymat." },
+  { nom: 'Biznes qiymati (sof qiymat)', matn: "Kassadagi pul + ombordagi va agentlardagi tovar (tannarxda) + mijozlar qarzi − yetkazuvchilarga qarzimiz. Biznes hozir sotilsa va hamma qarzlar yopilsa, egasida qoladigan qiymat." },
   { nom: 'Qarz qaytish muddati', matn: 'Mijozlar qarzi ÷ kunlik o\'rtacha sotuv. Pul mijozda o\'rtacha necha kun turishini ko\'rsatadi.' },
-  { nom: 'Zaxira yetadi', matn: 'Ombor + mashinalardagi tovar ÷ kunlik sotuv tannarxi. 7–45 kun — me\'yor.' },
+  { nom: 'Zaxira yetadi', matn: 'Ombor + agentlardagi tovar ÷ kunlik sotuv tannarxi. 7–45 kun — me\'yor.' },
   { nom: "Pul aylanish sikli", matn: "Zaxira kunlari + qarz qaytish kunlari − yetkazuvchiga to'lash kunlari: tovarga tikilgan pul necha kunda qaytadi." },
   { nom: "To'lov qobiliyati", matn: "(Kassa + mijozlar qarzi) ÷ yetkazuvchilarga qarz. 1,5 dan yuqori — xotirjam, 1 dan past — qarzni yopishga pul yetmaydi." },
   { nom: "Muddati o'tgan qarz", matn: "Mijoz qarzining to'lov sanasidan o'tgan qismi. To'lov sanasi — agent qarzga sotuvda kalendardan belgilagan sana, bo'lmasa sotuv + mijozning to'lov muddati." },

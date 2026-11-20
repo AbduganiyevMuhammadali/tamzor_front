@@ -893,7 +893,7 @@
                     </div>
                   </div>
                   <div class="fm-field">
-                    <label class="fm-label">Mashina raqami</label>
+                    <label class="fm-label">Mashina raqami (ixtiyoriy)</label>
                     <div class="fm-input-wrap">
                       <svg class="fm-input-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                       <input v-model="form.mashina_raqam" v-maydon:mashina_raqam.ota="f" class="fm-input" placeholder="01A 123 AA"/>
@@ -909,8 +909,8 @@
                   </div>
                 </div>
 
-                <!-- Avtolavka rejimi -->
-                <div class="fm-field fm-field--full">
+                <!-- Van Sell belgisi: yangi agent doim Van Sell. Tugma faqat eski (o'tkazilmagan) agentni tahrirlashda chiqadi -->
+                <div v-if="vanTugma" class="fm-field fm-field--full">
                   <label class="fm-check-card" :class="{ 'fm-check-card--on': form.avtolavka }">
                     <input type="checkbox" v-model="form.avtolavka" class="fm-check-input"/>
                     <span class="fm-check-box">
@@ -918,7 +918,7 @@
                     </span>
                     <span class="fm-check-txt">
                       <b>Van Sell (ko'chma savdo)</b>
-                      <small>Agent tovarni mashinaga yuklab yuradi: mobil sotuvi darhol yetkazilgan hisoblanadi, chiqim uning omboridan tushadi, kun oxirida qoldiq va naqd solishtiriladi</small>
+                      <small>Agent tovarni o'zi bilan olib yuradi: mobil sotuvi darhol yetkazilgan hisoblanadi, chiqim uning omboridan tushadi, kun oxirida qoldiq va naqd solishtiriladi</small>
                     </span>
                   </label>
                 </div>
@@ -1059,6 +1059,7 @@ const MAYDON_QADAM = { fullname: 0, telefon: 0, passport: 0, tugilgan_sana: 0, p
 const qadamXato = (qadam) => Object.keys(f.xatolar.value).find(k => MAYDON_QADAM[k] === qadam)
 const saving    = ref(false)
 const formStep  = ref(0)
+const vanTugma  = ref(false)
 
 function emptyForm() {
   return {
@@ -1066,7 +1067,7 @@ function emptyForm() {
     territoriya_id:'', plan_summa:'', bonus_foiz:'', ish_boshlagan:'',
     tashrif_kunlari:[], boshlanish_manzil:'', transport:'',
     kredit_limit:'', max_chegirma:'', izoh:'',
-    mashina_raqam:'', radius_km:'', avtolavka:false,
+    mashina_raqam:'', radius_km:'', avtolavka:true,
     login:'', parol:''
   }
 }
@@ -1084,9 +1085,11 @@ function openAdd() {
   formErr.value = ''
   f.tozala()
   formStep.value = 0
+  vanTugma.value = false
   modal.value = { id: null }
 }
 function openEdit(agent) {
+  vanTugma.value = !agent.avtolavka
   form.value = {
     fullname:          agent.fullname || '',
     telefon:           agent.telefon || '',

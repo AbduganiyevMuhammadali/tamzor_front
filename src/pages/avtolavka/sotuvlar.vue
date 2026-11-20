@@ -131,7 +131,7 @@ const bekorXato = ref('')
 const bekorYuborilmoqda = ref(false)
 const bekorNatija = ref<any>(null)
 const SABABLAR = ['Takror yozilgan chek', 'Xato mijoz tanlangan', 'Xato summa yoki tovar']
-const qaytishJoyi = (r: any) => (r?.kanal === 'sklad' ? 'asosiy skladga' : `${r?.agent_nomi || 'xodim'} mashinasiga`)
+const qaytishJoyi = (r: any) => (r?.kanal === 'sklad' ? 'asosiy skladga' : `${r?.agent_nomi || 'agent'} hisobiga`)
 async function sotuvniBekorQil() {
   const r = tanlangan.value
   if (!r || bekorYuborilmoqda.value) return
@@ -177,7 +177,7 @@ const IKON = {
         <span class="as-head-ic"><svg viewBox="0 0 24 24" v-html="IKON.chek"/></span>
         <div>
           <h1 class="as-h1">Van Sell sotuvlari</h1>
-          <p class="as-sub">Mashinadan joyida sotilgan cheklar. Distributsiya buyurtmalari bu yerda emas, ular Sotuvlar → Arizalar bo'limida.</p>
+          <p class="as-sub">Agentlar mijozga joyida sotgan cheklar.</p>
         </div>
       </div>
       <div class="as-davr">
@@ -224,7 +224,7 @@ const IKON = {
         <div class="as-k-b">
           <span class="as-k-l">{{ jami.uzoq > 0 ? 'Mijozdan uzoqda sotilgan' : 'Mijozlar' }}</span>
           <b class="as-k-v">{{ jami.uzoq > 0 ? jami.uzoq : jami.mijozlar }}<small>{{ jami.uzoq > 0 ? 'ta chek' : 'ta' }}</small></b>
-          <span class="as-k-s">{{ jami.uzoq > 0 ? `${radius} m dan uzoq · ${jami.mijozlar} ta mijoz` : `${jami.mashinalar} ta mashinadan` }}</span>
+          <span class="as-k-s">{{ jami.uzoq > 0 ? `${radius} m dan uzoq · ${jami.mijozlar} ta mijoz` : `${jami.mashinalar} ta agentdan` }}</span>
         </div>
       </div>
     </section>
@@ -232,7 +232,7 @@ const IKON = {
     <!-- ═══ JURNAL ═══ -->
     <section class="as-card">
       <div class="as-bar">
-        <div class="as-mash" role="group" aria-label="Mashina">
+        <div class="as-mash" role="group" aria-label="Agent">
           <button :class="{ on: !agentId }" @click="agentId = null">Hammasi</button>
           <button v-for="a in agentlar" :key="a.id" :class="{ on: agentId === a.id, sklad: a.id === 'sklad' }" @click="agentId = agentId === a.id ? null : a.id" :title="`${a.soni} ta chek · ${fmtSum(a.summa)} so'm`">
             <svg viewBox="0 0 24 24" v-html="a.id === 'sklad' ? IKON.sklad : IKON.mashina"/>{{ a.fullname }}<span>{{ fmtMln(a.summa) }}</span>
@@ -249,7 +249,7 @@ const IKON = {
             <button :class="{ on: tolov === 'qarz' }" @click="tolov = 'qarz'">Qarzga</button>
           </div>
           <button class="as-chip warn" :class="{ on: korinish === 'takror' }" @click="korinish = korinish === 'takror' ? '' : 'takror'"
-            title="Shu mijozga, shu mashinadan, aynan shu summaga 2 soat ichida yana chek bor — xodim ikki marta bosgan bo'lishi mumkin">
+            title="Shu mijozga, shu agentdan, aynan shu summaga 2 soat ichida yana chek bor — xodim ikki marta bosgan bo'lishi mumkin">
             <svg viewBox="0 0 24 24" v-html="IKON.ogoh"/>Takror ehtimoli<span v-if="korinish !== 'bekor' && jami.takror">{{ jami.takror }}</span>
           </button>
           <button class="as-chip" :class="{ on: korinish === 'bekor' }" @click="korinish = korinish === 'bekor' ? '' : 'bekor'" title="Admin bekor qilgan cheklar (sabab bilan)">
@@ -261,7 +261,7 @@ const IKON = {
       <div v-if="xato" class="as-empty err">{{ xato }} <button class="as-link" @click="yukla()">Qayta urinish</button></div>
       <div v-else-if="yuklanmoqda && !rows.length" class="as-empty">Yuklanmoqda…</div>
       <div v-else-if="!rows.length && korinish === 'bekor'" class="as-empty"><b>Bu davrda bekor qilingan chek yo'q</b><span>Takror yoki xato chekni ochib, "Sotuvni bekor qilish" bosilsa shu yerda sabab bilan ko'rinadi.</span></div>
-      <div v-else-if="!rows.length && korinish === 'takror'" class="as-empty"><b>Takror chek ehtimoli topilmadi</b><span>Bitta mijozga, bitta mashinadan, aynan bir xil summaga 2 soat ichida ikki chek bo'lsa shu yerda chiqadi.</span></div>
+      <div v-else-if="!rows.length && korinish === 'takror'" class="as-empty"><b>Takror chek ehtimoli topilmadi</b><span>Bitta mijozga, bitta agentdan, aynan bir xil summaga 2 soat ichida ikki chek bo'lsa shu yerda chiqadi.</span></div>
       <div v-else-if="!rows.length" class="as-empty">
         <b>Bu davrda Van Sell sotuvi yo'q</b>
         <span>Sotuvlar xodim telefonidagi ilovadan tushadi. Davrni o'zgartirib ko'ring yoki <RouterLink :to="{ path: '/avtolavka/sotuv', query: agentId ? { agent: String(agentId) } : {} }" class="as-link">xodim nomidan webdan soting</RouterLink>.</span>
@@ -271,7 +271,7 @@ const IKON = {
         <table class="as-t">
           <thead>
             <tr>
-              <th>Vaqt</th><th>Mijoz</th><th>Mashina</th><th>Tovar</th>
+              <th>Vaqt</th><th>Mijoz</th><th>Agent</th><th>Tovar</th>
               <th class="r">Summa</th><th class="r">Naqd</th><th class="r">Qarz</th><th>Joy</th>
             </tr>
           </thead>
@@ -328,8 +328,8 @@ const IKON = {
           <div class="as-d-flow">
             <svg viewBox="0 0 24 24" v-html="IKON.mashina"/>
             <span v-if="tanlangan.kanal === 'sklad'">Van Sell: <b>skladdan, xodimsiz</b> — admin webdan sotgan. Tovar asosiy skladdan chiqqan, naqd to'g'ridan-to'g'ri kassada (inkassatsiya shart emas).</span>
-            <span v-else-if="tanlangan.manba === 'web'">Van Sell: <b>{{ tanlangan.agent_nomi }}</b> nomidan <b>webdan</b> kiritilgan — tovar uning mashinasidan chiqqan, naqd uning kassasida.</span>
-            <span v-else>Van Sell: <b>{{ tanlangan.agent_nomi }}</b> mashinasidan joyida sotilgan va shu zahoti yetkazilgan. Tasdiqlash, yig'ish va dostavchik bosqichlari yo'q.</span>
+            <span v-else-if="tanlangan.manba === 'web'">Van Sell: <b>{{ tanlangan.agent_nomi }}</b> nomidan <b>webdan</b> kiritilgan — tovar undagi yukdan chiqqan, naqd uning hisobida.</span>
+            <span v-else>Van Sell: <b>{{ tanlangan.agent_nomi }}</b> o'zidagi yukdan joyida sotgan va shu zahoti topshirgan.</span>
           </div>
 
           <div v-if="tanlangan.holat === 'bekor'" class="as-d-note bad">
@@ -338,7 +338,7 @@ const IKON = {
           </div>
           <div v-else-if="tanlangan.takror" class="as-d-note warn">
             <svg viewBox="0 0 24 24" v-html="IKON.ogoh"/>
-            <span><b>Takror chek ehtimoli.</b> Shu mijozga, shu mashinadan, aynan {{ fmtSum(tanlangan.summa) }} so'mga 2 soat ichida yana chek bor. Ikkalasini solishtiring: mijoz tovarni bir marta olgan bo'lsa, ortiqchasini bekor qiling.</span>
+            <span><b>Takror chek ehtimoli.</b> Shu mijozga, shu agentdan, aynan {{ fmtSum(tanlangan.summa) }} so'mga 2 soat ichida yana chek bor. Ikkalasini solishtiring: mijoz tovarni bir marta olgan bo'lsa, ortiqchasini bekor qiling.</span>
           </div>
 
           <div v-if="bekorNatija" class="as-d-note ok">
@@ -418,7 +418,7 @@ const IKON = {
             <button v-if="admin && tanlangan.holat !== 'bekor' && !bekorOchiq" class="as-btn danger ghost" @click="bekorOchiq = true" title="Takror yoki xato yozilgan chek — ombor, kassa, mijoz qarzi, bonus teskari yoziladi">
               <svg viewBox="0 0 24 24" v-html="IKON.bekor"/>Sotuvni bekor qilish
             </button>
-            <RouterLink :to="kunPaneli(tanlangan)" class="as-btn">Mashinaning shu kuni ›</RouterLink>
+            <RouterLink :to="kunPaneli(tanlangan)" class="as-btn">Agentning shu kuni ›</RouterLink>
           </div>
         </aside>
       </div>
