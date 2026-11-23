@@ -70,6 +70,7 @@
             <th class="r">Qolgan</th>
             <th class="r">Savdo</th>
             <th class="r">Bonus</th>
+            <th v-if="pulBor" class="r" title="Agent qo'lidagi, hali topshirilmagan naqd">Qo'lida</th>
           </tr>
         </thead>
         <tbody>
@@ -82,6 +83,7 @@
             <td class="r hap-mono" style="color:#f59e0b">{{ fmtSum(g.qolgan) }}</td>
             <td class="r">{{ g.savdo }}</td>
             <td class="r hap-mono" style="color:#10b981;font-weight:800">+{{ fmtSum(g.bonus) }}</td>
+            <td v-if="pulBor" class="r hap-mono" :style="g.qolda < 0 ? 'color:#dc2626' : ''">{{ fmtSum(g.qolda) }}</td>
           </tr>
           <tr v-for="(a, i) in g.agentlar" :key="a.id">
             <td class="hap-num">{{ i + 1 }}</td>
@@ -105,9 +107,10 @@
             <td class="r hap-mono" style="color:#f59e0b">{{ fmtSum(a.qolgan_plan) }}</td>
             <td class="r">{{ a.buyurtmalar_soni || 0 }}</td>
             <td class="r hap-mono" style="color:#10b981;font-weight:800">+{{ fmtSum(a.bonus_summa) }}</td>
+            <td v-if="pulBor" class="r hap-mono" :style="a.qolda < 0 ? 'color:#dc2626' : ''">{{ fmtSum(a.qolda) }}</td>
           </tr>
           </template>
-          <tr v-if="!filtered.length"><td colspan="8" class="hap-empty">Agent topilmadi</td></tr>
+          <tr v-if="!filtered.length"><td :colspan="pulBor ? 9 : 8" class="hap-empty">Agent topilmadi</td></tr>
         </tbody>
       </table>
     </div>
@@ -117,7 +120,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 // @ts-ignore
-import { agentApi } from '@/api/api'
+import { agentApi, kassalarApi } from '@/api/api'
 
 const COLORS = ['#7c3aed','#8b5cf6','#6d28d9','#5b21b6']
 const avatarColor = (id: number) => COLORS[id % COLORS.length]
@@ -141,6 +144,7 @@ const GURUHLAR = [
   { key: 'super',    label: 'Super agent' },
 ]
 const guruh = ref('yoq')
+const pulBor = ref(false)
 const ismlar = computed(() => new Map(agentlar.value.map(a => [a.id, a.fullname])))
 const superNomi = (a: any) => a.super_agent_nomi || a.superAgent?.fullname || (a.super_agent_id ? ismlar.value.get(a.super_agent_id) : '') || ''
 const guruhlar = computed(() => {
@@ -156,7 +160,7 @@ const guruhlar = computed(() => {
   return [...m.values()].map(g => {
     const j = (k: string) => g.agentlar.reduce((s, a) => s + (Number(a[k]) || 0), 0)
     const plan = j('plan_summa'), fakt = j('fakt_summa')
-    return { ...g, plan, fakt, pct: plan > 0 ? Math.round(fakt / plan * 100) : 0, qolgan: j('qolgan_plan'), savdo: j('buyurtmalar_soni'), bonus: j('bonus_summa') }
+    return { ...g, plan, fakt, pct: plan > 0 ? Math.round(fakt / plan * 100) : 0, qolgan: j('qolgan_plan'), savdo: j('buyurtmalar_soni'), bonus: j('bonus_summa'), qolda: j('qolda') }
   }).sort((a, b) => b.fakt - a.fakt)
 })
 
@@ -168,10 +172,13 @@ const filtered = computed(() => {
 async function load() {
   loading.value = true
   try {
-    const [res, spr] = await Promise.all([agentApi.statistika(period.value), agentApi.spravochnik().catch(() => null)])
+    const [res, spr, pul] = await Promise.all([agentApi.statistika(period.value), agentApi.spravochnik().catch(() => null), kassalarApi.agentlar().catch(() => null)])
+    // Agent qo'lidagi naqd (moliya ruxsati bo'lsa) — viloyat/super agent guruhlarida jami bilan
+    const pm = new Map<number, any>((Array.isArray(pul) ? pul : []).map((x: any) => [x.id, x.pul]))
+    pulBor.value = Array.isArray(pul)
     // Super agent maydonlari statistikada bo'lmasa — spravochnikdan to'ldiriladi
     const sm = new Map<number, any>((spr?.agentlar || []).map((a: any) => [a.id, a]))
-    agentlar.value = (res.agentlar || []).map((a: any) => ({ ...a, super_agent: a.super_agent ?? sm.get(a.id)?.super_agent, super_agent_id: a.super_agent_id ?? sm.get(a.id)?.super_agent_id, territoriya_id: a.territoriya_id ?? sm.get(a.id)?.territoriya_id, territoriya: a.territoriya ?? sm.get(a.id)?.territoriya })).sort((a: any, b: any) => (b.plan_pct||0) - (a.plan_pct||0))
+    agentlar.value = (res.agentlar || []).map((a: any) => ({ ...a, super_agent: a.super_agent ?? sm.get(a.id)?.super_agent, super_agent_id: a.super_agent_id ?? sm.get(a.id)?.super_agent_id, territoriya_id: a.territoriya_id ?? sm.get(a.id)?.territoriya_id, territoriya: a.territoriya ?? sm.get(a.id)?.territoriya, qolda: Number(pm.get(a.id)?.qolda) || 0 })).sort((a: any, b: any) => (b.plan_pct||0) - (a.plan_pct||0))
     kpi.value = res.kpi || {}
   } catch { agentlar.value = []; kpi.value = {} }
   finally { loading.value = false }

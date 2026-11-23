@@ -164,7 +164,7 @@
                 </td>
                 <td class="ob-iz">
                   {{ q.izoh }}
-                  <span v-if="q.tolov_usul" class="ob-usul">{{ usul(q.tolov_usul) }}</span>
+                  <span v-if="q.kassa_nomi || q.tolov_usul" class="ob-usul" :title="q.kassa_nomi ? usul(q.tolov_usul || '') : ''">{{ q.kassa_nomi || usul(q.tolov_usul || '') }}</span>
                 </td>
                 <td class="r ob-oldi">{{ q.oldi ? toliq(q.oldi) : '—' }}</td>
                 <td class="r ob-berdi">{{ q.berdi ? toliq(q.berdi) : '—' }}</td>
@@ -212,7 +212,7 @@ const rang = (id: number) => RANGLAR[id % RANGLAR.length]
 
 interface Qator {
   tur: 'oldi' | 'berdi' | 'boshlangich'; sana: string; hujjat: string; izoh: string
-  tolov_usul: string | null; oldi: number; berdi: number; qoldiq: number; manba_id: number
+  tolov_usul: string | null; kassa_nomi?: string | null; oldi: number; berdi: number; qoldiq: number; manba_id: number
 }
 interface Javob {
   mijoz: { id: number; nomi: string; telefon: string; manzil: string; sinf: string
@@ -255,7 +255,7 @@ function vaqt(s: string) {
   const dt = new Date(s)
   return isNaN(+dt) ? '' : dt.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
 }
-const USUL: Record<string, string> = { naqt: 'Naqd', karta: 'Karta', bank: 'Bank' }
+const USUL: Record<string, string> = { naqt: 'Naqd', naqd: 'Naqd', karta: 'Karta', bank: 'Bank', plastik: 'Plastik', qarz: 'Qarzga' }
 function usul(u: string) { return USUL[u] || u }
 
 /* ── Filtrlar ── */

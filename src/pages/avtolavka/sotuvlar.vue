@@ -6,7 +6,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 // @ts-ignore
-import { avtolavkaApi, arizaApi } from '@/api/api'
+import { avtolavkaApi, arizaApi, kassalarApi } from '@/api/api'
 import { authStore } from '@/stores/auth'
 import { useQidiruv } from '@/composables/useQidiruv'
 
@@ -28,7 +28,7 @@ const agentId = ref<number | 'sklad' | null>(q('agent') === 'sklad' ? 'sklad' : 
 const tolov = ref<'' | 'naqd' | 'qarz'>((['naqd', 'qarz'].includes(q('tolov')) ? q('tolov') : '') as any)
 /* takror — takror chek ehtimoli bo'lganlar (shu mijoz, shu summa, 2 soat ichida yana chek); bekor — bekor qilinganlar */
 const korinish = ref<'' | 'takror' | 'bekor'>((['takror', 'bekor'].includes(q('korinish')) ? q('korinish') : '') as any)
-const search = ref('')
+const search = ref(q('q'))   // ?q= — boshqa sahifadan (plastik to'lov, qaytarish) chek raqami bilan kelganda
 
 const data = ref<any>(null)
 const rows = ref<any[]>([])
@@ -110,13 +110,21 @@ watch([dan, gacha, agentId, tolov, korinish], () => {
   router.replace({ query: { ...(dan.value !== bugun() || gacha.value !== bugun() ? { dan: dan.value, gacha: gacha.value } : {}), ...(agentId.value ? { agent: String(agentId.value) } : {}), ...(tolov.value ? { tolov: tolov.value } : {}), ...(korinish.value ? { korinish: korinish.value } : {}) } })
   yukla()
 })
-onMounted(() => yukla())
+onMounted(() => yukla().then(() => { if (q('q') && rows.value.length === 1) och(rows.value[0]) }))
 
 /* ── Chek tafsiloti ── */
 const tanlangan = ref<any>(null)
 const tafsilot = ref<any>(null)
+const plastikT = ref<any>(null)          // shu sotuvning plastik to'lovi (bo'lsa)
+const qaytarishlar = ref<any[]>([])      // shu sotuvdan qilingan qaytarishlar
+const PL_HOLAT: Record<string, string> = { kutilmoqda: 'tasdiq kutilmoqda', tasdiqlangan: 'tasdiqlangan', rad_etildi: 'rad etildi' }
 async function och(r: any) {
-  tanlangan.value = r; tafsilot.value = null
+  tanlangan.value = r; tafsilot.value = null; plastikT.value = null; qaytarishlar.value = []
+  // Plastik to'lov holati (tasdiqqacha mijoz to'liq qarzdor) va shu sotuvdan qilingan qaytarishlar — ruxsat bo'lsa
+  if (r.mijoz_id) {
+    kassalarApi.plastik.list({ mijoz_id: r.mijoz_id, tur: 'sotuv', holat: '', limit: 200 }).then((d: any) => { if (tanlangan.value?.id === r.id) plastikT.value = (d?.data || []).find((p: any) => Number(p.ariza_id) === Number(r.id)) || null }).catch(() => {})
+    avtolavkaApi.qaytarishlar({ mijoz_id: r.mijoz_id, dan: String(r.vaqt).slice(0, 10), limit: 200 }).then((d: any) => { if (tanlangan.value?.id === r.id) qaytarishlar.value = (d?.data || []).filter((x: any) => Number(x.sotuv?.id) === Number(r.id)) }).catch(() => {})
+  }
   bekorOchiq.value = false; bekorSabab.value = ''; bekorXato.value = ''; bekorNatija.value = null
   try { const d = await arizaApi.getById(r.id); if (tanlangan.value?.id === r.id) tafsilot.value = d } catch { /* qatorlar ko'rinmaydi, asosiy ma'lumot bor */ }
 }
@@ -330,6 +338,18 @@ const IKON = {
             <span v-if="tanlangan.kanal === 'sklad'">Van Sell: <b>skladdan, xodimsiz</b> — admin webdan sotgan. Tovar asosiy skladdan chiqqan, naqd to'g'ridan-to'g'ri kassada (inkassatsiya shart emas).</span>
             <span v-else-if="tanlangan.manba === 'web'">Van Sell: <b>{{ tanlangan.agent_nomi }}</b> nomidan <b>webdan</b> kiritilgan — tovar undagi yukdan chiqqan, naqd uning hisobida.</span>
             <span v-else>Van Sell: <b>{{ tanlangan.agent_nomi }}</b> o'zidagi yukdan joyida sotgan va shu zahoti topshirgan.</span>
+          </div>
+
+          <div v-if="plastikT" class="as-d-note" :class="plastikT.holat === 'tasdiqlangan' ? 'ok' : plastikT.holat === 'rad_etildi' ? 'bad' : 'warn'">
+            <svg viewBox="0 0 24 24" v-html="IKON.ogoh"/>
+            <span><b>To'lov: Plastik ({{ plastikT.kassa_nomi }}) — {{ PL_HOLAT[plastikT.holat] || plastikT.holat }}.</b> {{ fmtSum(plastikT.summa) }} so'm.
+              <template v-if="plastikT.holat === 'kutilmoqda'"> Tasdiqlanmaguncha mijoz to'liq summaga qarzdor. <RouterLink to="/moliya/plastik">Navbatda ko'rish ›</RouterLink></template>
+              <template v-else-if="plastikT.holat === 'rad_etildi'"> {{ plastikT.rad_sababi || '' }} — qarz mijozda qoldi.</template></span>
+          </div>
+          <div v-if="qaytarishlar.length" class="as-d-note warn">
+            <svg viewBox="0 0 24 24" v-html="IKON.ogoh"/>
+            <span><b>Qaytarish bor: {{ qaytarishlar.length }} ta, {{ fmtSum(qaytarishlar.reduce((s, x) => s + Number(x.summa || 0), 0)) }} so'm.</b> Sotuv summasi shu qismga kamaygan; bunday sotuvni bekor qilib bo'lmaydi.
+              <RouterLink :to="{ path: '/avtolavka/qaytarishlar', query: { mijoz: String(tanlangan.mijoz_id) } }">Qaytarishlarni ko'rish ›</RouterLink></span>
           </div>
 
           <div v-if="tanlangan.holat === 'bekor'" class="as-d-note bad">

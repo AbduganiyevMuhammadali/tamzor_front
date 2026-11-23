@@ -30,6 +30,8 @@ async function yukla() {
   } catch (e) { xato.value = xatoMatn(e); rows.value = [] } finally { yuklanmoqda.value = false }
 }
 const filtr = () => { f.page = 1; yukla() }
+// Sotuv qaytarishdan oldin bo'lgan — jurnal 90 kun orqadan qidiradi
+const sotuvYol = (r) => { const g = new Date(r.sana), d = new Date(g); d.setDate(d.getDate() - 90); return { path: '/avtolavka/sotuvlar', query: { q: r.sotuv.raqam, dan: kun(d), gacha: kun(g) } } }
 
 const t = reactive({ ochiq: false, r: null, qatorlar: [], yuklanmoqda: false, xato: '' })
 async function och(r) {
@@ -76,7 +78,7 @@ onMounted(() => {
             <td>{{ r.agent?.nomi || '—' }}</td>
             <td>{{ r.mijoz?.nomi || '—' }}</td>
             <td>{{ r.viloyat?.nomi || '—' }}</td>
-            <td @click.stop><RouterLink v-if="r.sotuv?.raqam" :to="{ path: '/avtolavka/sotuvlar', query: { q: r.sotuv.raqam, dan: '', gacha: '' } }" class="pl-link">{{ r.sotuv.raqam }}</RouterLink><span v-else>—</span></td>
+            <td @click.stop><RouterLink v-if="r.sotuv?.raqam" :to="sotuvYol(r)" class="pl-link" title="Sotuv chekini ochish">{{ r.sotuv.raqam }}</RouterLink><span v-else>—</span></td>
             <td class="r m">{{ fmt(r.summa) }}<small v-if="Number(r.yaroqsiz_summa)">yaroqsiz {{ fmt(r.yaroqsiz_summa) }}</small></td>
             <td><span class="pl-bg" :class="r.tolov === 'naqd' ? 'pl-bg--kut' : 'pl-bg--ok'" :title="r.tolov_nomi || ''">{{ r.tolov === 'naqd' ? 'Naqd' : 'Balansga' }}</span></td>
             <td class="r">{{ r.qator_soni ?? '—' }}</td>

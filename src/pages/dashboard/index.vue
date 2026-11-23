@@ -9,7 +9,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 // @ts-ignore — api.js tiplanmagan
-import { api, dashboardApi } from '@/api/api'
+import { api, dashboardApi, kassalarApi } from '@/api/api'
 import { authStore } from '@/stores/auth'
 import { rejimStore } from '@/stores/rejim'
 import { IK } from '@/layouts/nav'
@@ -193,6 +193,9 @@ const KAMOMAD = '#dc2626'
 const mashinalar = computed<any[]>(() =>
   [...(doska.value?.mashinalar || [])].sort((a, b) => (b.pul?.sotuv_jami || 0) - (a.pul?.sotuv_jami || 0)))
 const DJ = computed<any>(() => doska.value?.jami || {})
+// Agentlar qo'lidagi naqd — yangi hisobdan (topshiruvlar ayirilgan); ruxsat/backend bo'lmasa doskadagi kunlik raqam
+const qoldaJami = ref<number | null>(null)
+kassalarApi.list().then((k: any) => { qoldaJami.value = k?.jami?.agentlar_qolida ?? null }).catch(() => {})
 const holatNom = (m: any) => (m.holat === 'kamomad' ? 'Kamomad' : BOSQICH[m.bosqich]?.nom || '')
 const holatRang = (m: any) => (m.holat === 'kamomad' ? KAMOMAD : BOSQICH[m.bosqich]?.rang || '#94a3b8')
 const bosqichlar = computed(() => BOSQICH.map((b, i) => ({ ...b, son: mashinalar.value.filter(m => m.bosqich === i).length })))
@@ -310,7 +313,7 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
         </ul>
         <div class="hero-r-ft">
           <span>Agentlarda tovar<b>{{ pulQ(DJ.tovar_mashinada || 0) }}</b></span>
-          <span>Xodimlar qo'lida naqd<b>{{ pulQ(DJ.naqd_qolda || 0) }}</b></span>
+          <span>Agentlar qo'lida naqd<b>{{ pulQ(qoldaJami ?? DJ.naqd_qolda ?? 0) }}</b></span>
         </div>
       </div>
     </section>

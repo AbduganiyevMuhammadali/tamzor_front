@@ -153,9 +153,9 @@ export const MODULLAR: Modul[] = [
     sahifalar: [
       { yol: '/moliya', nom: 'Kassa', izoh: 'Kirim va chiqim harakati', ikon: IK.kassa, aniq: true, kalit: 'pul bank jurnal' },
       { yol: '/moliya/kassalar', nom: 'Kassalar', izoh: 'Naqd va plastik kassalar, balans', ikon: IK.hamyon, kalit: 'kassa plastik karta naqd balans uzcard humo', faqat: 'distributsiya' },
-      { yol: '/moliya/plastik', nom: "Plastik to'lovlar", izoh: "Agent qabul qilgan karta to'lovlarini tasdiqlash", ikon: IK.pul, kalit: 'plastik karta tolov tasdiqlash chek navbat', faqat: 'distributsiya' },
-      { yol: '/moliya/topshiruvlar', nom: 'Topshiruvlar', izoh: 'Agent topshirgan naqd va karta pulini qabul qilish', ikon: IK.kiruvchi, kalit: 'topshiruv naqd topshirish agent qolida inkassatsiya', faqat: 'distributsiya' },
-      { yol: '/moliya/xarajatlar', nom: 'Kunlik xarajatlar', izoh: 'Kassadan rasxod: benzin, ovqat, ijara, ish haqi…', ikon: IK.chek, kalit: 'rasxod xarajat chiqim benzin ovqat ijara ish haqi' },
+      { yol: '/moliya/plastik', nom: "Plastik to'lovlar", izoh: "Agent qabul qilgan karta to'lovlarini tasdiqlash", ikon: IK.pul, badge: { k: 'moliya.plastik', ton: 'ish', matn: 'tasdiq kutmoqda' }, kalit: 'plastik karta tolov tasdiqlash chek navbat', faqat: 'distributsiya' },
+      { yol: '/moliya/topshiruvlar', nom: 'Topshiruvlar', izoh: 'Agent topshirgan naqd va karta pulini qabul qilish', ikon: IK.kiruvchi, badge: { k: 'moliya.topshiruv', ton: 'ish', matn: 'tasdiq kutmoqda' }, kalit: 'topshiruv naqd topshirish agent qolida inkassatsiya', faqat: 'distributsiya' },
+      { yol: '/moliya/xarajatlar', nom: 'Kunlik xarajatlar', izoh: 'Kassadan rasxod: benzin, ovqat, ijara, ish haqi…', ikon: IK.chek, badge: { k: 'moliya.xarajat', ton: 'ish', matn: 'tasdiq kutmoqda' }, kalit: 'rasxod xarajat chiqim benzin ovqat ijara ish haqi' },
       { yol: '/moliya/qarzlar', nom: 'Qarz oldi-berdi', izoh: 'Uchinchi shaxslarga qarz berish va olish', ikon: IK.almash, kalit: 'qarz berish olish uchinchi shaxs dolg zaym' },
     ] },
 

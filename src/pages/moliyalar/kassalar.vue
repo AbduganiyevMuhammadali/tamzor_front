@@ -7,7 +7,7 @@
    Ruxsat: ko'rish — moliya:view; kassa CRUD — moliya:create; tasdiq/rad/tahrir — moliya:approve. */
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { kassalarApi, agentApi, faylniOch, faylTuri } from '@/api/api'
+import { api, kassalarApi, agentApi, faylniOch, faylTuri } from '@/api/api'
 import { authStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 
@@ -81,10 +81,10 @@ async function kassaOchir(k) {
 }
 
 /* ── 2. Plastik to'lovlar ── */
-const pf = reactive({ holat: 'kutilmoqda', tur: '', agent_id: '', kassa_id: '', dan: '', gacha: '', page: 1 })
+const pf = reactive({ holat: 'kutilmoqda', tur: '', agent_id: '', territoriya_id: '', kassa_id: '', dan: '', gacha: '', page: 1 })
 const plastik = ref([]), plastikJami = ref({ soni: 0, summa: 0 })
 /* ── 3. Topshiruvlar ── */
-const tf = reactive({ holat: 'kutilmoqda', usul: '', agent_id: '', dan: '', gacha: '', page: 1 })
+const tf = reactive({ holat: 'kutilmoqda', usul: '', agent_id: '', territoriya_id: '', dan: '', gacha: '', page: 1 })
 const topshiruv = ref([]), topshiruvJami = ref({ soni: 0, summa: 0 })
 const LIMIT = 100
 const toza = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== '' && v != null))
@@ -108,9 +108,12 @@ async function yukla() {
 const filtr = (f) => { f.page = 1; yukla() }
 
 /* ── Amal oynasi: tasdiqlash / rad / tahrir (plastik va topshiruv uchun bitta) ── */
-const am = reactive({ ochiq: false, nav: '', amal: '', r: null, sabab: '', izoh: '', kassa_id: '', summa: null, xato: '', audit: [] })
+const am = reactive({ balans: null, ochiq: false, nav: '', amal: '', r: null, sabab: '', izoh: '', kassa_id: '', summa: null, xato: '', audit: [] })
 async function amalOch(nav, amal, r) {
   Object.assign(am, { ochiq: true, nav, amal, r, sabab: '', izoh: '', kassa_id: amal === 'tahrir' ? r.kassa_id || '' : '', summa: amal === 'tahrir' ? Number(r.summa) : null, xato: '', audit: [] })
+  // Tasdiqlashdan oldin mijozning hozirgi qarzi ko'rinsin (tasdiq uni shu summaga kamaytiradi)
+  am.balans = null
+  if (nav === 'plastik' && r.mijoz_id) api.get(`/mijozlar/${r.mijoz_id}`).then(m => { if (am.r?.id === r.id) am.balans = Number(m?.balans ?? m?.data?.balans ?? null) }).catch(() => {})
   if (amal === 'korish') {
     try { const d = await (nav === 'plastik' ? kassalarApi.plastik : kassalarApi.topshiruv).getById(r.id); am.r = { ...r, ...d }; am.audit = d?.audit || [] }
     catch (e) { am.xato = xatoMatn(e) }
@@ -159,6 +162,9 @@ const auditFarq = (a) => {
   if (e.holat && y.holat && e.holat !== y.holat) q.push(`${HOLAT[e.holat]?.[0] || e.holat} → ${HOLAT[y.holat]?.[0] || y.holat}`)
   return q.join(' · ')
 }
+// Sotuv jurnaliga havola: chek raqami bo'yicha qidiruv, sana — to'lov kunidan bir hafta oldin
+const kunStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+const sotuvYol = (raqam, sana) => { const g = new Date(sana), d = new Date(g); d.setDate(d.getDate() - 7); return { path: '/avtolavka/sotuvlar', query: { q: raqam, dan: kunStr(d), gacha: kunStr(g) } } }
 const kassaNomi = (id) => kassalar.value.find(k => k.id === id)?.nomi || `#${id}`
 
 watch(tab, () => { xato.value = ''; yukla() })
@@ -240,6 +246,7 @@ onMounted(() => { if (route.query.kassa_id && tab.value === 'plastik') pf.kassa_
         </div>
         <select v-model="pf.tur" @change="filtr(pf)"><option value="">Barcha turlar</option><option value="qarz_tolov">Qarz to'lovi</option><option value="sotuv">Sotuv</option></select>
         <select v-model="pf.agent_id" @change="filtr(pf)"><option value="">Barcha agentlar</option><option v-for="a in agentlar" :key="a.id" :value="a.id">{{ a.fullname }}</option></select>
+        <select v-model="pf.territoriya_id" @change="filtr(pf)"><option value="">Barcha viloyatlar</option><option v-for="v in viloyatlar" :key="v.id" :value="v.id">{{ v.nomi }}</option></select>
         <select v-model="pf.kassa_id" @change="filtr(pf)"><option value="">Barcha kassalar</option><option v-for="k in kassalar.filter(x => x.tur === 'plastik')" :key="k.id" :value="k.id">{{ k.nomi }}</option></select>
         <input v-model="pf.dan" type="date" :max="pf.gacha || undefined" @change="filtr(pf)"/><span class="pl-mut">—</span><input v-model="pf.gacha" type="date" :min="pf.dan || undefined" @change="filtr(pf)"/>
       </div>
@@ -252,7 +259,7 @@ onMounted(() => { if (route.query.kassa_id && tab.value === 'plastik') pf.kassa_
               <td>{{ r.agent_nomi }}<small>{{ r.territoriya_nomi || '' }}</small></td>
               <td>{{ r.mijoz_nomi || '—' }}</td>
               <td>
-                <template v-if="r.tur === 'sotuv'">Sotuv<small>{{ r.ariza_raqam || '' }}</small></template>
+                <template v-if="r.tur === 'sotuv'">Sotuv<small @click.stop><RouterLink v-if="r.ariza_raqam" :to="sotuvYol(r.ariza_raqam, r.sana)" class="pl-link" style="font-size:11.5px" title="Sotuv chekini ochish">{{ r.ariza_raqam }}</RouterLink></small></template>
                 <template v-else>Qarz to'lovi</template>
               </td>
               <td>{{ r.kassa_nomi || '—' }}</td>
@@ -292,6 +299,7 @@ onMounted(() => { if (route.query.kassa_id && tab.value === 'plastik') pf.kassa_
           <button v-for="u in [['', 'Hammasi'], ['naqd', 'Naqd'], ['karta', 'Karta']]" :key="u[0]" :class="{ on: tf.usul === u[0] }" @click="tf.usul = u[0]; filtr(tf)">{{ u[1] }}</button>
         </div>
         <select v-model="tf.agent_id" @change="filtr(tf)"><option value="">Barcha agentlar</option><option v-for="a in agentlar" :key="a.id" :value="a.id">{{ a.fullname }}</option></select>
+        <select v-model="tf.territoriya_id" @change="filtr(tf)"><option value="">Barcha viloyatlar</option><option v-for="v in viloyatlar" :key="v.id" :value="v.id">{{ v.nomi }}</option></select>
         <input v-model="tf.dan" type="date" :max="tf.gacha || undefined" @change="filtr(tf)"/><span class="pl-mut">—</span><input v-model="tf.gacha" type="date" :min="tf.dan || undefined" @change="filtr(tf)"/>
       </div>
       <div class="pl-card">
@@ -367,6 +375,7 @@ onMounted(() => { if (route.query.kassa_id && tab.value === 'plastik') pf.kassa_
             <dt>Summa</dt><dd>{{ fmt(am.r.summa) }} so'm</dd>
             <template v-if="am.nav === 'plastik'">
               <dt>Mijoz</dt><dd>{{ am.r.mijoz_nomi || '—' }}</dd>
+              <template v-if="am.balans != null && !Number.isNaN(am.balans)"><dt>Mijozning hozirgi qarzi</dt><dd :class="{ 'pl-neg': am.balans < 0 }">{{ am.balans < 0 ? fmt(-am.balans) + " so'm qarz" : am.balans > 0 ? fmt(am.balans) + " so'm haqdor" : "qarzi yo'q" }}<template v-if="am.amal === 'tasdiqla' && am.r.holat === 'kutilmoqda'"> → tasdiqdan keyin {{ am.balans + Number(am.r.summa) < 0 ? fmt(-(am.balans + Number(am.r.summa))) + ' qarz' : am.balans + Number(am.r.summa) > 0 ? fmt(am.balans + Number(am.r.summa)) + ' haqdor' : "qarzi yo'q" }}</template></dd></template>
               <dt>Tur</dt><dd>{{ am.r.tur === 'sotuv' ? `Sotuv ${am.r.ariza_raqam || ''}` : "Qarz to'lovi" }}</dd>
               <dt>Kassa</dt><dd>{{ am.r.kassa_nomi || '—' }}</dd>
             </template>

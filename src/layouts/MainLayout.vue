@@ -112,6 +112,9 @@ const NAVBAT_MATN: Record<string, () => string> = {
   'ombor.qaytarish':       () => 'Qabul kutayotgan qaytarishlar',
   'ombor.prixod':          () => 'Tasdiqlanmagan prixodlar',
   'avtolavka.yuklanmagan': () => 'Yuk berilmagan agentlar',
+  'moliya.plastik':        () => `Tasdiq kutayotgan plastik to'lovlar · ${fmtSum(navbat.value?.moliya?.plastik_summa)} so'm`,
+  'moliya.topshiruv':      () => `Qabul kutayotgan topshiruvlar · ${fmtSum(navbat.value?.moliya?.topshiruv_summa)} so'm`,
+  'moliya.xarajat':        () => `Tasdiq kutayotgan xarajatlar · ${fmtSum(navbat.value?.moliya?.xarajat_summa)} so'm`,
   'moliya.inkassatsiya':   () => `Topshirilmagan naqd · ${fmtSum(navbat.value?.moliya?.inkassatsiya_summa)} so'm`,
 }
 const ishlar = computed(() => {
@@ -134,7 +137,23 @@ function sahifaSon(s: Sahifa) {
 }
 
 let navbatTaymer: ReturnType<typeof setInterval> | null = null
-async function navbatYukla() { try { navbat.value = await api.get('/navbat') } catch { /* keyingi tsiklda */ } }
+async function navbatYukla() {
+  try {
+    const n = await api.get('/navbat')
+    // Tasdiq kutayotgan plastik to'lovlar, topshiruvlar va xarajat so'rovlari /navbat da yo'q — alohida so'raladi (moliya ruxsati bo'lsa)
+    if (authStore.canView('moliya')) {
+      const [k, t, x] = await Promise.all([
+        api.get('/kassalar').catch(() => null),
+        api.get('/kassalar/topshiruvlar?holat=kutilmoqda&limit=1').catch(() => null),
+        api.get('/xarajatlar/sorovlar?holat=kutilmoqda&limit=1').catch(() => null),
+      ])
+      n.moliya = { ...(n.moliya || {}),
+        plastik: (k?.kassalar || []).reduce((s: number, y: any) => s + (Number(y.kutilmoqda_soni) || 0), 0), plastik_summa: k?.jami?.kutilmoqda_plastik || 0,
+        topshiruv: t?.jami?.soni || 0, topshiruv_summa: t?.jami?.summa || 0, xarajat: x?.jami?.soni || 0, xarajat_summa: x?.jami?.summa || 0 }
+    }
+    navbat.value = n
+  } catch { /* keyingi tsiklda */ }
+}
 let navbatKechik: ReturnType<typeof setTimeout> | null = null
 watch(() => route.fullPath, () => { if (navbatKechik) clearTimeout(navbatKechik); navbatKechik = setTimeout(navbatYukla, 1500) })
 

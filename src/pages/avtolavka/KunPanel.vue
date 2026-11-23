@@ -10,7 +10,7 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 // @ts-ignore
-import { avtolavkaApi, hisobotApi } from '@/api/api'
+import { avtolavkaApi, hisobotApi, kassalarApi } from '@/api/api'
 import { useQidiruv } from '@/composables/useQidiruv'
 
 const props = defineProps<{ agentId: number; sana: string }>()
@@ -225,6 +225,10 @@ const yoldaEslatma = computed(() => {
 })
 
 /* ── Pul ── */
+// Agent qo'lidagi naqd (butun davr, topshiruvlar ayirilgan) — /kassalar/agentlar; ruxsat bo'lmasa null
+const agentQolda = ref<number | null>(null)
+function qoldaYukla() { kassalarApi.agentlar().then((a: any) => { const x = (Array.isArray(a) ? a : []).find((y: any) => y.id === props.agentId); agentQolda.value = x ? Number(x.pul?.qolda) : null }).catch(() => { agentQolda.value = null }) }
+watch(() => props.agentId, qoldaYukla, { immediate: true })
 const pulKerak = computed(() => Math.max(0, Number(r.value?.pul?.naqd_olindi || 0) - oldinTopshirilgan.value))
 const pulFarq = computed(() => pulKerak.value - Number(pulKiritildi.value ?? pulKerak.value))
 async function pulQabul() {
@@ -301,7 +305,7 @@ const stansiyalar = computed(() => {
     { nom: 'Yuk berish', izoh: yuklashIzoh(x, vaqtOf('yuklash')), tayyor: x.tovar.berildi.dona > 0 },
     { nom: 'Savdo', izoh: (x.kun.tashrif ? `${x.kun.tashrif} tashrif · ${x.kun.savdo} savdo` : (birinchiSotuv ? fmtVaqt(birinchiSotuv.vaqt) : '—'))
         + (x.kun.uzoq_sotuv ? ` · ${x.kun.uzoq_sotuv} uzoqdan` : ''), tayyor: x.bosqich >= 2 || (x.bosqich === 1 && x.tovar.sotildi.dona > 0) },
-    { nom: 'Topshirish', izoh: [x.topshirish.tovar ? 'tovar ✓' : 'tovar', x.topshirish.pul ? 'pul ✓' : 'pul'].join(' · '), tayyor: x.topshirish.tovar && x.topshirish.pul },
+    { nom: 'Qoldiqni qaytarish', izoh: x.topshirish.tovar ? 'tovar qabul qilindi ✓' : 'ixtiyoriy', tayyor: x.topshirish.tovar },
     { nom: kamomad.value ? 'Kamomad' : 'Yopiq', izoh: x.bosqich === 3 ? (kamomad.value ? 'qaror kerak' : 'farqsiz') : '', tayyor: x.bosqich === 3 },
   ]
 })
@@ -502,26 +506,12 @@ onMounted(yangila)
               <div class="kp-done">Kassaga topshirildi</div>
               <div class="kp-half-s">{{ r.pul.inkassatsiya ? fmtSum(r.pul.topshirildi) + ' so\'m' : 'naqd yig\'ilmagan' }}<template v-if="r.pul.farq > 0.5"> · kamomad {{ fmtSum(r.pul.farq) }}</template></div>
             </template>
-            <template v-else-if="pulKerak <= 0">
-              <div class="kp-half-v kp-half-v--m">0 <small>so'm</small></div>
-              <div class="kp-half-s">Bugun naqd yig'ilmagan — kassaga topshirish shart emas. Tovar qabul qilinsa kun yopiladi.</div>
-            </template>
             <template v-else>
-              <div class="kp-half-v">{{ fmtSum(pulKerak) }} <small>so'm</small></div>
-              <div class="kp-half-s">agent qo'lida bo'lishi kerak · {{ r.pul.tolov_soni }} ta tushum</div>
-              <div v-if="oldinTopshirilgan > 0" class="kp-half-s">kun bo'yicha {{ fmtSum(r.pul.naqd_olindi) }}, oldingi reysda {{ fmtSum(oldinTopshirilgan) }} topshirilgan</div>
-              <div v-if="elonFarq !== null" class="kp-half-s kp-elon" :class="{ farq: Math.abs(elonFarq) > 0.5 }">
-                Agent o'zi sanagani: <b>{{ fmtSum(kunYopish.naqd_elon) }}</b>
-                <template v-if="Math.abs(elonFarq) > 0.5"> · {{ elonFarq > 0 ? '+' : '−' }}{{ fmtSum(Math.abs(elonFarq)) }}</template>
-                <template v-else> · mos ✓</template>
-              </div>
-              <div class="kp-money">
-                <NumberInput v-model="pulKiritildi" :bosh="null" :placeholder="fmtSum(pulKerak)"/>
-                <span v-if="pulFarq > 0.5" class="kp-money-f">−{{ fmtSum(pulFarq) }}</span>
-              </div>
-              <button class="kp-go kp-go--w" :disabled="band === 'pul' || pulKerak <= 0" @click="pulQabul">
-                <span v-if="band === 'pul'" class="kp-spin kp-spin--w"/><svg class="kp-bi" viewBox="0 0 24 24"><path d="M18 9V6a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2V7"/></svg>{{ pulFarq > 0.5 ? 'Kamomad bilan qabul qilish' : 'To\'liq qabul qilish' }}
-              </button>
+              <!-- Naqd pul endi shu yerda qabul qilinmaydi: agent ilovadan topshiradi (naqd yoki karta), kassir Moliya → Topshiruvlarda tasdiqlaydi -->
+              <div class="kp-half-v" :class="{ 'kp-half-v--m': !((agentQolda ?? 0) > 0) }" :style="(agentQolda ?? 0) < 0 ? 'color:#dc2626' : ''">{{ fmtSum(agentQolda ?? pulKerak) }} <small>so'm</small></div>
+              <div class="kp-half-s">{{ agentQolda != null ? "agent qo'lida · jami, topshirganlari ayirilgan" : `bugun yig'ilgan naqd · ${r.pul.tolov_soni} ta tushum` }}</div>
+              <div class="kp-half-s">Agent pulni ilovadan topshiradi (naqd yoki karta) — tasdiqlash Topshiruvlar sahifasida.</div>
+              <RouterLink :to="{ path: '/moliya/topshiruvlar' }" class="kp-go kp-go--w" style="text-decoration:none;justify-content:center">Topshiruvlarga o'tish</RouterLink>
             </template>
           </div>
         </div>

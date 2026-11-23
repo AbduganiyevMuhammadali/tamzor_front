@@ -7,7 +7,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import KunPanel from './KunPanel.vue'
 // @ts-ignore
-import { avtolavkaApi } from '@/api/api'
+import { avtolavkaApi, kassalarApi } from '@/api/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -36,6 +36,9 @@ let soat: ReturnType<typeof setInterval> | null = null
 const bugunmi = computed(() => sana.value === bugun())
 const mashinalar = computed<any[]>(() => doska.value?.mashinalar || [])
 const jami = computed(() => doska.value?.jami || {})
+const pulMap = ref<Map<number, any> | null>(null)
+const qolda = (m: any) => pulMap.value?.get(m.agent.id)?.qolda
+const qoldaJami = computed(() => (pulMap.value ? mashinalar.value.reduce((s: number, m: any) => s + (Number(qolda(m)) || 0), 0) : null))
 
 // Miqdor kg'da, 3 xonagacha — yaxlitlanmaydi (1,234 kg)
 const fmtDona = (v: number) => (Number(v) || 0).toLocaleString('ru-RU', { maximumFractionDigits: 3 })
@@ -145,6 +148,8 @@ async function yukla(jimgina = false) {
   try {
     const [d, k] = await Promise.all([avtolavkaApi.doska({ sana: sana.value }), avtolavkaApi.kalendar({ kun: 14 })])
     doska.value = d; kalendar.value = k
+    // Agent qo'lidagi naqd: naqd oldi − qaytardi − tasdiqlangan topshiruvlar (butun davr). Ruxsat yoki backend bo'lmasa — eski kunlik raqam
+    kassalarApi.agentlar().then((a: any) => { pulMap.value = new Map((Array.isArray(a) ? a : []).map((x: any) => [x.id, x.pul])) }).catch(() => { pulMap.value = null })
   } catch (e) { console.error('Van Sell yuklanmadi', e) }
   finally { yuklanmoqda.value = false }
 }
@@ -211,8 +216,8 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
         <span class="al-k-ic"><svg viewBox="0 0 24 24" v-html="IKON.hamyon"/></span>
         <div class="al-k-b">
           <span class="al-k-l">Agentlar qo'lidagi naqd</span>
-          <b class="al-k-v">{{ fmtMln(jami.naqd_qolda) }}<small>{{ fmtMlnU(jami.naqd_qolda) }}</small></b>
-          <span class="al-k-s">kassaga topshirilishi kerak</span>
+          <b class="al-k-v">{{ fmtMln(qoldaJami ?? jami.naqd_qolda) }}<small>{{ fmtMlnU(qoldaJami ?? jami.naqd_qolda) }}</small></b>
+          <span class="al-k-s">{{ qoldaJami != null ? 'hali topshirilmagan · Moliya → Topshiruvlar' : 'kassaga topshirilishi kerak' }}</span>
         </div>
       </div>
       <div class="al-k">
@@ -311,7 +316,8 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
           <dl class="al-nums">
             <div><dt>Agentda</dt><dd>{{ fmtDona(m.mashina.dona) }} <small>kg</small></dd><dd class="s">{{ fmtSum(m.mashina.summa) }} so'm</dd></div>
             <div><dt>Sotildi</dt><dd>{{ fmtDona(m.tovar.sotildi.dona) }} <small>kg</small></dd><dd class="s">{{ fmtSum(m.pul.sotuv_jami) }} so'm</dd></div>
-            <div><dt>Qo'lda naqd</dt><dd :class="{ o: !m.pul.inkassatsiya && m.pul.naqd_olindi > 0 }">{{ fmtSum(m.pul.inkassatsiya ? 0 : m.pul.naqd_olindi) }}</dd><dd class="s">{{ m.pul.inkassatsiya ? 'kassaga topshirilgan' : 'so\'m' }}</dd></div>
+            <div v-if="qolda(m) != null"><dt>Qo'lda naqd</dt><dd :class="{ o: qolda(m) > 0 }" :style="qolda(m) < 0 ? 'color:#dc2626' : ''">{{ fmtSum(qolda(m)) }}</dd><dd class="s">so'm · jami</dd></div>
+            <div v-else><dt>Qo'lda naqd</dt><dd :class="{ o: !m.pul.inkassatsiya && m.pul.naqd_olindi > 0 }">{{ fmtSum(m.pul.inkassatsiya ? 0 : m.pul.naqd_olindi) }}</dd><dd class="s">{{ m.pul.inkassatsiya ? 'kassaga topshirilgan' : 'so\'m' }}</dd></div>
             <div><dt>Qarzga</dt><dd>{{ fmtSum(m.pul.qarzga_sotuv) }}</dd><dd class="s">so'm</dd></div>
           </dl>
         </div>
