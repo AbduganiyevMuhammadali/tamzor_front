@@ -477,11 +477,12 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
       </router-link>
 
       <router-link to="/mijozlar/oldi-berdi" class="karta pk">
-        <div class="pk-hd"><span class="ik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="IK.dokon"/></span><b>Mijozlar qarzi</b><small>{{ fmtNum(qarz.qarzdor_soni || 0) }} qarzdor</small></div>
+        <div class="pk-hd"><span class="ik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" v-html="IK.dokon"/></span><b>{{ qarz.diller_qarz ? 'Mijozlar va dillerlar qarzi' : 'Mijozlar qarzi' }}</b><small>{{ fmtNum(qarz.qarzdor_soni || 0) }} qarzdor</small></div>
         <div class="pk-v"><AnimNum :value="qarz.jami_qarz || 0" :format="sonQism"/><small>{{ birlik(qarz.jami_qarz || 0) }}</small></div>
         <div v-if="qarz.muddati_otgan > 0" class="pk-xato">Muddati o'tgan: <b>{{ pulQ(qarz.muddati_otgan) }}</b></div>
+        <div v-if="qarz.diller_qarz" class="pk-bolin">Mijozlar <b>{{ pulQ(qarz.mijoz_qarz || 0) }}</b> · Dillerlar <b>{{ pulQ(qarz.diller_qarz) }}</b> ({{ qarz.diller_soni }} ta)</div>
         <ul class="pk-l">
-          <li v-for="q in qarzdorlar" :key="q.id"><span>{{ q.nomi }}</span><b>{{ pulQ(q.qarz) }}</b></li>
+          <li v-for="(q, i) in qarzdorlar" :key="q.tur === 'diller' ? 'd' + q.diller_id : q.id ?? i"><span>{{ q.nomi }}</span><b>{{ pulQ(q.qarz) }}</b></li>
         </ul>
       </router-link>
 
@@ -742,4 +743,5 @@ const birinchi = computed(() => !agg.value && yuklanmoqda.value)
   .bs-seg-pill, .trek i, .mash, .pk { transition:none; }
   .hero-jonli i, .bs-ib.aylan svg, .kpi.skel .kpi-v { animation:none; }
 }
+.pk-bolin { font-size:11.5px; color:var(--mut, #64748b); margin-top:2px; }
 </style>

@@ -338,6 +338,25 @@ export const tripSheetApi = {
 /* ── Avtolavka API (ko'chma savdo: yuklash → sotuv → qabul → solishtirma) ── */
 const qs = (params = {}) => { const q = new URLSearchParams(params).toString(); return q ? '?' + q : '' }
 
+/* Dillerlar — hamkor sotuvchilar (backend §24). Ko'rish — avtolavka:view/create, ombor:view/edit yoki moliya:view;
+ * tovar berish/qaytarish — avtolavka:create yoki ombor:edit; to'lov — moliya:create yoki moliya:approve */
+export const dillerApi = {
+  /** Ro'yxat: territoriya_id, qidiruv, page, limit → { data:[{ id, fullname, territoriya, faol, qarz, ombor_summa, mijozlar_soni, oxirgi_berish_sana }], jami:{ qarz, soni } } */
+  royxat:    (params = {})     => request(`/dillerlar${qs(params)}`),
+  /** Karta: { diller, qarz, ombor:[{tovar_id, nomi, dona, narx}], brak_ombor, hujjatlar } */
+  karta:     (id)              => request(`/dillerlar/${id}`),
+  hujjatlar: (id, params = {}) => request(`/dillerlar/${id}/hujjatlar${qs(params)}`),
+  hujjat:    (hid)             => request(`/dillerlar/hujjat/${hid}`),
+  sotuvlar:  (id, params = {}) => request(`/dillerlar/${id}/sotuvlar${qs(params)}`),
+  mijozlar:  (id)              => request(`/dillerlar/${id}/mijozlar`),
+  /** { qatorlar:[{tovar_id, dona, narx?}], tolangan, kassa_id?, izoh?, sorov_id } */
+  berish:    (id, body)        => request(`/dillerlar/${id}/berish`, j('POST', body)),
+  /** { summa, kassa_id, izoh?, sorov_id } */
+  tolov:     (id, body)        => request(`/dillerlar/${id}/tolov`, j('POST', body)),
+  /** { qatorlar:[{tovar_id, dona, brak?}], izoh?, sorov_id } */
+  qaytarish: (id, body)        => request(`/dillerlar/${id}/qaytarish`, j('POST', body)),
+}
+
 /* Buyumlar — sotilmaydigan jihozlar (muzlatgich, stend, banner…) hisobi (backend §23). Faqat soni, narx yo'q.
  * Ko'rish — avtolavka:view/create yoki ombor:view/edit; harakat — avtolavka:create yoki ombor:edit; ma'lumotnoma — ombor:edit */
 export const buyumApi = {

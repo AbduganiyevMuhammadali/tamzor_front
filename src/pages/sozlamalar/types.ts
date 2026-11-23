@@ -90,6 +90,8 @@ export interface Tovar {
   faol: boolean
   /** 'xom_ashyo' — sotilmaydi, "Xom ashyo ombori"da turadi, ishlab chiqarishga beriladi */
   turi: 'tovar' | 'xom_ashyo'
+  /** Dillerga berish narxi (backend §24); null — belgilanmagan */
+  dillerNarx?: number | null
 }
 
 export interface NarxTuri {

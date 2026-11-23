@@ -6,6 +6,7 @@ import type { Column } from '../types'
 import { api } from '../../../api/api.js'
 import { useQidiruv } from '@/composables/useQidiruv'
 import ViloyatNarx from '@/components/ViloyatNarx.vue'
+import NumberInput from '@/components/NumberInput.vue'
 import { useForma } from '@/validation/useForma'
 import { tozala } from '@/validation/qoidalar'
 import * as sx from '@/validation/sxemalar'
@@ -62,6 +63,7 @@ function fromApi(r: Record<string, unknown>): Tovar {
     olchovBirligi:   String(r.olchov_birligi ?? 'kg'),
     faol:            Boolean(r.faol),
     turi:            r.turi === 'xom_ashyo' ? 'xom_ashyo' : 'tovar',
+    dillerNarx:      r.diller_narx == null || r.diller_narx === '' ? null : Number(r.diller_narx),
   }
 }
 
@@ -84,6 +86,8 @@ function toApiBody(f: TovarForm) {
     tavsif:             f.tavsif             || null,
     faol:               f.faol,
     turi:               f.turi,
+    // Diller narxi faqat savdo tovarida; bo'sh — belgilanmagan (dillerga berishda qatorda narx kiritiladi)
+    diller_narx:        f.turi === 'tovar' && Number(f.dillerNarx) > 0 ? Number(f.dillerNarx) : null,
   }
 }
 
@@ -132,6 +136,7 @@ const columns: Column<Tovar>[] = [
   { key: 'podkategoriya',   label: 'Podkategoriya' },
   { key: 'savdoYonalishi',  label: "Savdo yo'nalishi" },
   { key: 'shtrixKod',       label: 'Shtrix-kod' },
+  { key: 'dillerNarx',      label: 'Diller narxi' },
 ]
 
 // ─── Add dropdown ─────────────────────────────────────────────────────────────
@@ -172,7 +177,7 @@ const formTab = ref<'asosiy' | 'qoshimcha' | 'audit' | 'ikpu' | 'foto' | 'upakov
 const emptyForm = (): TovarForm => ({
   nomi: '', turkum: '', podkategoriya: '', savdoYonalishi: '',
   shtrixKod: '', hajm: 1, ogirlik: 1, blokdagiSoni: 1, qutidagiBloklar: 1,
-  olchovBirligi: 'kg', faol: true, turi: 'tovar',
+  olchovBirligi: 'kg', faol: true, turi: 'tovar', dillerNarx: null,
   saralash: 500, saqlashMuddati: 0, bloklardaSotish: true, mml: true, powerSku: false,
   shtrixKod2: '', gtin: '', artikul: '', sapKod: '', kod: '', tavsif: '',
   brend: '', guruh: '', segment: '', ishlabChiqaruvchi: '',
@@ -945,6 +950,11 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
                       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
                     </button>
                   </div>
+                </div>
+                <!-- Diller narxi: kompaniya dillerga shu narxda beradi (berish formasida o'zgartirish mumkin) -->
+                <div v-if="form.turi === 'tovar'" class="fg-field">
+                  <label class="fg-lbl">Diller narxi (so'm)</label>
+                  <NumberInput v-model="form.dillerNarx" :bosh="null" css-class="fg-in" placeholder="Belgilanmagan" :disabled="readonly"/>
                 </div>
               </div>
 

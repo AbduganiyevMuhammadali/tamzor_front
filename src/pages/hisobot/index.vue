@@ -57,7 +57,7 @@ const qadamlar = computed(() => {
       tagi: `Foyda ${qisqa(x.sotuv.foyda)} · marja ${foizFmt(x.sotuv.marja)}`, tagiTon: x.sotuv.foyda >= 0 ? 'ok' : 'err',
       tushuncha: `Tannarxi ${qisqa(x.sotuv.tannarx)} bo'lgan tovar sotildi`, yol: '/hisobot/sotuv' },
     { n: 4, ikon: IKON.hamyon, nom: "To'lov", qiymat: null, tolov: true,
-      tagi: `Mijozlar qarzi: ${qisqa(x.qarz.mijozlar)}`, tagiTon: x.qarz.muddati_otgan > 0 ? 'warn' : '',
+      tagi: `Debitorlik: ${qisqa(x.qarz.jami ?? x.qarz.mijozlar)}`, tagiTon: x.qarz.muddati_otgan > 0 ? 'warn' : '',
       tushuncha: 'Mijoz naqd, plastik yoki qarzga to\'laydi', yol: '/hisobot/qarzlar' },
     { n: 5, ikon: IKON.kassa, nom: 'Kassa', qiymat: x.kassa.sof, izoh: `Kirdi ${qisqa(x.kassa.kirim)} · chiqdi ${qisqa(x.kassa.chiqim)}`,
       tagi: x.kassa.sof >= 0 ? 'Kassa sof o\'sdi' : 'Kassadan ko\'proq chiqdi', tagiTon: x.kassa.sof >= 0 ? 'ok' : 'err',
@@ -71,7 +71,7 @@ const kassaChiqim = computed(() => (d.value?.kassa?.toifalar || []).filter((t: a
 const HISOBOTLAR = computed(() => [
   { yol: '/hisobot/sotuv', ikon: IKON.osish, nom: 'Sotuv va foyda', savol: 'Qancha sotdik, qancha foyda qoldi — agent, turkum va mijoz kesimida', raqam: d.value ? qisqa(s.value.sof_tushum) : '' },
   { yol: '/hisobot/tovarlar', ikon: IKON.qutilar, nom: 'Tovarlar (ABC)', savol: 'Qaysi tovar pul topadi, qaysi biri yotib qolgan yoki tugayapti', raqam: '' },
-  { yol: '/hisobot/qarzlar', ikon: IKON.dokon, nom: 'Mijozlar qarzi', savol: "Kim qancha qarz va qanchasi muddati o'tgan (debitorka)", raqam: d.value ? qisqa(d.value.qarz.mijozlar) : '' },
+  { yol: '/hisobot/qarzlar', ikon: IKON.dokon, nom: 'Mijozlar qarzi', savol: "Kim qancha qarz va qanchasi muddati o'tgan (debitorka)", raqam: d.value ? qisqa(d.value.qarz.jami ?? d.value.qarz.mijozlar) : '' },
   { yol: '/hisobot/ombor', ikon: IKON.ombor, nom: 'Ombor', savol: 'Omborda qancha pul turibdi va u necha kunga yetadi', raqam: d.value ? qisqa(d.value.ombor.qiymat) : '' },
   { yol: '/hisobot/kirim', ikon: IKON.kirim, nom: 'Xaridlar (kirim)', savol: 'Kimdan, nima va qancha sotib oldik', raqam: d.value ? qisqa(d.value.kirim.summa) : '' },
   { yol: '/hisobot/yetkazuvchilar', ikon: IKON.zavod, nom: 'Yetkazuvchilar', savol: 'Yetkazuvchilarga qancha qarzmiz (kreditorka)', raqam: d.value ? qisqa(d.value.yetkazuvchi.qarzimiz) : '' },
@@ -100,8 +100,8 @@ const HISOBOTLAR = computed(() => [
           :izoh="`${s.buyurtma} buyurtma · o'rtacha chek ${qisqa(s.ortacha_chek)}`" to="/hisobot/sotuv"/>
         <KpiKarta nom="Yalpi foyda" :ikon="IKON.osish" :qiymat="s.foyda" birlik="so'm" :delta="ozgarish(s.foyda, o.foyda)"
           :ton="s.foyda >= 0 ? 'ok' : 'err'" :izoh="`Marja ${foizFmt(s.marja)} · tannarx ${qisqa(s.tannarx)}`" to="/hisobot/sotuv"/>
-        <KpiKarta nom="Mijozlar qarzi" :ikon="IKON.dokon" :qiymat="d.qarz.mijozlar" birlik="so'm" :ton="d.qarz.muddati_otgan > 0 ? 'warn' : 'brand'"
-          :izoh="d.qarz.muddati_otgan ? `${qisqa(d.qarz.muddati_otgan)} muddati o'tgan · ${d.qarz.qarzdor} qarzdor` : `${d.qarz.qarzdor} qarzdor · muddati o'tgani yo'q`" to="/hisobot/qarzlar"/>
+        <KpiKarta :nom="d.qarz.dillerlar ? 'Mijozlar va dillerlar qarzi' : 'Mijozlar qarzi'" :ikon="IKON.dokon" :qiymat="d.qarz.jami ?? d.qarz.mijozlar" birlik="so'm" :ton="d.qarz.muddati_otgan > 0 ? 'warn' : 'brand'"
+          :izoh="(d.qarz.muddati_otgan ? `${qisqa(d.qarz.muddati_otgan)} muddati o'tgan · ${d.qarz.qarzdor} qarzdor` : `${d.qarz.qarzdor} qarzdor · muddati o'tgani yo'q`) + (d.qarz.dillerlar ? ` · dillerlar ${qisqa(d.qarz.dillerlar)}` : '')" to="/hisobot/qarzlar"/>
         <KpiKarta nom="Ombor qiymati" :ikon="IKON.ombor" :qiymat="d.ombor.qiymat" birlik="so'm"
           :izoh="d.ombor.zaxira_kun ? `Hozirgi sur'atda ~${d.ombor.zaxira_kun} kunga yetadi` : 'Tannarx bo\'yicha'" to="/hisobot/ombor"/>
         <KpiKarta nom="Kassa sof oqimi" :ikon="IKON.kassa" :qiymat="d.kassa.sof" birlik="so'm" :ton="d.kassa.sof >= 0 ? 'ok' : 'err'"

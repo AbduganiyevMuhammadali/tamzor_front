@@ -11,6 +11,9 @@ import ReytingRoyxat from './kit/ReytingRoyxat.vue'
 import { useYuklash, qisqa, fmt, foizFmt, kunOldin, csvYukla, IKON, sanaQisqa } from './kit/hisobot'
 
 const router = useRouter()
+// Diller qatorlari (tur: 'diller', id: null) — diller kartasiga; mijoz qatorlari — oldi-berdi tarixiga
+const qKalit = (r: any) => (r.tur === 'diller' ? `d${r.diller_id}` : r.id)
+const qOch = (r: any) => router.push(r.tur === 'diller' ? `/dillerlar/${r.diller_id}` : `/mijozlar/oldi-berdi?mijoz=${r.id}`)
 const agent = ref<number | ''>('')
 const { data: d, yuklanmoqda } = useYuklash(() => tahlilApi.qarzlar({ agent_id: agent.value }), [agent])
 
@@ -76,7 +79,7 @@ function eksport() {
 
     <template v-else>
       <div class="hs-grid hs-grid--kpi">
-        <KpiKarta nom="Jami qarz" :ikon="IKON.hamyon" :qiymat="d.jami.qarz" birlik="so'm" :izoh="`${d.jami.qarzdor} ta mijoz qarzdor`"/>
+        <KpiKarta nom="Jami qarz" :ikon="IKON.hamyon" :qiymat="d.jami.qarz" birlik="so'm" :izoh="d.jami.diller_qarz ? `mijozlar ${qisqa(d.jami.mijoz_qarz)} (${d.jami.mijoz_soni} ta) · dillerlar ${qisqa(d.jami.diller_qarz)} (${d.jami.diller_soni} ta)` : `${d.jami.qarzdor} ta mijoz qarzdor`"/>
         <KpiKarta nom="Muddati o'tgan" :ikon="IKON.ogoh" :qiymat="d.jami.muddati_otgan" birlik="so'm" :ton="d.jami.muddati_otgan ? 'err' : 'ok'"
           :izoh="d.jami.muddati_otgan ? `Qarzning ${foizFmt(d.jami.muddati_otgan_ulush)} i · ${d.jami.muddati_otgan_soni} mijoz` : 'Hamma o\'z vaqtida to\'lamoqda'"/>
         <KpiKarta nom="Qarzning o'rtacha yoshi" :ikon="IKON.soat" :qiymat="`${d.jami.ortacha_kun} kun`" izoh="Summaga qarab og'irlikli"
@@ -118,7 +121,7 @@ function eksport() {
             <p v-else class="qz-bos">Yaqin 7 kunda to'lov sanasi kelgan qarz yo'q</p>
             <h3 class="qz-h3">Eng uzoq to'lanmayotgan qarzlar</h3>
             <ul class="qz-eski">
-              <li v-for="r in eskilar" :key="r.id" @click="router.push(`/mijozlar/oldi-berdi?mijoz=${r.id}`)">
+              <li v-for="r in eskilar" :key="qKalit(r)" @click="qOch(r)">
                 <span class="hs-belgi" :class="yoshTon(r)">{{ r.eng_eski_kun }} kun</span>
                 <span class="qz-eski-n"><b>{{ r.nomi }}</b><small>{{ r.agent }} · muddat {{ r.muddat_kun }} kun</small></span>
                 <span class="qz-eski-v">{{ fmt(r.qarz) }}</span>
@@ -138,7 +141,7 @@ function eksport() {
       <section class="hs-karta">
         <div class="hs-karta-hd">
           <span class="hs-karta-ic"><svg viewBox="0 0 24 24" v-html="IKON.dokon"/></span>
-          <div class="hs-kt"><h2>Qarzdor mijozlar</h2><p>{{ rows.length }} ta · qatorni bosing — mijozning oldi-berdi tarixi ochiladi</p></div>
+          <div class="hs-kt"><h2>{{ d.jami.diller_soni ? 'Qarzdor mijozlar va dillerlar' : 'Qarzdor mijozlar' }}</h2><p>{{ rows.length }} ta · qatorni bosing — mijozning oldi-berdi tarixi (diller bo'lsa — kartasi) ochiladi</p></div>
           <div class="hs-kr"><input v-model="qidir" class="hs-inp" placeholder="Mijoz, telefon yoki agent…"/></div>
         </div>
         <div class="tv-chip hs-chiplar qz-chip">
@@ -154,7 +157,7 @@ function eksport() {
               <th class="r">Keyingi to'lov</th><th class="r">Limit</th><th class="r">Oxirgi to'lov</th>
             </tr></thead>
             <tbody>
-              <tr v-for="r in rows" :key="r.id" class="bos" @click="router.push(`/mijozlar/oldi-berdi?mijoz=${r.id}`)">
+              <tr v-for="r in rows" :key="qKalit(r)" class="bos" :title="r.tur === 'diller' ? 'Diller kartasini ochish' : ''" @click="qOch(r)">
                 <td><div class="hs-nom"><b>{{ r.nomi }}</b><small>{{ r.agent }}{{ r.telefon ? ' · ' + r.telefon : '' }}</small></div></td>
                 <td class="r"><b>{{ fmt(r.qarz) }}</b></td>
                 <td>

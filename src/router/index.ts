@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { authStore } from '@/stores/auth'
 import { rejimStore, type Rejim } from '@/stores/rejim'
-import { KOCHIRISH_KORISH } from '@/layouts/nav'
+import { KOCHIRISH_KORISH, DILLER_KORISH } from '@/layouts/nav'
 
 /* meta.faqat — sahifa faqat shu biznes rejimida ochiladi (stores/rejim.ts).
    D — distributsiyaga xos: agent, dostavchik, buyurtma zanjiri, Van Sell. */
@@ -42,6 +42,8 @@ const router = createRouter({
         // Avtolavka — butun jarayon bitta markazda (yuklash, savdo, qabul, kassa, solishtirma)
         { path: 'avtolavka',             name: 'Avtolavka',            meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/index.vue') },
         { path: 'avtolavka/sotuvlar',    name: 'AvtolavkaSotuvlar',    meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/sotuvlar.vue') },
+        { path: 'dillerlar',           name: 'Dillerlar',         meta: { ruxsat: DILLER_KORISH, ...D }, component: () => import('../pages/dillerlar/index.vue') },
+        { path: 'dillerlar/:id(\\d+)',  name: 'DillerKarta',       meta: { ruxsat: DILLER_KORISH, ...D }, component: () => import('../pages/dillerlar/karta.vue') },
         { path: 'buyumlar',            name: 'Buyumlar',          meta: { ruxsat: KOCHIRISH_KORISH, tab: 'royxat', ...D },     component: () => import('../pages/buyumlar/index.vue') },
         { path: 'buyumlar/harakatlar', name: 'BuyumHarakatlar',   meta: { ruxsat: KOCHIRISH_KORISH, tab: 'harakatlar', ...D }, component: () => import('../pages/buyumlar/index.vue') },
         { path: 'buyumlar/hisobot',    name: 'BuyumHisobot',      meta: { ruxsat: KOCHIRISH_KORISH, tab: 'hisobot', ...D },    component: () => import('../pages/buyumlar/index.vue') },

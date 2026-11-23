@@ -94,6 +94,9 @@ export const IK = {
 /* Ko'chirishlar: yozish ruxsati ko'rishni ham beradi; ombor ruxsati bilan ham ochiladi (backend bilan bir xil) */
 export const KOCHIRISH_KORISH: [string, string][] = [['avtolavka', 'view'], ['avtolavka', 'create'], ['ombor', 'view'], ['ombor', 'edit']]
 
+/* Dillerlar: moliya ruxsati bilan ham ko'riladi (to'lov qabul qiluvchi kassir) */
+export const DILLER_KORISH: [string, string][] = [...KOCHIRISH_KORISH, ['moliya', 'view']]
+
 export const MODULLAR: Modul[] = [
   { key: 'dashboard', perm: 'dashboard', nom: 'Bosh sahifa', izoh: "Kompaniyaning bugungi holati bir qarashda", ikon: IK.bosh, yol: '/dashboard',
     sahifalar: [{ yol: '/dashboard', nom: 'Bosh sahifa', izoh: 'KPI, savdo, kassa, qarzdorlar', ikon: IK.bosh, kalit: 'dashboard kpi' }] },
@@ -141,6 +144,10 @@ export const MODULLAR: Modul[] = [
     sahifalar: [
       { yol: '/ishlab', nom: 'Partiyalar', izoh: "Nima sarflandi, nima chiqdi, tannarx", ikon: IK.zavod, badge: { k: 'ishlab.jarayonda', ton: 'ish', matn: 'jarayonda' }, kalit: 'ishlab chiqarish sex tannarx xom ashyo partiya proizvodstvo' },
       { yol: '/ishlab/yangi', nom: 'Yangi partiya', izoh: 'Xom ashyo → mahsulot, omborga kirim', ikon: IK.quti, kalit: 'yangi partiya ishlab chiqarish' },
+    ] },
+  { key: 'dillerlar', perm: 'avtolavka', nom: 'Dillerlar', izoh: 'Hamkor sotuvchilar: tovar berish, qarz, to\'lov', ikon: IK.dokon, yol: '/dillerlar', zanjir: true, faqat: 'distributsiya', match: ['/dillerlar'],
+    sahifalar: [
+      { yol: '/dillerlar', nom: "Dillerlar ro'yxati", izoh: 'Qarzi, ombori, mijozlari', ikon: IK.dokon, ruxsat: DILLER_KORISH, kalit: 'diller hamkor sotuvchi qarz berish tolov qaytarish' },
     ] },
   { key: 'buyumlar', perm: 'avtolavka', nom: 'Buyumlar', izoh: 'Sotilmaydigan jihozlar: muzlatgich, stend, banner — kimda nechta', ikon: IK.quti, yol: '/buyumlar', zanjir: true, faqat: 'distributsiya',
     sahifalar: [

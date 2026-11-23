@@ -51,6 +51,11 @@
         <option value="">Barcha hududlar</option>
         <option v-for="t in sprav.territoriyalar" :key="t.id" :value="t.id">{{ t.nomi }}</option>
       </select>
+      <select v-if="dillerQollab" class="sv-fsel" v-model="filterDiller">
+        <option value="">Agent va dillerlar</option>
+        <option value="yoq">Faqat agentlar</option>
+        <option value="ha">Faqat dillerlar</option>
+      </select>
       <select v-if="superAgentlar.length" class="sv-fsel" v-model="filterSuper">
         <option value="">Barcha super agentlar</option>
         <option v-for="s in superAgentlar" :key="s.id" :value="s.id">{{ s.fullname }} ({{ boysunuvchilar(s.id).length }})</option>
@@ -93,7 +98,7 @@
             <span class="sv-dot" :class="agent.online?'sv-dot--on':'sv-dot--off'"/>
           </div>
           <div class="sv-card-info">
-            <div class="sv-card-name">{{ agent.fullname }}<span v-if="agent.narx_ozgartirish" class="sv-super sv-super--narx" title="Ilovada narxni o'zgartira oladi">Narx ✎</span><span v-if="agent.super_agent" class="sv-super" :title="`Super agent · ${boysunuvchilar(agent.id).length} ta agent biriktirilgan`">Super · {{ boysunuvchilar(agent.id).length }}</span></div>
+            <div class="sv-card-name">{{ agent.fullname }}<RouterLink v-if="agent.diller" :to="`/dillerlar/${agent.id}`" class="sv-super sv-super--diller" title="Diller kartasini ochish" @click.stop>Diller{{ agent.diller_qarz ? ' · qarzi ' + fmtPul(agent.diller_qarz) : '' }}</RouterLink><span v-if="agent.narx_ozgartirish" class="sv-super sv-super--narx" title="Ilovada narxni o'zgartira oladi">Narx ✎</span><span v-if="agent.super_agent" class="sv-super" :title="`Super agent · ${boysunuvchilar(agent.id).length} ta agent biriktirilgan`">Super · {{ boysunuvchilar(agent.id).length }}</span></div>
             <div class="sv-card-meta">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               {{ agent.hudud || '—' }}<template v-if="agent.super_agent_nomi"> · {{ agent.super_agent_nomi }}</template>
@@ -783,8 +788,22 @@
                   </div>
                 </div>
 
+                <!-- Diller (backend §24): kompaniya hamkori — tovarni diller narxida oladi, o'z narxida sotadi, puli o'ziniki -->
+                <div v-if="dillerQollab" class="fm-field fm-field--full">
+                  <label class="fm-check-card" :class="{ 'fm-check-card--on': form.diller }">
+                    <input type="checkbox" v-model="form.diller" class="fm-check-input"/>
+                    <span class="fm-check-box">
+                      <svg v-if="form.diller" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span class="fm-check-txt">
+                      <b>Diller (hamkor sotuvchi)</b>
+                      <small>Tovarni kompaniyadan diller narxida oladi va o'zi xohlagan narxda sotadi. Uning mijozlari, sotuvi va puli kompaniya hisobotlariga kirmaydi — kompaniyaga faqat tovar qarzini to'laydi</small>
+                    </span>
+                  </label>
+                </div>
+
                 <!-- Narxni ilovada o'zgartirish ruxsati (backend §20). Standart — o'chiq: agent viloyat narxida sotadi -->
-                <div v-if="narxQollab" class="fm-field fm-field--full">
+                <div v-if="narxQollab && !form.diller" class="fm-field fm-field--full">
                   <label class="fm-check-card" :class="{ 'fm-check-card--on': form.narx_ozgartirish }">
                     <input type="checkbox" v-model="form.narx_ozgartirish" class="fm-check-input"/>
                     <span class="fm-check-box">
@@ -798,7 +817,7 @@
                 </div>
 
                 <!-- Super agent: agentlarni boshqaruvchi agent. Maydonlar faqat backend qo'llasa chiqadi -->
-                <template v-if="superQollab">
+                <template v-if="superQollab && !form.diller">
                   <div class="fm-field">
                     <label class="fm-label">Kimga bo'ysunadi (super agent)</label>
                     <select v-model="form.super_agent_id" class="fm-input fm-input--sel">
@@ -1131,13 +1150,15 @@ const vanTugma  = ref(false)
 // Super agent (backend 2026-11-21): maydonlar javobda bo'lsagina ko'rsatiladi va yuboriladi
 const superQollab = ref(false)
 const narxQollab = ref(false)   // backend narx_ozgartirish maydonini qaytarsa (§20)
+const dillerQollab = ref(false) // backend diller maydonini qaytarsa (§24)
+const filterDiller = ref('')
 // Agent puli: qo'lidagi naqd va kutilayotganlar — /kassalar/agentlar (eski backendda yo'q, shunda ko'rsatilmaydi)
 const pulAgent = ref(null)
 const pulKoradi = computed(() => authStore.hasPerm('moliya', 'view'))
 const kochirishKoradi = computed(() => [['avtolavka', 'view'], ['avtolavka', 'create'], ['ombor', 'view'], ['ombor', 'edit']].some(([m, a]) => authStore.hasPerm(m, a)))
 const fmtPul = (v) => Math.round(Number(v) || 0).toLocaleString('ru-RU').replace(/,/g, ' ')
 const filterSuper = ref('')
-const superAgentlar = computed(() => agents.value.filter(a => a.super_agent))
+const superAgentlar = computed(() => agents.value.filter(a => a.super_agent && !a.diller))
 const superTanlov = computed(() => superAgentlar.value.filter(a => a.faol !== false && a.id !== modal.value?.id))
 const boysunuvchilar = (id) => agents.value.filter(a => a.super_agent_id === id)
 
@@ -1147,7 +1168,7 @@ function emptyForm() {
     territoriya_id:'', plan_summa:'', bonus_foiz:'', ish_boshlagan:'',
     tashrif_kunlari:[], boshlanish_manzil:'', transport:'',
     kredit_limit:'', max_chegirma:'', izoh:'',
-    mashina_raqam:'', radius_km:'', avtolavka:true, super_agent:false, super_agent_id:'', narx_ozgartirish:false,
+    mashina_raqam:'', radius_km:'', avtolavka:true, super_agent:false, super_agent_id:'', narx_ozgartirish:false, diller:false,
     login:'', parol:''
   }
 }
@@ -1169,7 +1190,8 @@ function openAdd() {
   modal.value = { id: null }
 }
 function openEdit(agent) {
-  vanTugma.value = !agent.avtolavka
+  // Yangi backendda (super agent/diller maydonlari bor) hamma agent o'z omboridan sotadi — Van Sell belgisi kerak emas
+  vanTugma.value = !agent.avtolavka && !superQollab.value && !dillerQollab.value
   form.value = {
     fullname:          agent.fullname || '',
     telefon:           agent.telefon || '',
@@ -1191,6 +1213,7 @@ function openEdit(agent) {
     super_agent:       !!agent.super_agent,
     super_agent_id:    agent.super_agent_id || '',
     narx_ozgartirish:  !!agent.narx_ozgartirish,
+    diller:            !!agent.diller,
     login:             agent.login || '',
     parol:             '',   // hech qachon to'ldirilmaydi — bo'sh qolsa o'zgarmaydi
   }
@@ -1242,6 +1265,11 @@ async function saveAgent() {
     // Eski backend noma'lum maydonga 400 beradi — super agent maydonlari faqat qo'llansa yuboriladi
     if (!superQollab.value) { delete body.super_agent; delete body.super_agent_id }
     if (narxQollab.value) body.narx_ozgartirish = !!form.value.narx_ozgartirish; else delete body.narx_ozgartirish
+    if (dillerQollab.value) {
+      body.diller = !!form.value.diller
+      // Dillerga super agent va narx ruxsati tegishli emas
+      if (body.diller) { body.super_agent = false; body.super_agent_id = null; body.narx_ozgartirish = false }
+    } else delete body.diller
     if (isEdit) {
       await agentApi.update(modal.value.id, body)
       toast.success('Agent yangilandi', `${form.value.fullname} ma'lumotlari saqlandi`)
@@ -1296,10 +1324,23 @@ async function load() {
 
     // Backend dan kelgan agentlar statistika bilan
     const rawAgents = statsRes?.agentlar || []
+    // Dillerlar statistika ro'yxatiga kirmaydi (ular kompaniya rejasi va KPIsida yo'q) — umumiy ro'yxatdan qo'shiladi,
+    // shunda ularni shu yerda tahrirlash va "Diller" belgisini boshqarish mumkin
+    try {
+      const hammasi = await agentApi.getAll()
+      const bor = new Set(rawAgents.map(a => a.id))
+      const royxat = Array.isArray(hammasi) ? hammasi : hammasi?.rows || hammasi?.data || []
+      const by = new Map(royxat.map(a => [a.id, a]))
+      rawAgents.forEach(a => { const x = by.get(a.id); if (x) { if (a.diller === undefined) a.diller = x.diller; if (a.diller_qarz === undefined) a.diller_qarz = x.diller_qarz } })
+      for (const a of royxat) if (a.diller && !bor.has(a.id)) rawAgents.push(a)
+    } catch { /* eski backend yoki ruxsat yo'q — faqat statistika ro'yxati */ }
 
     // Super agent ma'lumoti statistikada bo'lmasa — spravochnikdan olinadi
     const spr = new Map((sprav.value.agentlar || []).map(a => [a.id, a]))
     narxQollab.value = rawAgents.some(a => a && 'narx_ozgartirish' in a)
+    dillerQollab.value = [...rawAgents, ...(sprav.value.agentlar || [])].some(a => a && 'diller' in a)
+    const dq = new Map((sprav.value.agentlar || []).map(a => [a.id, a.diller]))
+    rawAgents.forEach(a => { if (a.diller === undefined) a.diller = dq.get(a.id) })
     superQollab.value = [...rawAgents, ...(sprav.value.agentlar || [])].some(a => a && 'super_agent' in a)
     agents.value = rawAgents.map(a => normalizeAgent({ ...a, super_agent: a.super_agent ?? spr.get(a.id)?.super_agent, super_agent_id: a.super_agent_id ?? spr.get(a.id)?.super_agent_id }))
     const ism = new Map(agents.value.map(a => [a.id, a.fullname]))
@@ -1350,6 +1391,8 @@ function normalizeAgent(a) {
     super_agent_nomi:  a.super_agent_nomi || a.superAgent?.fullname || '',
     pul:               a.pul || null,
     narx_ozgartirish:  !!a.narx_ozgartirish,
+    diller:            !!a.diller,
+    diller_qarz:       a.diller_qarz == null ? null : Number(a.diller_qarz),
     plan_summa,
     fakt_summa,
     plan_pct,
@@ -1381,6 +1424,7 @@ const filteredAgents = computed(() => {
   if (searchQ.value) { const q=searchQ.value.toLowerCase(); list=list.filter(a=>a.fullname?.toLowerCase().includes(q)) }
   if (filterHudud.value) list = list.filter(a => a.territoriya_id == filterHudud.value)
   // Super agent filtri: uning o'zi va unga biriktirilgan agentlar
+  if (filterDiller.value) list = list.filter(a => (filterDiller.value === 'ha') === !!a.diller)
   if (filterSuper.value) list = list.filter(a => a.super_agent_id == filterSuper.value || a.id == filterSuper.value)
   return [...list].sort((a,b)=>{
     if (sortBy.value==='plan')     return b.plan_pct - a.plan_pct
@@ -2040,6 +2084,7 @@ onUnmounted(() => { if (routeMap) routeMap.remove() })
 .sv-pul .pl-link { margin-left:auto; font-size:12.5px; }
 .sv-pul--k { margin-top:6px; padding-top:0; border-top:0; }
 .sv-super { margin-left:6px; padding:1px 7px; border-radius:999px; background:#ede9fe; color:#6d28d9; font-size:10.5px; font-weight:700; vertical-align:middle; }
+.sv-super--diller { background:#dbeafe; color:#1d4ed8; text-decoration:none; }
 .sv-super--narx { background:#fef3c7; color:#92400e; }
 .sv-chip--super { background:#ede9fe; color:#6d28d9; font-weight:700; }
 .sv-boysun { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:#475569; }

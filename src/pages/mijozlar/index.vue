@@ -184,7 +184,7 @@
                   <div class="mj-agent-av">{{ m.agent.fullname?.charAt(0) }}</div>
                   <div class="mj-stack">
                     <span class="mj-agent-nom">{{ m.agent.fullname }}</span>
-                    <span v-if="!m.agent.avtolavka" class="mj-kanal mj-kanal--dist" title="Bu agent Van Sell agenti emas — Agentlar ro'yxatida uni tahrirlab, Van Sell belgisini yoqing">Van Sell emas</span>
+                    <span v-if="dillerIds.has(m.agent.id)" class="mj-kanal mj-kanal--avto" title="Diller mijozi — qarzi dillerga tegishli, kompaniya qarzdorlari va hisobotlariga kirmaydi">Diller mijozi</span>
                   </div>
                 </div>
                 <span class="mj-dash" v-else>—</span>
@@ -638,6 +638,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { api } from '@/api/api'
 import BuyumKorish from '@/components/BuyumKorish.vue'
+import { agentApi } from '@/api/api'
 import { useForma } from '@/validation/useForma'
 import { tozala } from '@/validation/qoidalar'
 import * as sx from '@/validation/sxemalar'
@@ -1023,6 +1024,10 @@ function selectMapMijoz(m) {
 watch(view, async (v) => {
   if (v === 'map') { await nextTick(); await initMap(); await loadAll() }
 })
+
+// Diller agentlari — ularning mijozlari ro'yxatda "Diller mijozi" belgisi bilan ko'rinadi (backend §24)
+const dillerIds = ref(new Set())
+agentApi.spravochnik().then(d => { dillerIds.value = new Set((d?.agentlar || []).filter(a => a.diller).map(a => a.id)) }).catch(() => {})
 
 onMounted(async () => { await loadSprav(); await load(); loadXulosa() })
 onUnmounted(() => { if (leafletMap) { leafletMap.remove(); leafletMap = null } })

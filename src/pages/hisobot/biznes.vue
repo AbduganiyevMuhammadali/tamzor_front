@@ -72,7 +72,7 @@ const sharshara = computed(() => {
 })
 const sharKatta = computed(() => Math.max(1, ...sharshara.value.map(r => Math.abs(r.summa))))
 
-const aktivRang: Record<string, string> = { kassa: RANG.ok, ombor: RANG.brand, mashina: RANG.brand2, debitorka: RANG.warn, avans: RANG.brand3, berilgan_qarz: '#c4b5fd' }
+const aktivRang: Record<string, string> = { kassa: RANG.ok, ombor: RANG.brand, mashina: RANG.brand2, debitorka: RANG.warn, avans: RANG.brand3, berilgan_qarz: '#c4b5fd', diller_qarz: '#f59e0b' }
 const ballRang = computed(() => (x.value.holat === 'yaxshi' ? '#059669' : x.value.holat === 'orta' ? '#d97706' : x.value.holat === 'xavf' ? '#dc2626' : '#94a3b8'))
 const ballYoy = computed(() => {
   const v = Math.max(0, Math.min(100, x.value.ball ?? 0)) / 100
