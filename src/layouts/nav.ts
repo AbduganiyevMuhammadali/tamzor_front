@@ -142,6 +142,12 @@ export const MODULLAR: Modul[] = [
       { yol: '/ishlab', nom: 'Partiyalar', izoh: "Nima sarflandi, nima chiqdi, tannarx", ikon: IK.zavod, badge: { k: 'ishlab.jarayonda', ton: 'ish', matn: 'jarayonda' }, kalit: 'ishlab chiqarish sex tannarx xom ashyo partiya proizvodstvo' },
       { yol: '/ishlab/yangi', nom: 'Yangi partiya', izoh: 'Xom ashyo → mahsulot, omborga kirim', ikon: IK.quti, kalit: 'yangi partiya ishlab chiqarish' },
     ] },
+  { key: 'buyumlar', perm: 'avtolavka', nom: 'Buyumlar', izoh: 'Sotilmaydigan jihozlar: muzlatgich, stend, banner — kimda nechta', ikon: IK.quti, yol: '/buyumlar', zanjir: true, faqat: 'distributsiya',
+    sahifalar: [
+      { yol: '/buyumlar', nom: "Buyumlar ro'yxati", izoh: 'Kompaniyada, agentlarda va mijozlarda nechta', ikon: IK.quti, aniq: true, ruxsat: KOCHIRISH_KORISH, kalit: 'buyum jihoz muzlatgich vitrina stend banner inventar' },
+      { yol: '/buyumlar/harakatlar', nom: 'Harakatlar tarixi', izoh: 'Kirim, agentga berish, qaytarish, mijozga berish', ikon: IK.kitob, ruxsat: KOCHIRISH_KORISH, kalit: 'buyum harakat tarix jurnal' },
+      { yol: '/buyumlar/hisobot', nom: 'Hisobotlar', izoh: "Agentlar, mijozlar va buyum bo'yicha", ikon: IK.grafik, ruxsat: KOCHIRISH_KORISH, kalit: 'buyum hisobot agentlarda mijozlarda' },
+    ] },
   { key: 'moliya', perm: 'moliya', nom: 'Moliya', izoh: 'Kassa, kunlik xarajatlar, qarz oldi-berdi', ikon: IK.hamyon, yol: '/moliya', zanjir: true,
     match: ['/moliya'],
     sahifalar: [

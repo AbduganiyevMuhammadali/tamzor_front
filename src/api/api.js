@@ -338,6 +338,26 @@ export const tripSheetApi = {
 /* ── Avtolavka API (ko'chma savdo: yuklash → sotuv → qabul → solishtirma) ── */
 const qs = (params = {}) => { const q = new URLSearchParams(params).toString(); return q ? '?' + q : '' }
 
+/* Buyumlar — sotilmaydigan jihozlar (muzlatgich, stend, banner…) hisobi (backend §23). Faqat soni, narx yo'q.
+ * Ko'rish — avtolavka:view/create yoki ombor:view/edit; harakat — avtolavka:create yoki ombor:edit; ma'lumotnoma — ombor:edit */
+export const buyumApi = {
+  /** Ma'lumotnoma qoldiqlari bilan: [{ id, nomi, birlik, izoh, faol, kompaniyada, agentlarda, mijozlarda, jami }] */
+  katalog:     ()            => request('/buyumlar'),
+  yarat:       (body)        => request('/buyumlar', j('POST', body)),
+  tahrir:      (id, body)    => request(`/buyumlar/${id}`, j('PATCH', body)),
+  ochir:       (id)          => request(`/buyumlar/${id}`, { method: 'DELETE' }),
+  /** { tur: kirim|agentga|agentdan|agentdan_agentga, dan_agent_id?, ga_agent_id?, qatorlar:[{buyum_id, dona}], izoh?, sorov_id } */
+  harakat:     (body)        => request('/buyumlar/harakat', j('POST', body)),
+  /** Tarix: dan, gacha, tur, agent_id, mijoz_id, buyum_id, page, limit → { data, page, limit, jami } */
+  harakatlar:  (params = {}) => request(`/buyumlar/harakatlar${qs(params)}`),
+  harakatBitta:(id)          => request(`/buyumlar/harakatlar/${id}`),
+  /** Agentdagi buyumlar: { qolda:[{buyum_id, nomi, dona}], mijozlarda:[{mijoz_id, mijoz_nomi, buyum_id, nomi, dona}] } */
+  agent:       (id)          => request(`/buyumlar/agent/${id}`),
+  hisobotAgentlar: (params = {}) => request(`/buyumlar/hisobot/agentlar${qs(params)}`),
+  hisobotMijozlar: (params = {}) => request(`/buyumlar/hisobot/mijozlar${qs(params)}`),
+  hisobotBuyumlar: ()            => request('/buyumlar/hisobot/buyumlar'),
+}
+
 /* Xarajat limiti va kassaga bog'langan chiqimlar (backend §22) */
 export const xarajatApi = {
   /** Chiqim formalari uchun faol kassalar va joriy foydalanuvchi limiti: { xarajat_limit, rows:[{ id, nomi, tur, tolov_usul, balans }] } — moliya ruxsati shart emas */

@@ -255,6 +255,9 @@
           </div>
         </div>
 
+        <!-- Agentdagi buyumlar (sotilmaydigan jihozlar) — faqat ko'rish -->
+        <div style="padding:12px 24px 0"><BuyumKorish :agent-id="selectedAgent.id"/></div>
+
         <!-- detail tabs -->
         <div class="sv-dtabs">
           <button v-for="t in DETAIL_TABS" :key="t.key" :class="['sv-dtab',detailTab===t.key&&'sv-dtab--on']" @click="onDetailTabChange(t.key)">
@@ -1043,6 +1046,7 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { agentApi, kassalarApi } from '@/api/api'
 import AgentPul from '@/components/AgentPul.vue'
+import BuyumKorish from '@/components/BuyumKorish.vue'
 import { authStore } from '@/stores/auth'
 import { fonQatlam } from '@/utils/xarita'
 import { useToast } from '@/composables/useToast'

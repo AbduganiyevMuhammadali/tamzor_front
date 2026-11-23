@@ -42,6 +42,9 @@ const router = createRouter({
         // Avtolavka — butun jarayon bitta markazda (yuklash, savdo, qabul, kassa, solishtirma)
         { path: 'avtolavka',             name: 'Avtolavka',            meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/index.vue') },
         { path: 'avtolavka/sotuvlar',    name: 'AvtolavkaSotuvlar',    meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/sotuvlar.vue') },
+        { path: 'buyumlar',            name: 'Buyumlar',          meta: { ruxsat: KOCHIRISH_KORISH, tab: 'royxat', ...D },     component: () => import('../pages/buyumlar/index.vue') },
+        { path: 'buyumlar/harakatlar', name: 'BuyumHarakatlar',   meta: { ruxsat: KOCHIRISH_KORISH, tab: 'harakatlar', ...D }, component: () => import('../pages/buyumlar/index.vue') },
+        { path: 'buyumlar/hisobot',    name: 'BuyumHisobot',      meta: { ruxsat: KOCHIRISH_KORISH, tab: 'hisobot', ...D },    component: () => import('../pages/buyumlar/index.vue') },
         { path: 'avtolavka/kochirish',    name: 'AvtolavkaKochirish',    meta: { ruxsat: KOCHIRISH_KORISH, ...D }, component: () => import('../pages/avtolavka/kochirish.vue') },
         { path: 'avtolavka/qaytarishlar', name: 'AvtolavkaQaytarishlar', meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/qaytarishlar.vue') },
         { path: 'avtolavka/sotuv',       name: 'AvtolavkaSotuv',       meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/sotuv.vue') },

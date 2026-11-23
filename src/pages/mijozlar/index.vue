@@ -296,6 +296,9 @@
               <strong>{{ formatSum(detailMijoz.balans) }} so'm</strong>
             </div>
 
+            <!-- Mijozdagi buyumlar (sotilmaydigan jihozlar) — faqat ko'rish; berish/olish agent ilovasidan -->
+            <div style="padding:10px 20px 0"><BuyumKorish :mijoz-id="detailMijoz.id"/></div>
+
             <!-- Kredit limit holati (limit>0 bo'lsagina ko'rinadi) -->
             <div class="mj-kredit-strip" v-if="parseFloat(detailMijoz.kredit_limit) > 0">
               <div class="mj-kredit-top">
@@ -634,6 +637,7 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { api } from '@/api/api'
+import BuyumKorish from '@/components/BuyumKorish.vue'
 import { useForma } from '@/validation/useForma'
 import { tozala } from '@/validation/qoidalar'
 import * as sx from '@/validation/sxemalar'
