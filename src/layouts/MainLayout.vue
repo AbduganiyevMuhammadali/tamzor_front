@@ -51,10 +51,14 @@ function logout() { authStore.logout(); router.replace('/login') }
 const initsial = (name: string) => name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
 /* ── Navigatsiya ────────────────────────────────────────── */
+// Sahifada `ruxsat` berilgan bo'lsa — shu juftlardan biri yetarli (modul ruxsati shart emas); aks holda modul/sahifa "view" ruxsati
+const sahifaKorinadi = (m: Modul, s: Sahifa) => rejimStore.mos(s.faqat) && (s.ruxsat ? s.ruxsat.some(([mod, amal]) => authStore.hasPerm(mod, amal)) : authStore.canView(s.perm || m.perm))
 const modullar = computed<Modul[]>(() => MODULLAR
-  .filter(m => rejimStore.mos(m.faqat) && authStore.canView(m.perm))
-  .map(m => ({ ...m, sahifalar: m.sahifalar.filter(s => rejimStore.mos(s.faqat) && authStore.canView(s.perm || m.perm)) }))
-  .filter(m => m.sahifalar.length))
+  .filter(m => rejimStore.mos(m.faqat))
+  .map(m => ({ ...m, sahifalar: m.sahifalar.filter(s => sahifaKorinadi(m, s)) }))
+  .filter(m => m.sahifalar.length)
+  // Modulning asosiy sahifasiga ruxsat bo'lmasa — birinchi ko'rinadigan sahifasi ochiladi
+  .map(m => (m.sahifalar.some(s => s.yol === m.yol) ? m : { ...m, yol: m.sahifalar[0]!.yol })))
 const guruhlar = computed(() => [
   { nom: 'Asosiy',         items: modullar.value.filter(m => m.key === 'dashboard') },
   { nom: 'Savdo jarayoni', items: modullar.value.filter(m => m.zanjir) },

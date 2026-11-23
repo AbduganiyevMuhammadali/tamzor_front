@@ -17,6 +17,7 @@ export interface Sahifa {
   aniq?: boolean            // faqat aynan shu yo'l (prefiks emas)
   match?: string[]          // qo'shimcha faol yo'llar
   perm?: string             // modulnikidan farqli ruxsat
+  ruxsat?: [string, string][] // shu juftlardan biri bo'lsa ko'rinadi (modul ruxsati o'rniga) — masalan [['avtolavka','view'],['ombor','edit']]
   badge?: { k: string; ton: Ton; matn?: string }
   kalit?: string            // qidiruv uchun qo'shimcha so'zlar
   faqat?: Rejim             // faqat shu biznes rejimida ko'rinadi (berilmasa — har ikkalasida)
@@ -90,6 +91,9 @@ export const IK = {
   yulduz: '<path d="M12 2.8l2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L12 17.36l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93z"/>',
 }
 
+/* Ko'chirishlar: yozish ruxsati ko'rishni ham beradi; ombor ruxsati bilan ham ochiladi (backend bilan bir xil) */
+export const KOCHIRISH_KORISH: [string, string][] = [['avtolavka', 'view'], ['avtolavka', 'create'], ['ombor', 'view'], ['ombor', 'edit']]
+
 export const MODULLAR: Modul[] = [
   { key: 'dashboard', perm: 'dashboard', nom: 'Bosh sahifa', izoh: "Kompaniyaning bugungi holati bir qarashda", ikon: IK.bosh, yol: '/dashboard',
     sahifalar: [{ yol: '/dashboard', nom: 'Bosh sahifa', izoh: 'KPI, savdo, kassa, qarzdorlar', ikon: IK.bosh, kalit: 'dashboard kpi' }] },
@@ -115,6 +119,7 @@ export const MODULLAR: Modul[] = [
       { yol: '/avtolavka', nom: 'Yuk berish va qabul', izoh: 'Agentga yuk berish, undagi qoldiq, kun oxirida qabul', ikon: IK.mashina, aniq: true, badge: { k: 'avtolavka.yuklanmagan', ton: 'ish', matn: 'yuk berilmagan' }, kalit: 'kochma savdo yuk berish qoldiq astatka ostatka vansell van sell won sell markaz' },
       { yol: '/avtolavka/sotuvlar', nom: 'Sotuvlar', izoh: 'Agentlar sotgan cheklar: naqd, qarz, joy', ikon: IK.chek, kalit: 'Van Sell chek savdo jurnal naqd qarz' },
       { yol: '/avtolavka/qaytarishlar', nom: 'Qaytarishlar', izoh: 'Agent mijozdan qaytarib olgan tovarlar', ikon: IK.qaytar, kalit: 'qaytarish vozvrat brak yaroqsiz' },
+      { yol: '/avtolavka/kochirish', nom: "Ko'chirishlar", izoh: 'Bir agentdagi tovarni boshqa agentga o\'tkazish', ikon: IK.almash, ruxsat: KOCHIRISH_KORISH, kalit: 'kochirish peremesheniya agentdan agentga otkazish qoldiq' },
       { yol: '/avtolavka/sotuv', nom: 'Sotuv qilish', izoh: 'Agent nomidan yoki skladdan webdan sotish', ikon: IK.savat, kalit: 'Van Sell sotish sotuv kiritish agent nomidan qolda web naqd qarz' },
     ] },
   { key: 'mijozlar', perm: 'mijozlar', nom: 'Mijozlar', izoh: "Do'konlar, qarz va to'lovlar", ikon: IK.dokon, yol: '/mijozlar', zanjir: true,

@@ -184,6 +184,7 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
         </p>
         </div>
       </div>
+      <RouterLink to="/avtolavka/kochirish" class="pl-btn sm" style="margin-left:auto;margin-right:8px" title="Bir agentdagi tovarni boshqa agentga o'tkazish">Ko'chirishlar</RouterLink>
       <div class="al-date">
         <button class="al-date-b" title="Oldingi kun" @click="kunSur(-1)">
           <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>

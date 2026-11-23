@@ -408,6 +408,18 @@ export const avtolavkaApi = {
   solishtirma:     (params = {}) => request(`/avtolavka/solishtirma${qs(params)}`),
   /** Kunlar bo'yicha qisqa solishtirma */
   kunlar:          (params = {}) => request(`/avtolavka/kunlar${qs(params)}`),
+  /* Agentdan agentga ko'chirish (backend §21). O'qish — avtolavka:view/create yoki ombor:view/edit; yozish — avtolavka:create yoki ombor:edit */
+  /** Ro'yxat: dan, gacha, agent_id (har ikki tomon), dan_agent_id, ga_agent_id, holat=faol|bekor, page, limit → { data, jami, page, limit } */
+  kochirishlar:    (params = {}) => request(`/avtolavka/kochirish${qs(params)}`),
+  /** Bitta hujjat: qatorlar va audit bilan */
+  kochirish:       (id)          => request(`/avtolavka/kochirish/${id}`),
+  /** { dan_agent_id, ga_agent_id, qatorlar:[{tovar_id, dona}], izoh?, sabab?, sorov_id } — darhol kuchga kiradi */
+  kochirishYarat:  (body)        => request('/avtolavka/kochirish', j('POST', body)),
+  /** { qatorlar (to'liq ro'yxat), izoh?, sabab?, tahrir_sababi? } */
+  kochirishTahrir: (id, body)    => request(`/avtolavka/kochirish/${id}`, j('PATCH', body)),
+  kochirishBekor:  (id, body)    => request(`/avtolavka/kochirish/${id}/bekor`, j('POST', body)),
+  /** Agent omboridagi sotiladigan qoldiq (tannarxda): [{ tovar_id, nomi, turkum, dona, tannarx }] */
+  agentQoldiq:     (agent_id)    => request(`/avtolavka/agent-qoldiq?agent_id=${agent_id}`),
   /** Sotuvdan qaytarishlar tarixi: dan, gacha, agent_id, mijoz_id, viloyat_id, page, limit */
   qaytarishlar:    (params = {}) => request(`/avtolavka/qaytarishlar${qs(params)}`),
   qaytarish:       (id)          => request(`/avtolavka/qaytarishlar/${id}`),

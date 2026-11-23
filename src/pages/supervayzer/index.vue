@@ -145,6 +145,9 @@
           <span v-if="Number(agent.pul.kutilmoqda_plastik)" class="pl-bg pl-bg--kut" title="Tasdiq kutayotgan plastik to'lov">plastik {{ fmtPul(agent.pul.kutilmoqda_plastik) }}</span>
           <button v-if="pulKoradi" type="button" class="pl-link" @click.stop="pulAgent = agent">Pul daftari</button>
         </div>
+        <div v-if="kochirishKoradi" class="sv-pul sv-pul--k" @click.stop>
+          <RouterLink :to="{ path: '/avtolavka/kochirish', query: { agent_id: agent.id } }" class="pl-link">Ko'chirishlar</RouterLink>
+        </div>
 
         <div class="sv-card-foot">
           <div class="sv-card-foot-actions" @click.stop>
@@ -1127,6 +1130,7 @@ const narxQollab = ref(false)   // backend narx_ozgartirish maydonini qaytarsa (
 // Agent puli: qo'lidagi naqd va kutilayotganlar — /kassalar/agentlar (eski backendda yo'q, shunda ko'rsatilmaydi)
 const pulAgent = ref(null)
 const pulKoradi = computed(() => authStore.hasPerm('moliya', 'view'))
+const kochirishKoradi = computed(() => [['avtolavka', 'view'], ['avtolavka', 'create'], ['ombor', 'view'], ['ombor', 'edit']].some(([m, a]) => authStore.hasPerm(m, a)))
 const fmtPul = (v) => Math.round(Number(v) || 0).toLocaleString('ru-RU').replace(/,/g, ' ')
 const filterSuper = ref('')
 const superAgentlar = computed(() => agents.value.filter(a => a.super_agent))
@@ -2030,6 +2034,7 @@ onUnmounted(() => { if (routeMap) routeMap.remove() })
 .sv-card-info { flex:1; min-width:0; }
 .sv-pul { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin:10px 18px 0; padding-top:10px; border-top:1px dashed #e2e8f0; font-size:12.5px; color:#475569; }
 .sv-pul .pl-link { margin-left:auto; font-size:12.5px; }
+.sv-pul--k { margin-top:6px; padding-top:0; border-top:0; }
 .sv-super { margin-left:6px; padding:1px 7px; border-radius:999px; background:#ede9fe; color:#6d28d9; font-size:10.5px; font-weight:700; vertical-align:middle; }
 .sv-super--narx { background:#fef3c7; color:#92400e; }
 .sv-chip--super { background:#ede9fe; color:#6d28d9; font-weight:700; }

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { authStore } from '@/stores/auth'
 import { rejimStore, type Rejim } from '@/stores/rejim'
+import { KOCHIRISH_KORISH } from '@/layouts/nav'
 
 /* meta.faqat — sahifa faqat shu biznes rejimida ochiladi (stores/rejim.ts).
    D — distributsiyaga xos: agent, dostavchik, buyurtma zanjiri, Van Sell. */
@@ -41,6 +42,7 @@ const router = createRouter({
         // Avtolavka — butun jarayon bitta markazda (yuklash, savdo, qabul, kassa, solishtirma)
         { path: 'avtolavka',             name: 'Avtolavka',            meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/index.vue') },
         { path: 'avtolavka/sotuvlar',    name: 'AvtolavkaSotuvlar',    meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/sotuvlar.vue') },
+        { path: 'avtolavka/kochirish',    name: 'AvtolavkaKochirish',    meta: { ruxsat: KOCHIRISH_KORISH, ...D }, component: () => import('../pages/avtolavka/kochirish.vue') },
         { path: 'avtolavka/qaytarishlar', name: 'AvtolavkaQaytarishlar', meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/qaytarishlar.vue') },
         { path: 'avtolavka/sotuv',       name: 'AvtolavkaSotuv',       meta: { module: 'avtolavka', ...D }, component: () => import('../pages/avtolavka/sotuv.vue') },
         { path: 'avtolavka/:eski(yuklash|qabul|solishtirma)', redirect: '/avtolavka' },
@@ -105,6 +107,10 @@ router.beforeEach((to) => {
 
   // Bu biznes rejimida yo'q sahifa (masalan, optomda agent yoki Van Sell sahifasi)
   if (!rejimStore.mos(to.meta.faqat as Rejim | undefined)) return { path: '/dashboard' }
+
+  // Bir nechta ruxsatdan biri yetarli bo'lgan sahifa (meta.ruxsat) — modul tekshiruvi o'rniga
+  const juftlar = to.meta.ruxsat as [string, string][] | undefined
+  if (juftlar) return juftlar.some(([mod, amal]) => authStore.hasPerm(mod, amal)) ? undefined : { path: '/dashboard' }
 
   // Modulga ruxsat tekshiruvi
   const module = to.meta.module as string | undefined
