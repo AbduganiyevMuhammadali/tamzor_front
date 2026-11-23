@@ -8,6 +8,8 @@ interface AuthUser {
   role: string
   token: string
   perms: Record<string, string[]> | null
+  /** Bitta xarajat limiti (faqat User): null — cheklovsiz, 0 — har xarajat tasdiqqa */
+  xarajat_limit?: number | null
 }
 
 const STORAGE_KEY = 'sellz_auth'

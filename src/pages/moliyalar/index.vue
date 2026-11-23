@@ -196,8 +196,9 @@
                 <label>Kassa</label>
                 <select v-model="addForm.kassa_id" class="km-in" @change="kassaTanlandi">
                   <option value="">— Kassasiz (umumiy) —</option>
-                  <option v-for="k in kassalar.filter(x => x.faol)" :key="k.id" :value="k.id">{{ k.nomi }} · {{ k.tur === 'plastik' ? 'plastik' : 'naqd' }}</option>
+                  <option v-for="k in kassalar.filter(x => x.faol)" :key="k.id" :value="k.id">{{ k.nomi }} · {{ k.tur === 'plastik' ? 'plastik' : 'naqd' }}{{ k.balans != null ? ' · ' + fmtSum(k.balans) : '' }}</option>
                 </select>
+                <small v-if="addForm.tur === 'chiqim' && addForm.kassa_id && Number(addForm.summa) > Number(kassalar.find(k => k.id === addForm.kassa_id)?.balans ?? Infinity)" style="color:#b91c1c;font-size:11.5px">Kassada yetarli mablag' yo'q — chiqim saqlanmaydi</small>
               </div>
 
               <div class="km-field">
@@ -237,7 +238,7 @@ import { useForma, useSorovId } from '@/validation/useForma'
 import { tozala } from '@/validation/qoidalar'
 import * as sx from '@/validation/sxemalar'
 // @ts-ignore
-import { kassaApi, arizaApi, kassalarApi, faylniOch } from '@/api/api'
+import { kassaApi, arizaApi, kassalarApi, xarajatApi, faylniOch } from '@/api/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -417,7 +418,7 @@ async function loadMijozlar() {
   try { const sp = await arizaApi.spravochnik(); mijozlar.value = sp.mijozlar || [] } catch (e: any) { showToast(e.message || "Mijozlar ro'yxatini yuklab bo'lmadi", 'err') }
 }
 
-onMounted(() => { load(); loadMijozlar(); kassalarApi.list().then((d: any) => { kassalar.value = d?.kassalar || [] }).catch(() => {}) })
+onMounted(() => { load(); loadMijozlar(); xarajatApi.kassalar().then((d: any) => { kassalar.value = (d?.rows || []).map((k: any) => ({ ...k, faol: true })) }).catch(() => kassalarApi.list().then((d: any) => { kassalar.value = d?.kassalar || [] }).catch(() => {})) })
 </script>
 
 <style scoped>

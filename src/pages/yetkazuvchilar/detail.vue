@@ -224,6 +224,11 @@
             </div>
 
             <div class="yd-form-group">
+              <label>Kassa (ixtiyoriy)</label>
+              <KassaTanlov v-model="tolovKassa" :summa="tolovForm.summa" css-class="yd-input"/>
+            </div>
+
+            <div class="yd-form-group">
               <label>Izoh</label>
               <textarea class="yd-input yd-textarea" v-model="tolovForm.izoh" v-maydon:izoh="tf" placeholder="Ixtiyoriy..." rows="2"></textarea>
             </div>
@@ -288,6 +293,7 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/api/api'
+import KassaTanlov from '@/components/KassaTanlov.vue'
 import { useToast } from '@/composables/useToast'
 import { useForma } from '@/validation/useForma'
 import { tozala } from '@/validation/qoidalar'
@@ -313,6 +319,7 @@ const tolovModal = ref(false)
 const savingTolov = ref(false)
 const summaInput = ref(null)
 const tolovForm = ref({ summa: '', tolov_turi: 'naqt', izoh: '', sana: today() })
+const tolovKassa = ref('')   // tanlansa pul shu kassa balansidan ayiriladi (backend §22.14)
 
 const editModal = ref(false)
 const savingEdit = ref(false)
@@ -423,6 +430,7 @@ function changePage(p) {
 
 function openTolov() {
   tolovForm.value = { summa: '', tolov_turi: 'naqt', izoh: '', sana: today() }
+  tolovKassa.value = ''
   tf.tozala()
   tolovModal.value = true
   nextTick(() => summaInput.value?.focus())
@@ -436,7 +444,7 @@ async function submitTolov() {
   if (savingTolov.value || !tf.tekshir()) return
   savingTolov.value = true
   try {
-    await api.post(`/yetkazuvchilar/${id}/tolov`, tozala(sx.yetkazuvchiTolov, { ...tolovForm.value }))
+    await api.post(`/yetkazuvchilar/${id}/tolov`, { ...tozala(sx.yetkazuvchiTolov, { ...tolovForm.value }), ...(tolovKassa.value ? { kassa_id: Number(tolovKassa.value) } : {}) })
     closeTolov()
     await loadYetkazuvchi()
     page.value = 1

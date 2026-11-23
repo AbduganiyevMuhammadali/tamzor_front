@@ -7,8 +7,9 @@
         <span class="xr-hd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span>
         <div>
           <h1>Kunlik xarajatlar</h1>
-          <p>Kassadan rasxod — har bir xarajat kassa qoldig'idan ayriladi va foyda-zarar hisobotiga tushadi</p>
+          <p>Kassadan rasxod — har bir xarajat tanlangan kassa balansidan ayriladi va foyda-zarar hisobotiga tushadi</p>
         </div>
+        <span class="pl-bg" :class="limit == null ? '' : 'pl-bg--pl'" :title="limit == null ? 'Sizga xarajat limiti belgilanmagan' : 'Bitta xarajat shu summadan oshsa — tasdiqqa yuboriladi'">{{ limit == null ? 'Cheklovsiz' : 'Limitingiz: ' + fmt(limit) }}</span>
       </div>
       <div class="xr-hd-r">
         <button class="xr-btn" @click="toifaOch">
@@ -22,6 +23,15 @@
       </div>
     </div>
 
+    <div class="pl-tabs">
+      <button class="pl-tab" :class="{ on: tab === 'royxat' }" @click="tab = 'royxat'">Xarajatlar</button>
+      <button class="pl-tab" :class="{ on: tab === 'sorovlar' }" @click="tab = 'sorovlar'">Tasdiq kutayotganlar<i v-if="d.kutilmoqda?.soni">{{ d.kutilmoqda.soni }}</i></button>
+    </div>
+    <p v-if="xabar" class="xr-xabar" :class="{ kut: xabar.kut }">{{ xabar.matn }} <button v-if="xabar.kut" type="button" class="pl-link" @click="tab = 'sorovlar'; xabar = null">Tasdiq kutayotganlarni ko'rish</button><button type="button" class="xr-xabar-x" @click="xabar = null">×</button></p>
+
+    <XarajatSorovlar v-if="tab === 'sorovlar'" :kassalar="kassalar" @ozgardi="yukla(); kassalarYukla()"/>
+
+    <template v-if="tab === 'royxat'">
     <!-- Davr -->
     <div class="xr-davr">
       <div class="xr-preset">
@@ -71,6 +81,7 @@
         <div class="xr-card-hd">
           <b>Xarajatlar</b>
           <span v-if="filtr" class="xr-filtr">{{ toifaNomi(filtr) }} <button @click="filtr = ''; yukla()">×</button></span>
+          <select v-if="kassalar.length" v-model="fKassa" class="xr-kassa-f" title="Kassa bo'yicha filtr"><option value="">Barcha kassalar</option><option v-for="k in kassalar" :key="k.id" :value="k.id">{{ k.nomi }}</option><option value="0">Kassasiz (eski)</option></select>
           <div class="xr-srch">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
             <input v-model="qidiruv" placeholder="Izoh bo'yicha qidirish…"/>
@@ -92,7 +103,7 @@
               <small>{{ r.izoh || 'izohsiz' }}</small>
             </span>
             <span class="xr-meta">
-              <span class="xr-usul">{{ USUL[r.tolov_usul] || r.tolov_usul }}</span>
+              <span class="xr-usul" :title="r.kassa_nomi ? USUL[r.tolov_usul] : 'Kassaga bog\'lanmagan (eski yozuv)'">{{ r.kassa_nomi || USUL[r.tolov_usul] || r.tolov_usul }}</span>
               <small v-if="r.kim">{{ r.kim }}</small>
             </span>
             <button v-if="r.chek_rasm" type="button" class="pl-link" title="Chek rasmini ochish" @click.stop="chekOch(r.chek_rasm)">Chek</button>
@@ -134,6 +145,8 @@
       </aside>
     </div>
 
+    </template>
+
     <!-- Xarajat oynasi -->
     <div v-if="m.ochiq" class="xr-ov" @click.self="m.ochiq = false">
       <div class="xr-m">
@@ -165,12 +178,15 @@
                 <button v-if="m.summa" type="button" class="tozala" @click="m.summa = null">tozalash</button>
               </span>
             </label>
-            <div class="xr-f">
-              <span>To'lov usuli</span>
-              <div class="xr-seg">
-                <button v-for="(t, k) in USUL_UZUN" :key="k" type="button" :class="{ on: m.tolov_usul === k }" @click="m.tolov_usul = k">{{ t }}</button>
-              </div>
-            </div>
+            <label class="xr-f">
+              <span>Kassa {{ m.id && !m.eskiKassa ? '' : '*' }}</span>
+              <select v-model="m.kassa_id" class="xr-kassa">
+                <option value="">{{ m.id && !m.eskiKassa ? '— Kassaga bog\'lanmagan (eski yozuv) —' : '— Kassani tanlang —' }}</option>
+                <option v-for="k in kassalar" :key="k.id" :value="k.id">{{ k.nomi }} · {{ k.tur === 'plastik' ? 'plastik' : 'naqd' }} · {{ fmt(k.balans) }}</option>
+              </select>
+              <small v-if="!kassalar.length" class="xr-kassa-yoq">Faol kassa yo'q — avval Moliya → Kassalar bo'limida kassa qo'shing</small>
+              <small v-else-if="kassa" class="xr-kassa-usul">To'lov usuli: {{ USUL_UZUN[kassa.tolov_usul] || (kassa.tur === 'plastik' ? 'Karta' : 'Naqd') }} (kassa turidan)</small>
+            </label>
             <label class="xr-f"><span>Sana</span><input type="date" v-model="m.sana" v-maydon:sana="xf" :max="bugun()"/></label>
             <label class="xr-f full"><span>Izoh — nima uchun, kimga</span><input v-model="m.izoh" v-maydon:izoh="xf" maxlength="255" placeholder="Masalan: benzin 20 l, Akmal (haydovchi)"/></label>
             <div class="xr-f full">
@@ -186,18 +202,18 @@
               </div>
             </div>
           </div>
-          <div v-if="m.summa > 0" class="xr-prev" :class="{ warn: qoldiqKeyin < 0 && m.tolov_usul === 'naqt' }">
-            Kassadan <b>{{ fmt(m.summa) }} so'm</b> chiqadi ({{ USUL[m.tolov_usul] }})
-            <template v-if="m.tolov_usul === 'naqt'"> · naqd qoldiq {{ fmt(qoldiqHozir) }} → <b>{{ fmt(qoldiqKeyin) }}</b></template>
-            <div v-if="qoldiqKeyin < 0 && m.tolov_usul === 'naqt'" class="xr-warn">Kassada naqd yetmaydi — qoldiq manfiy bo'ladi. Avval kassaga kirimni kiriting yoki to'lov usulini tekshiring.</div>
+          <div v-if="m.summa > 0 && kassa" class="xr-prev" :class="{ warn: qoldiqKeyin < 0 }">
+            "{{ kassa.nomi }}" kassasidan <b>{{ fmt(m.summa) }} so'm</b> chiqadi · balans {{ fmt(qoldiqHozir) }} → <b>{{ fmt(qoldiqKeyin) }}</b>
+            <div v-if="qoldiqKeyin < 0" class="xr-warn">Kassada yetarli mablag' yo'q (balans {{ fmt(qoldiqHozir) }}) — xarajat saqlanmaydi. Boshqa kassani tanlang yoki summani kamaytiring.</div>
           </div>
+          <p v-if="limitOshadi" class="xr-limit">Limitingiz {{ fmt(limit) }} so'm. {{ m.id ? "Summani limitdan oshirib bo'lmaydi — yangi xarajat sifatida kiriting, u tasdiqqa yuboriladi." : 'Bu xarajat tasdiqqa yuboriladi — tasdiqlangach kassadan chiqadi.' }}</p>
           <p v-if="xato" class="xr-err">{{ xato }}</p>
         </div>
         <div class="xr-m-ft">
           <button class="xr-btn" @click="m.ochiq = false">Bekor qilish</button>
           <span style="flex:1"/>
           <button v-if="!m.id" class="xr-btn" :disabled="band || !tayyor" @click="saqla(true)">Saqlash va yana</button>
-          <button class="xr-btn xr-btn--p" :disabled="band || !tayyor" @click="saqla(false)">{{ band ? 'Saqlanmoqda…' : 'Saqlash' }}</button>
+          <button class="xr-btn xr-btn--p" :disabled="band || !tayyor" @click="saqla(false)">{{ band ? 'Saqlanmoqda…' : limitOshadi && !m.id ? 'Tasdiqqa yuborish' : 'Saqlash' }}</button>
         </div>
       </div>
     </div>
@@ -236,7 +252,9 @@
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
-import { api, faylniOch } from '@/api/api'
+import { api, faylniOch, xarajatApi } from '@/api/api'
+import XarajatSorovlar from './XarajatSorovlar.vue'
+import { useSorovId } from '@/validation/useForma'
 import { useForma } from '@/validation/useForma'
 import * as sx from '@/validation/sxemalar'
 
@@ -343,6 +361,7 @@ const guruhlar = computed(() => {
   const g = new Map()
   for (const r of d.value.rows) {
     if (q && !`${r.izoh} ${r.nomi} ${r.kim}`.toLowerCase().includes(q)) continue
+    if (fKassa.value !== '' && String(r.kassa_id || 0) !== String(fKassa.value)) continue
     const k = kunKey(new Date(r.sana))
     if (!g.has(k)) g.set(k, { kun: k, rows: [], summa: 0 })
     const x = g.get(k); x.rows.push(r); x.summa += r.summa
@@ -359,23 +378,38 @@ const kunGrafik = computed(() => {
 const maxKun = computed(() => Math.max(1, ...kunGrafik.value.map(k => k.summa)))
 
 /* Xarajat oynasi */
-const m = reactive({ ochiq: false, id: null, kategoriya: '', summa: null, tolov_usul: 'naqt', sana: bugun(), izoh: '', rasm: null, rasmUrl: '', rasmOchir: false, eskiSumma: 0, eskiUsul: '' })
+/* Kassa va limit (backend §22): har yangi xarajat kassaga bog'lanadi va shu kassa balansidan ayiriladi;
+   foydalanuvchi limiti (null — cheklovsiz) dan katta xarajat tasdiqqa ketadi (202, holat 'kutilmoqda') */
+const tab = ref('royxat')
+const kassalar = ref([]), limit = ref(null), fKassa = ref(''), xabar = ref(null)
+const sorov = useSorovId()
+async function kassalarYukla() {
+  try { const r = await xarajatApi.kassalar(); kassalar.value = r?.rows || []; limit.value = r?.xarajat_limit ?? null } catch { /* eski backend — kassasiz ishlaydi */ }
+}
+const m = reactive({ kassa_id: '', eskiKassa: null, ochiq: false, id: null, kategoriya: '', summa: null, tolov_usul: 'naqt', sana: bugun(), izoh: '', rasm: null, rasmUrl: '', rasmOchir: false, eskiSumma: 0, eskiUsul: '' })
 const band = ref(false), xato = ref('')
 const xf = useForma(sx.xarajat, () => m)
 const summaInp = ref(null)
 const yangiToifa = reactive({ ochiq: false, nomi: '' })
-const tayyor = computed(() => !!m.kategoriya && Number(m.summa) > 0)
-const qoldiqHozir = computed(() => d.value.kassa.naqt + (m.id && m.eskiUsul === 'naqt' ? m.eskiSumma : 0))
+const kassa = computed(() => kassalar.value.find(k => k.id === m.kassa_id) || null)
+// Yangi xarajatda kassa majburiy; tahrirda eski kassasiz yozuv kassasiz qolishi mumkin
+const kassaKerak = computed(() => !m.id || !!m.eskiKassa)
+const limitOshadi = computed(() => limit.value != null && Number(m.summa) > limit.value + 0.005 && (!m.id || Math.abs(Number(m.summa) - m.eskiSumma) > 0.005))
+const tayyor = computed(() => !!m.kategoriya && Number(m.summa) > 0 && (!kassaKerak.value || !!m.kassa_id) && !(kassa.value && qoldiqKeyin.value < 0) && !(m.id && limitOshadi.value))
+// Tahrirda shu kassada qolsa — joriy yozuv balansdan allaqachon ayirilgan
+const qoldiqHozir = computed(() => (kassa.value?.balans || 0) + (m.id && m.eskiKassa === m.kassa_id ? m.eskiSumma : 0))
 const qoldiqKeyin = computed(() => qoldiqHozir.value - (Number(m.summa) || 0))
 
 function qoshOch(kod = '') {
-  Object.assign(m, { ochiq: true, id: null, kategoriya: kod || m.kategoriya || '', summa: null, tolov_usul: 'naqt', sana: bittaKun.value ? dan.value : bugun(), izoh: '', rasm: null, rasmUrl: '', rasmOchir: false, eskiSumma: 0, eskiUsul: '' })
+  Object.assign(m, { ochiq: true, id: null, kategoriya: kod || m.kategoriya || '', summa: null, tolov_usul: 'naqt', sana: bittaKun.value ? dan.value : bugun(), izoh: '', rasm: null, rasmUrl: '', rasmOchir: false, eskiSumma: 0, eskiUsul: '', eskiKassa: null,
+    kassa_id: kassalar.value.some(k => k.id === m.kassa_id) ? m.kassa_id : (kassalar.value.length === 1 ? kassalar.value[0].id : '') })
+  sorov.yangila()
   if (m.sana > bugun()) m.sana = bugun()
   xato.value = ''; yangiToifa.ochiq = false; xf.tozala()
   nextTick(() => summaInp.value?.focus())
 }
 function tahrirOch(r) {
-  Object.assign(m, { ochiq: true, id: r.id, kategoriya: r.kategoriya === 'boshqa_chiqim' ? 'xarajat' : r.kategoriya, summa: r.summa, tolov_usul: r.tolov_usul || 'naqt', sana: kunKey(new Date(r.sana)), izoh: r.izoh, rasm: null, rasmUrl: r.chek_rasm || '', rasmOchir: false, eskiSumma: r.summa, eskiUsul: r.tolov_usul })
+  Object.assign(m, { ochiq: true, id: r.id, kategoriya: r.kategoriya === 'boshqa_chiqim' ? 'xarajat' : r.kategoriya, summa: r.summa, tolov_usul: r.tolov_usul || 'naqt', sana: kunKey(new Date(r.sana)), izoh: r.izoh, rasm: null, rasmUrl: r.chek_rasm || '', rasmOchir: false, eskiSumma: r.summa, eskiUsul: r.tolov_usul, kassa_id: r.kassa_id || '', eskiKassa: r.kassa_id || null })
   xato.value = ''; yangiToifa.ochiq = false; xf.tozala()
 }
 function rasmTanla(e) {
@@ -393,13 +427,21 @@ async function saqla(yana) {
   band.value = true
   try {
     const fd = new FormData()
-    fd.append('kategoriya', m.kategoriya); fd.append('summa', String(m.summa)); fd.append('tolov_usul', m.tolov_usul)
+    fd.append('kategoriya', m.kategoriya); fd.append('summa', String(m.summa))
+    // Kassali xarajatda to'lov usulini backend kassa turidan oladi; kassasiz eski yozuvda avvalgi usul saqlanadi
+    if (m.kassa_id) fd.append('kassa_id', String(m.kassa_id)); else fd.append('tolov_usul', m.tolov_usul)
+    if (!m.id) fd.append('sorov_id', sorov.id.value)
     fd.append('sana', m.sana); fd.append('izoh', m.izoh || '')
     if (m.rasm) fd.append('rasm', m.rasm, m.rasm.name)
     if (m.id && m.rasmOchir) fd.append('rasm_ochir', '1')
-    if (m.id) await api.upload(`/xarajatlar/${m.id}`, fd, 'PATCH')
-    else await api.upload('/xarajatlar', fd)
-    await Promise.all([yukla(), turlarYukla()])
+    const tahrir = !!m.id
+    const r = tahrir ? await api.upload(`/xarajatlar/${m.id}`, fd, 'PATCH') : await api.upload('/xarajatlar', fd)
+    if (!tahrir) sorov.yangila()
+    // 202: limitdan oshgan — so'rov bo'lib saqlandi, kassadan hali chiqmagan
+    xabar.value = r?.holat === 'kutilmoqda'
+      ? { kut: true, matn: `Limitdan oshgani uchun tasdiqqa yuborildi: ${fmt(m.summa)} so'm.` }
+      : { kut: false, matn: tahrir ? 'Xarajat yangilandi.' : `Xarajat saqlandi: ${fmt(m.summa)} so'm.` }
+    await Promise.all([yukla(), turlarYukla(), kassalarYukla()])
     if (yana) {
       const kat = m.kategoriya, sana = m.sana, usul = m.tolov_usul
       Object.assign(m, { summa: null, izoh: '', rasm: null, rasmUrl: '', kategoriya: kat, sana, tolov_usul: usul })
@@ -410,7 +452,7 @@ async function saqla(yana) {
 }
 async function ochir(r) {
   if (!confirm(`${r.nomi} — ${fmt(r.summa)} so'm xarajatini o'chirasizmi? Kassadan ham o'chadi.`)) return
-  try { await api.delete(`/xarajatlar/${r.id}`); await yukla() } catch (e) { alert(e.message || "O'chirilmadi") }
+  try { await api.delete(`/xarajatlar/${r.id}`); await Promise.all([yukla(), kassalarYukla()]) } catch (e) { xabar.value = null; alert(e.status === 403 ? "Ruxsat yo'q" : e.message || "O'chirilmadi") }
 }
 
 /* Toifalar */
@@ -435,11 +477,18 @@ async function turSaqla(t, u) {
 // /uploads token talab qiladi — rasm <img src> bilan emas, Bearer bilan olinib yangi oynada ochiladi
 async function chekOch(y) { try { await faylniOch(y, 'chek') } catch (e) { if (e?.message !== 'session_expired') xato.value = e?.message || 'Chek ochilmadi' } }
 
-onMounted(() => { turlarYukla(); yukla() })
+onMounted(() => { turlarYukla(); yukla(); kassalarYukla() })
 </script>
 
 <style scoped>
 .xr { display:flex; flex-direction:column; gap:14px; color:var(--ink); }
+.xr-xabar { margin:0; padding:10px 14px; border-radius:10px; background:rgba(5,150,105,.1); color:#047857; font-size:13px; font-weight:600; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.xr-xabar.kut { background:rgba(217,119,6,.12); color:#92400e; }
+.xr-xabar-x { margin-left:auto; border:0; background:none; font-size:17px; cursor:pointer; color:inherit; }
+.xr-kassa, .xr-kassa-f { height:38px; padding:0 10px; border:1.5px solid var(--line); border-radius:9px; font-size:13.5px; background:var(--surface); color:var(--ink); outline:none; }
+.xr-kassa-f { height:34px; font-size:12.5px; margin-left:auto; }
+.xr-kassa-yoq { color:#b91c1c; font-size:11.5px; } .xr-kassa-usul { color:var(--mut); font-size:11.5px; }
+.xr-limit { margin:0; padding:9px 12px; border-radius:9px; background:rgba(217,119,6,.12); color:#92400e; font-size:12.5px; font-weight:600; }
 .xr-hd { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .xr-hd-l { display:flex; align-items:center; gap:14px; }
 .xr-hd-r { display:flex; gap:8px; }

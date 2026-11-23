@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, reactive, watch, onMounted } from 'vue'
 import { api } from '@/api/api.js'
+import NumberInput from '@/components/NumberInput.vue'
+import { authStore } from '@/stores/auth'
 import { rejimStore } from '@/stores/rejim'
 import { useForma } from '@/validation/useForma'
 import * as sx from '@/validation/sxemalar'
@@ -130,6 +132,7 @@ function fromBackend(u) {
     lastLogin: u.updatedAt ? new Date(u.updatedAt).toLocaleString('uz-UZ') : '—',
     region:    '',
     perms:     u.perms || null,
+    xarajatLimit: u.xarajat_limit == null ? null : Number(u.xarajat_limit),
   }
 }
 
@@ -158,8 +161,10 @@ const filterActive = ref('')
 // ── User form ─────────────────────────────────────────────
 const emptyUserForm = () => ({
   id: '', name: '', username: '', password: '', confirmPassword: '',
-  role: 'User', active: true, region: ''
+  role: 'User', active: true, region: '', xarajatLimit: ''
 })
+// Rol, ruxsatlar va xarajat limitini faqat Admin o'zgartiradi (backend boshqalarga 403 beradi)
+const adminmi = computed(() => authStore.state.user?.role === 'Admin')
 const userForm      = ref(emptyUserForm())
 const userFormError = ref('')
 const userSaving    = ref(false)
@@ -186,7 +191,8 @@ function openEditUser(u) {
   userForm.value = {
     id: u.id, name: u.name, username: u.username,
     password: '', confirmPassword: '',
-    role: u.role, active: u.active, region: u.region || ''
+    role: u.role, active: u.active, region: u.region || '',
+    xarajatLimit: u.xarajatLimit == null ? '' : u.xarajatLimit
   }
   editUserId.value = u.id
   userFormError.value = ''
@@ -220,11 +226,16 @@ async function saveUser() {
   const body = {
     username:        f.username.trim(),
     fullname:        f.name.trim(),
-    role:            f.role,
     password:        f.password || '',
     confirmPassword: f.confirmPassword || '',
-    perms:           permsSnapshot,
   }
+  // Admin bo'lmagan foydalanuvchi o'z profilini saqlaganda rol, ruxsat va limit yuborilmaydi (aks holda 403)
+  if (adminmi.value) {
+    body.role = f.role
+    body.perms = permsSnapshot
+    // Bo'sh — cheklovsiz (null); 0 — har xarajat tasdiqqa. Limit faqat User rolida ma'noga ega
+    body.xarajat_limit = f.role !== 'User' || f.xarajatLimit === '' || f.xarajatLimit == null ? null : Number(f.xarajatLimit)
+  } else if (!editUserId.value) { body.role = f.role; body.perms = permsSnapshot }
 
   try {
     if (editUserId.value) {
@@ -510,6 +521,7 @@ function getInitials(name) {
           <div class="ucard-login">
             <svg viewBox="0 0 20 20" fill="currentColor" v-html="SVG.clock"/>
             {{ u.lastLogin ?? '—' }}
+            <span v-if="u.role === 'User'" class="ucard-limit" :title="u.xarajatLimit == null ? 'Xarajat limiti belgilanmagan' : 'Bitta xarajat limiti'">Limit: {{ u.xarajatLimit == null ? 'cheklovsiz' : Number(u.xarajatLimit).toLocaleString('ru-RU') }}</span>
           </div>
 
           <!-- Footer actions -->
@@ -636,6 +648,8 @@ function getInitials(name) {
                     <div class="f"><label class="fl">Username <span class="req">*</span></label><input v-model="userForm.username" v-maydon:username="uf" class="fi" placeholder="username" autocomplete="off"/></div>
                     <div class="f"><label class="fl">Parol{{ modalMode==='edit-user' ? ' (o\'zgartirish uchun)' : '' }} <span v-if="modalMode!=='edit-user'" class="req">*</span></label><input v-model="userForm.password" v-maydon:password="uf" type="password" class="fi" placeholder="••••••••" autocomplete="new-password"/></div>
                     <div class="f"><label class="fl">Parolni tasdiqlash{{ modalMode==='edit-user' ? '' : '' }} <span v-if="userForm.password" class="req">*</span></label><input v-model="userForm.confirmPassword" type="password" maxlength="100" class="fi" placeholder="••••••••" autocomplete="new-password"/></div>
+                    <!-- Xarajat limiti (backend §22): faqat Admin belgilaydi; Admin/Programmer rolida limit qo'llanmaydi -->
+                    <div v-if="adminmi" class="f"><label class="fl">Xarajat limiti (bitta xarajat, so'm)</label><NumberInput v-model="userForm.xarajatLimit" :bosh="''" css-class="fi" :disabled="userForm.role !== 'User'" :placeholder="userForm.role !== 'User' ? 'Bu rolda limit yo\'q' : 'Bo\'sh — cheklovsiz'"/><small class="fl-izoh">{{ userForm.role !== 'User' ? 'Admin va Programmer uchun limit qo\'llanmaydi' : userForm.xarajatLimit === '' || userForm.xarajatLimit == null ? 'Cheklovsiz: har qanday xarajat darhol yoziladi' : Number(userForm.xarajatLimit) === 0 ? '0 — har bir xarajat tasdiqqa ketadi' : 'Bundan katta xarajat tasdiqqa yuboriladi' }}</small></div>
                   </div>
                 </div>
 
@@ -1264,4 +1278,6 @@ function getInitials(name) {
   .role-grid { grid-template-columns:1fr; }
   .f2 { grid-template-columns:1fr; }
 }
+.ucard-limit { margin-left:auto; padding:1px 8px; border-radius:999px; background:#f5f3ff; color:#6d28d9; font-size:11px; font-weight:600; }
+.fl-izoh { display:block; margin-top:4px; font-size:11.5px; color:#94a3b8; }
 </style>

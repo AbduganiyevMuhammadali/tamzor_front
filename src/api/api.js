@@ -338,6 +338,17 @@ export const tripSheetApi = {
 /* ── Avtolavka API (ko'chma savdo: yuklash → sotuv → qabul → solishtirma) ── */
 const qs = (params = {}) => { const q = new URLSearchParams(params).toString(); return q ? '?' + q : '' }
 
+/* Xarajat limiti va kassaga bog'langan chiqimlar (backend §22) */
+export const xarajatApi = {
+  /** Chiqim formalari uchun faol kassalar va joriy foydalanuvchi limiti: { xarajat_limit, rows:[{ id, nomi, tur, tolov_usul, balans }] } — moliya ruxsati shart emas */
+  kassalar:      ()            => request('/xarajatlar/kassalar'),
+  /** Limitdan katta xarajat so'rovlari: holat, user_id, kassa_id, dan, gacha, page, limit */
+  sorovlar:      (params = {}) => request(`/xarajatlar/sorovlar${qs(params)}`),
+  sorovTasdiqla: (id, body)    => request(`/xarajatlar/sorovlar/${id}/tasdiqla`, j('POST', body)),
+  sorovRad:      (id, body)    => request(`/xarajatlar/sorovlar/${id}/rad`, j('POST', body)),
+  sorovBekor:    (id)          => request(`/xarajatlar/sorovlar/${id}/bekor`, j('POST', {})),
+}
+
 /* Viloyat narxlari (backend §20): har tovarning har viloyatdagi chakana va optom narxi.
  * Saqlashda faqat o'zgargan qatorlar yuboriladi; null — o'sha narxni o'chiradi. Saqlash — ombor:edit. */
 export const viloyatNarxApi = {

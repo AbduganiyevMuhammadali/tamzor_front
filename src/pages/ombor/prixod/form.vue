@@ -7,6 +7,7 @@ import { notifStore } from '../../../stores/notif.js'
 import NumberInput from '../../../components/NumberInput.vue'
 import { authStore } from '../../../stores/auth'
 import { useQidiruv } from '@/composables/useQidiruv'
+import KassaTanlov from '@/components/KassaTanlov.vue'
 import { useForma } from '@/validation/useForma'
 import * as sx from '@/validation/sxemalar'
 
@@ -495,7 +496,8 @@ async function save(andNew = false, tasdiqla = false) {
     }
 
     if (tasdiqla) {
-      await api.patch(`/prixod/${result.id}/tasdiq`, {})
+      // Oldindan to'lov bo'lsa va kassa tanlangan bo'lsa — pul shu kassadan chiqadi (balans tekshiriladi; rad etilsa hujjat qoralama qoladi)
+      await api.patch(`/prixod/${result.id}/tasdiq`, head.tolangan_summa > 0 && tolovKassa.value ? { kassa_id: Number(tolovKassa.value) } : {})
     } else {
       notifStore.prixodKeldi({
         prixodId:   result.id,
@@ -630,6 +632,7 @@ onMounted(async () => {
 })
 
 const readonly = computed(() => holat.value === 'tasdiqlangan')
+const tolovKassa = ref('')   // "Tasdiqlash"da oldindan to'lov qaysi kassadan chiqishi (backend §22.14)
 
 function fmtSum(n) {
   return Number(n || 0).toLocaleString('uz-UZ')
@@ -808,6 +811,10 @@ function avatarColor(name) {
               <div class="pf-in-suffix">
                 <NumberInput v-model="head.tolangan_summa" v-maydon:tolangan_summa="hf" css-class="pf-in" :disabled="readonly" placeholder="0"/>
                 <span class="pf-suffix">UZS</span>
+              </div>
+              <div v-if="!readonly && head.tolangan_summa > 0" style="margin-top:6px">
+                <label class="pf-lbl">To'lov kassasi (ixtiyoriy)</label>
+                <KassaTanlov v-model="tolovKassa" :summa="head.tolangan_summa" css-class="pf-in"/>
               </div>
               <span v-if="!readonly && head.tolangan_summa > 0 && head.tolangan_summa < jamiSumma" class="pf-ytk-hint">
                 Qoldiq qarz: {{ (jamiSumma - head.tolangan_summa).toLocaleString('uz-UZ') }} UZS

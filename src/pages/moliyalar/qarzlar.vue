@@ -145,8 +145,9 @@
               <label class="qz-f"><span>Summa (so'm) *</span><NumberInput v-model="amal.summa" v-maydon:summa="hf" placeholder="0" ref="summaInp"/></label>
               <label class="qz-f"><span>Sana</span><input type="date" v-model="amal.sana" v-maydon:sana="hf"/></label>
               <label class="qz-f"><span>To'lov usuli</span>
-                <select v-model="amal.tolov_usul"><option value="naqt">Naqd</option><option value="karta">Karta</option><option value="bank">Bank</option></select>
+                <select v-model="amal.tolov_usul" :disabled="!!amal.kassa_id" :title="amal.kassa_id ? 'To\'lov usuli kassa turidan olinadi' : ''"><option value="naqt">Naqd</option><option value="karta">Karta</option><option value="bank">Bank</option></select>
               </label>
+              <div class="qz-f"><span>Kassa (ixtiyoriy)</span><KassaTanlov v-model="amal.kassa_id" :summa="amal.summa" :chiqim="kassaChiqim" @kassa="kassaTanlandi"/></div>
               <label v-if="amal.tur === 'qarz_berdik' || amal.tur === 'qarz_oldik'" class="qz-f"><span>Qaytarish muddati</span><input type="date" v-model="amal.muddat" v-maydon:muddat="hf"/></label>
               <label class="qz-f full"><span>Izoh</span><input v-model="amal.izoh" v-maydon:izoh="hf" maxlength="255" placeholder="Masalan: 3 oyga, foizsiz"/></label>
             </div>
@@ -212,6 +213,7 @@ import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue'
 import NumberInput from '@/components/NumberInput.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/api/api'
+import KassaTanlov from '@/components/KassaTanlov.vue'
 import { useForma } from '@/validation/useForma'
 import * as sx from '@/validation/sxemalar'
 
@@ -248,7 +250,10 @@ const shf = useForma(sx.uchinchiShaxs, () => sh)        // shaxs kartasi
 const summaInp = ref(null)
 
 const bugun = () => { const x = new Date(); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}` }
-const amal = reactive({ ochiq: false, tur: 'qarz_berdik', summa: null, sana: bugun(), tolov_usul: 'naqt', muddat: '', izoh: '' })
+const amal = reactive({ ochiq: false, tur: 'qarz_berdik', summa: null, sana: bugun(), tolov_usul: 'naqt', muddat: '', izoh: '', kassa_id: '' })
+// Kassa tanlansa to'lov usuli kassa turidan olinadi; pul chiqadigan harakatlarda (qarz berdik / qaytardik) balans tekshiriladi
+const kassaChiqim = computed(() => ['qarz_berdik', 'qaytardik'].includes(amal.tur))
+function kassaTanlandi(k) { if (k) amal.tolov_usul = k.tolov_usul || (k.tur === 'plastik' ? 'karta' : 'naqt') }
 const sh = reactive({ ochiq: false, id: null, ism: '', telefon: '', izoh: '', faol: true, yon: 'yoq', summa: null, sana: '', muddat: '' })
 
 const fmt = v => new Intl.NumberFormat('ru-RU').format(Math.round(Number(v) || 0))
@@ -297,7 +302,7 @@ function tanla(id) {
 function holatTanla(k) { holat.value = holat.value === k && k !== 'hammasi' ? 'hammasi' : k }
 
 function amalOch(tur) {
-  Object.assign(amal, { ochiq: true, tur, summa: null, sana: bugun(), tolov_usul: 'naqt', muddat: '', izoh: '' })
+  Object.assign(amal, { ochiq: true, tur, summa: null, sana: bugun(), tolov_usul: 'naqt', muddat: '', izoh: '', kassa_id: '' })
   xato.value = ''; hf.tozala()
   nextTick(() => summaInp.value?.focus())
 }
@@ -309,6 +314,7 @@ async function amalSaqla() {
   try {
     await api.post(`/uchinchi-shaxslar/${tanlangan.value}/harakat`, {
       tur: amal.tur, summa: amal.summa, sana: amal.sana, tolov_usul: amal.tolov_usul, muddat: amal.muddat || null, izoh: amal.izoh,
+      ...(amal.kassa_id ? { kassa_id: Number(amal.kassa_id) } : {}),
     })
     amal.ochiq = false
     await Promise.all([yukla(), tafsilot()])
