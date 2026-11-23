@@ -338,6 +338,17 @@ export const tripSheetApi = {
 /* ── Avtolavka API (ko'chma savdo: yuklash → sotuv → qabul → solishtirma) ── */
 const qs = (params = {}) => { const q = new URLSearchParams(params).toString(); return q ? '?' + q : '' }
 
+/* Viloyat narxlari (backend §20): har tovarning har viloyatdagi chakana va optom narxi.
+ * Saqlashda faqat o'zgargan qatorlar yuboriladi; null — o'sha narxni o'chiradi. Saqlash — ombor:edit. */
+export const viloyatNarxApi = {
+  /** Bitta tovar: { tovar, narxlar: [{ territoriya_id, territoriya_nomi, chakana_narx, optom_narx, updatedAt, user_nomi }] } */
+  tovar:        (id)            => request(`/tovar/${id}/viloyat-narxlari`),
+  tovarSaqla:   (id, narxlar)   => request(`/tovar/${id}/viloyat-narxlari`, j('PUT', { narxlar })),
+  /** Bitta viloyat jadvali: territoriya_id (majburiy), qidiruv, page, limit → { territoriya, data, page, limit, jami } */
+  viloyat:      (params = {})   => request(`/tovar/viloyat-narxlari${qs(params)}`),
+  viloyatSaqla: (territoriyaId, narxlar) => request(`/tovar/viloyat-narxlari/${territoriyaId}`, j('PUT', { narxlar })),
+}
+
 /* Kassalar, plastik to'lovlar navbati, agent naqd/karta topshiruvlari (backend §17–19).
  * Ruxsat: ko'rish — moliya:view, kassa CRUD — moliya:create, tasdiq/rad/tahrir — moliya:approve. */
 const j = (method, body) => ({ method, body: JSON.stringify(body ?? {}) })

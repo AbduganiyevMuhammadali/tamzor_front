@@ -25,6 +25,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
       { key: 'kategoriya',       label: 'Turkumlar',                icon: 'folder',   accent: '#7c3aed' },
       { key: 'tovar',            label: 'Tovar',                    icon: 'box',      accent: '#7c3aed' },
       { key: 'narx',             label: 'Narx turi / Narx',         icon: 'currency', accent: '#7c3aed' },
+      { key: 'viloyat-narx',     label: 'Viloyat narxlari',         icon: 'map',      accent: '#7c3aed' },
     ],
   },
   {
@@ -62,6 +63,7 @@ const PAGE_COMPONENTS: Record<string, ReturnType<typeof defineAsyncComponent>> =
   kategoriya:         defineAsyncComponent(() => import('./kategoriya/index.vue')),
   chek:               defineAsyncComponent(() => import('./chek/index.vue')),
   narx:               defineAsyncComponent(() => import('./narx/index.vue')),
+  'viloyat-narx':     defineAsyncComponent(() => import('./narx/viloyat.vue')),
   olchov:             defineAsyncComponent(() => import('./olchov/index.vue')),
   hudud:              defineAsyncComponent(() => import('./hudud/index.vue')),
   'mijoz-kategoriya': defineAsyncComponent(() => import('./mijoz-kategoriya/index.vue')),
@@ -76,6 +78,14 @@ const PAGE_COMPONENTS: Record<string, ReturnType<typeof defineAsyncComponent>> =
 }
 
 const activeKey = ref('tovar')
+// Saqlanmagan o'zgarishi bor bo'lim (`ozgargan` ni ochib bergan) — boshqa bo'limga o'tishdan oldin so'raladi
+const faolRef = ref<any>(null)
+function tanla(k: string) {
+  if (k === activeKey.value) return
+  const n = faolRef.value?.ozgargan?.length
+  if (n && !confirm(`${n} ta o'zgarish saqlanmagan. Tashlab yuborilsinmi?`)) return
+  activeKey.value = k
+}
 const allItems  = NAV_GROUPS.flatMap(g => g.items)
 const activeItem      = computed(() => allItems.find(i => i.key === activeKey.value)!)
 const ActiveComponent = computed(() => PAGE_COMPONENTS[activeKey.value] ?? null)
@@ -123,7 +133,7 @@ const collapsed       = ref(false)
             v-for="item in group.items" :key="item.key"
             :class="['sz-item', activeKey === item.key && 'sz-item--on']"
             :title="collapsed ? item.label : ''"
-            @click="activeKey = item.key"
+            @click="tanla(item.key)"
           >
             <!-- Icon pill -->
             <span
@@ -154,7 +164,7 @@ const collapsed       = ref(false)
     <!-- ══════ CONTENT ══════ -->
     <main class="sz-main">
       <Suspense>
-        <component :is="ActiveComponent" v-if="ActiveComponent"/>
+        <component :is="ActiveComponent" v-if="ActiveComponent" ref="faolRef"/>
         <template v-else>
           <div class="sz-empty">
             <div class="sz-empty-ic">

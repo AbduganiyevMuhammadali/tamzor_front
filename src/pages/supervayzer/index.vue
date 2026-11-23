@@ -93,7 +93,7 @@
             <span class="sv-dot" :class="agent.online?'sv-dot--on':'sv-dot--off'"/>
           </div>
           <div class="sv-card-info">
-            <div class="sv-card-name">{{ agent.fullname }}<span v-if="agent.super_agent" class="sv-super" :title="`Super agent · ${boysunuvchilar(agent.id).length} ta agent biriktirilgan`">Super · {{ boysunuvchilar(agent.id).length }}</span></div>
+            <div class="sv-card-name">{{ agent.fullname }}<span v-if="agent.narx_ozgartirish" class="sv-super sv-super--narx" title="Ilovada narxni o'zgartira oladi">Narx ✎</span><span v-if="agent.super_agent" class="sv-super" :title="`Super agent · ${boysunuvchilar(agent.id).length} ta agent biriktirilgan`">Super · {{ boysunuvchilar(agent.id).length }}</span></div>
             <div class="sv-card-meta">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               {{ agent.hudud || '—' }}<template v-if="agent.super_agent_nomi"> · {{ agent.super_agent_nomi }}</template>
@@ -777,6 +777,20 @@
                   </div>
                 </div>
 
+                <!-- Narxni ilovada o'zgartirish ruxsati (backend §20). Standart — o'chiq: agent viloyat narxida sotadi -->
+                <div v-if="narxQollab" class="fm-field fm-field--full">
+                  <label class="fm-check-card" :class="{ 'fm-check-card--on': form.narx_ozgartirish }">
+                    <input type="checkbox" v-model="form.narx_ozgartirish" class="fm-check-input"/>
+                    <span class="fm-check-box">
+                      <svg v-if="form.narx_ozgartirish" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span class="fm-check-txt">
+                      <b>Narxni o'zgartira oladi</b>
+                      <small>Yoqilsa, agent ilovada sotuv paytida narxni qo'lda o'zgartira oladi. O'chiq bo'lsa — faqat viloyat narxida sotadi</small>
+                    </span>
+                  </label>
+                </div>
+
                 <!-- Super agent: agentlarni boshqaruvchi agent. Maydonlar faqat backend qo'llasa chiqadi -->
                 <template v-if="superQollab">
                   <div class="fm-field">
@@ -1109,6 +1123,7 @@ const formStep  = ref(0)
 const vanTugma  = ref(false)
 // Super agent (backend 2026-11-21): maydonlar javobda bo'lsagina ko'rsatiladi va yuboriladi
 const superQollab = ref(false)
+const narxQollab = ref(false)   // backend narx_ozgartirish maydonini qaytarsa (§20)
 // Agent puli: qo'lidagi naqd va kutilayotganlar — /kassalar/agentlar (eski backendda yo'q, shunda ko'rsatilmaydi)
 const pulAgent = ref(null)
 const pulKoradi = computed(() => authStore.hasPerm('moliya', 'view'))
@@ -1124,7 +1139,7 @@ function emptyForm() {
     territoriya_id:'', plan_summa:'', bonus_foiz:'', ish_boshlagan:'',
     tashrif_kunlari:[], boshlanish_manzil:'', transport:'',
     kredit_limit:'', max_chegirma:'', izoh:'',
-    mashina_raqam:'', radius_km:'', avtolavka:true, super_agent:false, super_agent_id:'',
+    mashina_raqam:'', radius_km:'', avtolavka:true, super_agent:false, super_agent_id:'', narx_ozgartirish:false,
     login:'', parol:''
   }
 }
@@ -1167,6 +1182,7 @@ function openEdit(agent) {
     avtolavka:         !!agent.avtolavka,
     super_agent:       !!agent.super_agent,
     super_agent_id:    agent.super_agent_id || '',
+    narx_ozgartirish:  !!agent.narx_ozgartirish,
     login:             agent.login || '',
     parol:             '',   // hech qachon to'ldirilmaydi — bo'sh qolsa o'zgarmaydi
   }
@@ -1217,6 +1233,7 @@ async function saveAgent() {
     }
     // Eski backend noma'lum maydonga 400 beradi — super agent maydonlari faqat qo'llansa yuboriladi
     if (!superQollab.value) { delete body.super_agent; delete body.super_agent_id }
+    if (narxQollab.value) body.narx_ozgartirish = !!form.value.narx_ozgartirish; else delete body.narx_ozgartirish
     if (isEdit) {
       await agentApi.update(modal.value.id, body)
       toast.success('Agent yangilandi', `${form.value.fullname} ma'lumotlari saqlandi`)
@@ -1274,6 +1291,7 @@ async function load() {
 
     // Super agent ma'lumoti statistikada bo'lmasa — spravochnikdan olinadi
     const spr = new Map((sprav.value.agentlar || []).map(a => [a.id, a]))
+    narxQollab.value = rawAgents.some(a => a && 'narx_ozgartirish' in a)
     superQollab.value = [...rawAgents, ...(sprav.value.agentlar || [])].some(a => a && 'super_agent' in a)
     agents.value = rawAgents.map(a => normalizeAgent({ ...a, super_agent: a.super_agent ?? spr.get(a.id)?.super_agent, super_agent_id: a.super_agent_id ?? spr.get(a.id)?.super_agent_id }))
     const ism = new Map(agents.value.map(a => [a.id, a.fullname]))
@@ -1323,6 +1341,7 @@ function normalizeAgent(a) {
     super_agent_id:    a.super_agent_id   || null,
     super_agent_nomi:  a.super_agent_nomi || a.superAgent?.fullname || '',
     pul:               a.pul || null,
+    narx_ozgartirish:  !!a.narx_ozgartirish,
     plan_summa,
     fakt_summa,
     plan_pct,
@@ -2009,9 +2028,10 @@ onUnmounted(() => { if (routeMap) routeMap.remove() })
 .sv-dot--sm { width:9px; height:9px; bottom:-1px; right:-1px; }
 .sv-dot--lg { width:13px; height:13px; bottom:-3px; right:-3px; }
 .sv-card-info { flex:1; min-width:0; }
-.sv-pul { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin-top:10px; padding-top:10px; border-top:1px dashed #e2e8f0; font-size:12.5px; color:#475569; }
+.sv-pul { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin:10px 18px 0; padding-top:10px; border-top:1px dashed #e2e8f0; font-size:12.5px; color:#475569; }
 .sv-pul .pl-link { margin-left:auto; font-size:12.5px; }
 .sv-super { margin-left:6px; padding:1px 7px; border-radius:999px; background:#ede9fe; color:#6d28d9; font-size:10.5px; font-weight:700; vertical-align:middle; }
+.sv-super--narx { background:#fef3c7; color:#92400e; }
 .sv-chip--super { background:#ede9fe; color:#6d28d9; font-weight:700; }
 .sv-boysun { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:#475569; }
 .sv-boysun-a { padding:3px 9px; border:1px solid #ddd6fe; border-radius:999px; background:#f5f3ff; color:#5b21b6; font-size:12px; cursor:pointer; }

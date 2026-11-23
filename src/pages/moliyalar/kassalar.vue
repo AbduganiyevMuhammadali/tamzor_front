@@ -59,7 +59,7 @@ async function kassaSaqla() {
   band.value = true; km.xato = ''
   try {
     // Plastik kassa viloyatlarga biriktiriladi; naqd kassa viloyatga bog'lanmaydi
-    const body = { nomi, tur: km.tur, izoh: km.izoh.trim() || null, faol: km.faol, viloyat_idlar: km.tur === 'plastik' ? km.viloyat_idlar : [] }
+    const body = { nomi, tur: km.tur, izoh: km.izoh.trim() || null, faol: km.faol, viloyatlar: km.tur === 'plastik' ? km.viloyat_idlar : [] }
     km.id ? await kassalarApi.update(km.id, body) : await kassalarApi.create(body)
     km.ochiq = false
     toast.success(km.id ? 'Kassa saqlandi' : "Kassa qo'shildi", nomi)

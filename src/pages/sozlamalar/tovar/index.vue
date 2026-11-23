@@ -5,6 +5,7 @@ import type { Tovar } from '../types'
 import type { Column } from '../types'
 import { api } from '../../../api/api.js'
 import { useQidiruv } from '@/composables/useQidiruv'
+import ViloyatNarx from '@/components/ViloyatNarx.vue'
 import { useForma } from '@/validation/useForma'
 import { tozala } from '@/validation/qoidalar'
 import * as sx from '@/validation/sxemalar'
@@ -166,7 +167,7 @@ interface TovarForm extends Omit<Tovar, 'id'> {
 
 type ModalMode = 'add' | 'edit' | 'view' | null
 const modalMode = ref<ModalMode>(null)
-const formTab = ref<'asosiy' | 'qoshimcha' | 'audit' | 'ikpu' | 'foto' | 'upakovka'>('asosiy')
+const formTab = ref<'asosiy' | 'qoshimcha' | 'audit' | 'ikpu' | 'foto' | 'upakovka' | 'viloyat'>('asosiy')
 
 const emptyForm = (): TovarForm => ({
   nomi: '', turkum: '', podkategoriya: '', savdoYonalishi: '',
@@ -197,8 +198,12 @@ const TAB_LIST = [
   { key: 'audit',     label: 'Audit',     icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
   { key: 'ikpu',      label: 'IKPU',      icon: 'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2' },
   { key: 'foto',      label: 'Foto',      icon: 'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z M15 13a3 3 0 11-6 0 3 3 0 016 0z' },
-  { key: 'upakovka',  label: 'Упаковка',  icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
+  { key: 'viloyat',   label: 'Viloyat narxlari', icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
+  { key: 'upakovka',  label: 'Upakovka',  icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
 ] as const
+// Viloyat narxlari faqat saqlangan savdo tovarida (xom ashyoga narx qo'yilmaydi, yangi tovarda hali id yo'q)
+const tablar = computed(() => TAB_LIST.filter(t => t.key !== 'viloyat' || (!!editId.value && form.turi === 'tovar')))
+watch(tablar, (t) => { if (!t.some(x => x.key === formTab.value)) formTab.value = 'asosiy' })
 
 function openAdd() {
   addOpen.value = false
@@ -427,7 +432,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
       <h2 class="tv-title">Tovar</h2>
       <button class="sv-link-btn">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>
-        Связанные продукты
+        Bog'liq mahsulotlar
       </button>
     </div>
 
@@ -760,7 +765,7 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
 
             <!-- Tabs -->
             <div class="modal-tabs">
-              <button v-for="t in TAB_LIST" :key="t.key"
+              <button v-for="t in tablar" :key="t.key"
                 :class="['mtab', formTab === t.key && 'mtab--on']"
                 @click="formTab = t.key">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -1146,6 +1151,10 @@ function numStep(field: keyof TovarForm, delta: number, min = 0) {
               </div>
 
               <!-- ── UPAKOVKA ── -->
+              <div v-else-if="formTab==='viloyat'" class="fm-grid">
+                <ViloyatNarx :tovar-id="editId"/>
+              </div>
+
               <div v-else-if="formTab==='upakovka'" class="fm-grid">
                 <div class="fg-field fg-full">
                   <label class="fg-lbl">Upakovka turi</label>

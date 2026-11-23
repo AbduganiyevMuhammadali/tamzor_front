@@ -60,6 +60,10 @@ const chekBand = ref(false)
 const chekXato = ref('')
 const plastikKassalar = computed<any[]>(() => (sklad.value ? [] : tayyor.value?.plastik_kassalar || []))
 const plastik = computed(() => usul.value === 'plastik')
+/* Viloyat narxi (backend §20): agent nomidan sotuvda narxni server agent viloyati bo'yicha hisoblaydi —
+   narx faqat ko'rsatiladi (body'dagi narx e'tiborsiz), narxi yo'q tovar sotilmaydi. Skladdan sotuv avvalgidek. */
+const viloyatQoida = computed(() => !sklad.value && !!tayyor.value?.viloyat_qoida)
+const sotilmaydi = (t: any) => viloyatQoida.value && t.sotiladi === false
 function plastikTozala() { usul.value = 'naqd'; plKassa.value = ''; chek.value = null; chekIzoh.value = ''; chekXato.value = '' }
 async function chekTanla(e: Event) {
   const inp = e.target as HTMLInputElement, fayl = inp.files?.[0]
@@ -116,6 +120,7 @@ async function tayyorYukla() {
     const bor = new Set<number>()
     for (const t of d.tovarlar) {
       bor.add(t.tovar_id)
+      if (d.viloyat_qoida && !d.sklad) { narxQolda.value[t.tovar_id] = false; if (t.sotiladi === false) delete miqdor.value[t.tovar_id] }
       if (!narxQolda.value[t.tovar_id]) narx.value[t.tovar_id] = t.narx > 0 ? String(t.narx) : ''
     }
     for (const id of Object.keys(miqdor.value).map(Number)) if (!bor.has(id)) delete miqdor.value[id]
@@ -187,7 +192,7 @@ const limitOshadi = computed(() => !!mijoz.value && mijoz.value.kredit_limit > 0
 
 const qatorSumma = (t: any) => Math.round(son(miqdor.value[t.tovar_id]) * son(narx.value[t.tovar_id]))
 const ortiqmi = (t: any) => son(miqdor.value[t.tovar_id]) > t.qoldiq + 0.0005
-function hammasi(t: any) { miqdor.value[t.tovar_id] = String(t.qoldiq) }
+function hammasi(t: any) { if (!sotilmaydi(t)) miqdor.value[t.tovar_id] = String(t.qoldiq) }
 function narxOzgardi(t: any) { narxQolda.value[t.tovar_id] = son(narx.value[t.tovar_id]) !== t.narx }
 function olib(t: any) { miqdor.value[t.tovar_id] = '' }
 
@@ -399,7 +404,7 @@ const IKON = {
                 <small>{{ [mijoz.telefon, mijoz.manzil].filter(Boolean).join(' · ') || 'telefon va manzil kiritilmagan' }}</small>
                 <small>
                   Mas'ul: {{ mijoz.agent_nomi || 'biriktirilmagan' }}
-                  · Narx: {{ tayyor.narx_ruyxat?.nomi || (mijoz.narx_turi === 'optom' ? 'optom' : 'chakana') }}
+                  · Narx: {{ tayyor.narx_ruyxat?.nomi ? `Toifa narxi (${tayyor.narx_ruyxat.nomi})` : viloyatQoida ? `${tayyor.viloyat?.nomi} viloyati, ${mijoz.narx_turi === 'optom' ? 'optom' : 'chakana'}` : (mijoz.narx_turi === 'optom' ? 'optom' : 'chakana') }}
                   · To'lov muddati {{ mijoz.tolov_muddati_kun }} kun
                 </small>
               </div>
@@ -434,17 +439,23 @@ const IKON = {
               <table class="ws-t">
                 <thead><tr><th>Tovar</th><th class="r">{{ sklad ? 'Skladda' : 'Agentda' }}</th><th class="r">Narx</th><th class="r">Miqdor</th><th class="r">Summa</th></tr></thead>
                 <tbody>
-                  <tr v-for="t in korinadi" :key="t.tovar_id" :class="{ on: son(miqdor[t.tovar_id]) > 0, bad: ortiqmi(t) }">
+                  <tr v-for="t in korinadi" :key="t.tovar_id" :class="{ on: son(miqdor[t.tovar_id]) > 0, bad: ortiqmi(t), 'ws-yoq': sotilmaydi(t) }" :title="sotilmaydi(t) ? `Bu tovarga ${tayyor.viloyat?.nomi || ''} viloyatida narx belgilanmagan — Sozlamalar → Viloyat narxlari` : ''">
                     <td class="nm"><b>{{ t.tovar_nomi }}</b><small v-if="t.turkum">{{ t.turkum }}</small></td>
                     <td class="r qd"><button class="ws-qd" title="Hammasini qo'yish" @click="hammasi(t)">{{ fmtDona(t.qoldiq) }} <small>{{ t.olchov }}</small></button></td>
                     <td class="r">
-                      <NumberInput css-class="ws-in nx" :class="{ bad: son(narx[t.tovar_id]) <= 0 && son(miqdor[t.tovar_id]) > 0, edited: narxQolda[t.tovar_id] }"
+                      <template v-if="viloyatQoida">
+                        <b v-if="!sotilmaydi(t)" class="ws-nx-r">{{ fmtSum(t.narx) }}</b>
+                        <small v-if="sotilmaydi(t)" class="ws-asl bad">Narx belgilanmagan</small>
+                        <small v-else class="ws-asl">{{ t.narx_manba === 'ruyxat' ? 'toifa narxi' : 'viloyat narxi' }}</small>
+                      </template>
+                      <NumberInput v-else css-class="ws-in nx" :class="{ bad: son(narx[t.tovar_id]) <= 0 && son(miqdor[t.tovar_id]) > 0, edited: narxQolda[t.tovar_id] }"
                              v-model="narx[t.tovar_id]" :bosh="''" :placeholder="t.narx > 0 ? '' : 'narx'" :aria-label="`${t.tovar_nomi} narxi`" @input="narxOzgardi(t)"/>
-                      <small v-if="narxQolda[t.tovar_id] && t.narx > 0" class="ws-asl">asl {{ fmtSum(t.narx) }}</small>
+                      <small v-if="viloyatQoida"/>
+                      <small v-else-if="narxQolda[t.tovar_id] && t.narx > 0" class="ws-asl">asl {{ fmtSum(t.narx) }}</small>
                       <small v-else-if="t.narx_manba === 'yoq'" class="ws-asl bad">narx yo'q</small>
                     </td>
                     <td class="r">
-                      <input class="ws-in mq" :class="{ bad: ortiqmi(t) }" v-model="miqdor[t.tovar_id]" inputmode="decimal" placeholder="0" :aria-label="`${t.tovar_nomi} miqdori`"/>
+                      <input class="ws-in mq" :class="{ bad: ortiqmi(t) }" v-model="miqdor[t.tovar_id]" inputmode="decimal" :placeholder="sotilmaydi(t) ? '—' : '0'" :disabled="sotilmaydi(t)" :aria-label="`${t.tovar_nomi} miqdori`"/>
                       <small v-if="ortiqmi(t)" class="ws-asl bad">ko'pi bilan {{ fmtDona(t.qoldiq) }}</small>
                     </td>
                     <td class="r sm">{{ son(miqdor[t.tovar_id]) > 0 ? fmtSum(qatorSumma(t)) : '—' }}</td>
@@ -723,6 +734,8 @@ textarea.ws-in { height:auto; padding:8px 9px; resize:vertical; width:100%; }
 .ws-jami b { font-size:24px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
 .ws-jami small { font-size:12.5px; font-weight:500; color:var(--mut); }
 .ws-tolov { display:flex; flex-direction:column; gap:10px; }
+.ws-yoq td { opacity:.55; } .ws-yoq .ws-asl.bad { opacity:1; }
+.ws-nx-r { display:block; font-variant-numeric:tabular-nums; }
 .ws-chek { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .ws-lbl { font-size:12px; font-weight:600; color:var(--mut); }
 .ws-f { display:flex; flex-direction:column; gap:5px; }
