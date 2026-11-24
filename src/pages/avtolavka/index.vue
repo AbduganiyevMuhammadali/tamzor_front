@@ -6,6 +6,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import KunPanel from './KunPanel.vue'
+import YukBerish from '@/components/YukBerish.vue'
 // @ts-ignore
 import { avtolavkaApi, kassalarApi } from '@/api/api'
 
@@ -28,6 +29,11 @@ const sana = ref<string>(typeof route.query.sana === 'string' ? route.query.sana
 const doska = ref<any>(null)
 const kalendar = ref<any>(null)
 const yuklanmoqda = ref(false)
+/* Yuk berish — oddiy oyna: istalgan payt, istalgan agentga (tavsiya va kun bosqichiga bog'liq emas) */
+const yukOyna = ref<{ ochiq: boolean; agentId: number | null }>({ ochiq: false, agentId: null })
+const panelKalit = ref(0)
+function yukOch(agentId: number | null = null) { yukOyna.value = { ochiq: true, agentId } }
+function yukBerildi() { panelKalit.value++; yukla(true) }
 const tanlangan = ref<number | null>(route.query.agent ? Number(route.query.agent) : null)
 const hozir = ref(new Date())
 let taymer: ReturnType<typeof setInterval> | null = null
@@ -121,8 +127,8 @@ function cta(m: any) {
   // Agent ilovadan kutayotgan ish birinchi
   if (m.sorovlar?.length) return 'So\'rovni ko\'rish'
   if (m.kun_yopish && m.bosqich < 3 && !m.topshirish.tovar) return 'Topshirishni qabul qilish'
-  if (m.bosqich === 0) return 'Tavsiya bo\'yicha yuk berish'
-  if (m.bosqich === 1) return 'Kunni yopish'
+  if (m.bosqich === 0) return 'Yuk berish'
+  if (m.bosqich === 1) return 'Kunni ko\'rish'
   if (m.bosqich === 2) return !m.topshirish.tovar ? 'Qoldiqni qabul qilish' : 'Pulni qabul qilish'
   return 'Hisobot'
 }
@@ -189,7 +195,8 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
         </p>
         </div>
       </div>
-      <RouterLink to="/avtolavka/kochirish" class="pl-btn sm" style="margin-left:auto;margin-right:8px" title="Bir agentdagi tovarni boshqa agentga o'tkazish">Ko'chirishlar</RouterLink>
+      <button v-if="bugunmi" class="pl-btn sm pl-btn--p" style="margin-left:auto;margin-right:8px" @click="yukOch()">+ Yuk berish</button>
+      <RouterLink to="/avtolavka/kochirish" class="pl-btn sm" style="margin-right:8px" title="Bir agentdagi tovarni boshqa agentga o'tkazish">Ko'chirishlar</RouterLink>
       <div class="al-date">
         <button class="al-date-b" title="Oldingi kun" @click="kunSur(-1)">
           <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
@@ -323,7 +330,8 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
         </div>
 
         <div class="al-act">
-          <button class="al-btn" :class="faol(m) ? 'p' : 's'" @click.stop="och(m.agent.id)"><svg viewBox="0 0 24 24" v-html="ctaIkon(m)"/>{{ cta(m) }}</button>
+          <button class="al-btn" :class="faol(m) ? 'p' : 's'" @click.stop="bugunmi && !m.sorovlar?.length && m.bosqich === 0 ? yukOch(m.agent.id) : och(m.agent.id)"><svg viewBox="0 0 24 24" v-html="ctaIkon(m)"/>{{ cta(m) }}</button>
+          <button v-if="bugunmi && m.bosqich > 0" class="al-btn s" title="Agentga qo'shimcha yuk berish" @click.stop="yukOch(m.agent.id)"><svg viewBox="0 0 24 24" v-html="IKON.yukla"/>Yuk berish</button>
           <div v-if="m.bosqich === 2" class="al-act-s">
             <span :class="{ ok: m.topshirish.tovar }">Tovar {{ m.topshirish.tovar ? 'qabul qilindi' : 'kutilmoqda' }}</span>
             <span :class="{ ok: m.topshirish.pul }">Pul {{ m.topshirish.pul ? 'qabul qilindi' : 'kutilmoqda' }}</span>
@@ -367,10 +375,12 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
     </section>
 
     <!-- ═══ KUN PANELI ═══ -->
+    <!-- Yuk berish oynasi (Transition ichida emas — unda faqat bitta element bo'lishi kerak) -->
+    <YukBerish :ochiq="yukOyna.ochiq" :agent-id="yukOyna.agentId" @yop="yukOyna.ochiq = false" @berildi="yukBerildi"/>
     <Transition name="al-drawer">
       <div v-if="tanlangan" class="al-ov" @click.self="tanlangan = null">
         <aside class="al-drawer">
-          <KunPanel :agent-id="tanlangan" :sana="sana" @yop="tanlangan = null" @ozgardi="yukla(true)"/>
+          <KunPanel :key="panelKalit" :agent-id="tanlangan" :sana="sana" @yop="tanlangan = null" @ozgardi="yukla(true)" @yuk="yukOch(tanlangan)"/>
         </aside>
       </div>
     </Transition>

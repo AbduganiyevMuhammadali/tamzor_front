@@ -14,7 +14,7 @@ import { avtolavkaApi, hisobotApi, kassalarApi } from '@/api/api'
 import { useQidiruv } from '@/composables/useQidiruv'
 
 const props = defineProps<{ agentId: number; sana: string }>()
-const emit = defineEmits<{ (e: 'yop'): void; (e: 'ozgardi'): void }>()
+const emit = defineEmits<{ (e: 'yop'): void; (e: 'ozgardi'): void; (e: 'yuk'): void }>()
 
 const BOSQICH = [
   { nom: 'Yuk berish kutilmoqda', rang: '#94a3b8' },
@@ -417,48 +417,20 @@ onMounted(yangila)
       </section>
 
       <!-- ═══ KEYINGI QADAM ═══ -->
+      <!-- Yuk berish: oddiy oyna (agent → tovarlar → miqdor). Tavsiya bo'yicha oldindan to'ldirish olib tashlangan -->
       <section v-if="bugunmi && !sorov && (bosqich === 0 || yangiReysYuklash)" class="kp-act">
         <div class="kp-act-hd">
           <div>
             <div class="kp-act-k"><span class="kp-act-ic"><svg class="kp-bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span>Keyingi qadam</div>
-            <h3 class="kp-act-t">{{ yangiReysYuklash ? 'Yangi reys: yuk berish' : 'Ertalabki yuk berish' }}</h3>
-            <p class="kp-act-s" v-if="yangiReysYuklash">Kun {{ fmtVaqt(qaytaOchish.vaqt) }} da qayta ochildi. Agentga yuk bering yoki agent ilovadan so'rasin.
-              Chiqish bekor bo'lsa — <button class="kp-link" :disabled="band === 'qabul'" @click="qabulQil">kunni yana yopish</button>.</p>
-            <p class="kp-act-s" v-if="tavsiya?.manba === 'ortacha'">Tavsiya: oxirgi {{ tavsiya.ish_kunlari }} ish kunidagi o'rtacha sotuv + 20% zaxira − agentdagi qoldiq, blokka yaxlitlangan</p>
-            <p class="kp-act-s" v-else-if="tavsiya?.manba === 'oxirgi'">Sotuv tarixi yo'q — oxirgi berilgan yuk ({{ tavsiya.oxirgi?.raqam }}) asosida</p>
-            <p class="kp-act-s" v-else>Tarix yo'q — tovarlarni qidirib qo'shing</p>
-          </div>
-          <div class="kp-act-big"><b>{{ fmtDona(yukJami.dona) }}</b><span>kg · {{ yukJami.xil }} xil</span><span>{{ fmtMln(yukJami.summa) }} so'm</span></div>
-        </div>
-
-        <div class="kp-rows">
-          <div v-for="q in yukQatorlar" :key="q.tovar_id" class="kp-row" :class="{ nol: !Number(yuk[q.tovar_id]) }">
-            <div class="kp-row-n">
-              <b>{{ q.tovar_nomi }}</b>
-              <span>{{ q.ortacha ? `kuniga ~${fmtDona(q.ortacha)}` : 'qo\'shimcha' }}<template v-if="q.mashinada"> · agentda {{ fmtDona(q.mashinada) }}</template> · omborda {{ fmtDona(q.omborda) }}</span>
-            </div>
-            <div class="kp-step">
-              <button @click="yukQadam(q, -1)" :disabled="!Number(yuk[q.tovar_id])">−</button>
-              <input type="number" min="0" :max="q.omborda" v-model.number="yuk[q.tovar_id]"/>
-              <button @click="yukQadam(q, 1)" :disabled="Number(yuk[q.tovar_id]) >= q.omborda">+</button>
-            </div>
-            <div class="kp-row-s">{{ fmtSum(Number(yuk[q.tovar_id] || 0) * q.narx) }}</div>
-          </div>
-          <div v-if="!yukQatorlar.length" class="kp-bos">Tavsiya bo'sh — pastdan tovar qo'shing</div>
-        </div>
-
-        <div class="kp-search">
-          <input v-model="qidiruv" maxlength="100" placeholder="Tovar qo'shish — nomini yozing" @keydown.enter="qidiruvQd.darhol()"/>
-          <div v-if="natijalar.length" class="kp-dd">
-            <button v-for="t in natijalar" :key="t.id" @click="qosh(t)"><b>{{ t.nomi }}</b><span>omborda {{ fmtDona(t.qoldiq) }} · {{ fmtSum(t.chakana_narx) }} so'm</span></button>
+            <h3 class="kp-act-t">Agentga yuk berish</h3>
+            <p class="kp-act-s">{{ r.mashina?.dona > 0 ? `Agentda ${fmtDona(r.mashina.dona)} kg tovar bor. Yana berish mumkin.` : 'Agentda hozircha tovar yo\'q.' }} Ombordagi tovarlardan keraklisiga miqdor yozing — tovar darhol agentga o'tadi.</p>
           </div>
         </div>
-
         <div class="kp-act-ft">
-          <button class="kp-ghost" @click="tavsiyaniQoy">Tavsiyaga qaytarish</button>
-          <button class="kp-go" :disabled="band === 'yuklash' || !yukJami.dona" @click="yukla">
-            <span v-if="band === 'yuklash'" class="kp-spin kp-spin--w"/><svg class="kp-bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            Yuk berish va tasdiqlash
+          <button v-if="yangiReysYuklash" class="kp-ghost" :disabled="band === 'qabul'" @click="qabulQil">Kunni yana yopish</button>
+          <button class="kp-go" @click="emit('yuk')">
+            <svg class="kp-bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Yuk berish
           </button>
         </div>
       </section>
@@ -467,9 +439,13 @@ onMounted(yangila)
         <div class="kp-act-hd">
           <div>
             <div class="kp-act-k"><span class="kp-act-ic"><svg class="kp-bi" viewBox="0 0 24 24"><path d="M3 13h5l2 3h4l2-3h5M5.5 5h13L21 13v6H3v-6z"/></svg></span>Keyingi qadam</div>
-            <h3 class="kp-act-t">Kun oxiri: topshirish</h3>
-            <p class="kp-act-s">Tizim kutayotgan son tayyor. Hammasi mos kelsa — bir bosish. Farq bo'lsa, faqat o'sha qatorni o'zgartiring.</p>
+            <h3 class="kp-act-t">Qoldiqni qaytarib olish</h3>
+            <p class="kp-act-s">Agent tovarni omborga qaytarsa — shu yerda qabul qiling. Qaytarmasa, qoldiq agentda turaveradi.</p>
           </div>
+          <button class="kp-go" style="align-self:flex-start" @click="emit('yuk')">
+            <svg class="kp-bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Yana yuk berish
+          </button>
         </div>
 
         <div v-if="kunYopish" class="kp-note kp-note--keldi">
