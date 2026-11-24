@@ -193,7 +193,10 @@ const collapsed       = ref(false)
 .sz-wrap {
   display: grid;
   grid-template-columns: 256px 1fr;
-  min-height: calc(100vh - 60px);
+  /* Balandlik ekranga teng: menyu va o'ng tomon har biri o'zi aylanadi */
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
   transition: grid-template-columns .25s cubic-bezier(.4,0,.2,1);
 }
 .sz-wrap--xs { grid-template-columns: 60px 1fr; }
@@ -206,6 +209,7 @@ const collapsed       = ref(false)
   border-right: 1px solid var(--card-border);
   overflow: hidden;
   position: relative;
+  min-height: 0;
 }
 
 /* Header */
@@ -257,6 +261,7 @@ const collapsed       = ref(false)
 /* Nav */
 .sz-nav {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px 8px 16px;
@@ -351,6 +356,7 @@ const collapsed       = ref(false)
 
 /* ── Content ─────────────────────────────────────────────────────────────────── */
 .sz-main {
+  min-height: 0;
   overflow-y: auto;
   padding: 24px;
   background: var(--bg, var(--main-bg, #f0f4ff));

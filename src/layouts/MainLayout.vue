@@ -833,8 +833,8 @@ kbd { font:500 11px/1 ui-sans-serif, system-ui, sans-serif; padding:3px 5px; bor
 .dd-enter-from, .dd-leave-to { opacity:0; transform:translateY(-4px); }
 
 /* ═══ SAHIFA ═══ */
-.page { flex:1; overflow-y:auto; padding:24px 28px; background:var(--page-bg); }
-.page--full { padding:0; overflow:hidden; }
+.page { flex:1; min-height:0; overflow-y:auto; padding:24px 28px; background:var(--page-bg); }
+.page--full { padding:0; overflow:hidden; min-height:0; }
 .page::-webkit-scrollbar { width:8px; }
 .page::-webkit-scrollbar-thumb { background:var(--page-scroll); border-radius:4px; border:2px solid var(--page-bg); }
 
