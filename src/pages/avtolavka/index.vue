@@ -22,7 +22,6 @@ const BOSQICH = [
 const KAMOMAD = '#dc2626'
 const HOLAT_RANG: Record<string, string> = { ochiq: '#7c3aed', topshirilmoqda: '#d97706', yopiq: '#059669', kamomad: KAMOMAD }
 const HOLAT_NOM: Record<string, string> = { bosh: 'Yuk olmagan', ochiq: 'Savdoda', topshirilmoqda: 'Topshirilmoqda', yopiq: 'Yopiq', kamomad: 'Kamomad' }
-const S0 = 7, S1 = 20                     // kun yo'li: 07:00 → 20:00
 
 const bugun = () => new Date().toISOString().slice(0, 10)
 const sana = ref<string>(typeof route.query.sana === 'string' ? route.query.sana : bugun())
@@ -58,47 +57,18 @@ const fmtSanaUzun = (s: string) => { const d = new Date(s + 'T00:00:00'); return
 const kunHarf = (s: string) => ['Ya', 'Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh'][new Date(s + 'T00:00:00').getDay()]
 
 const rangOf = (m: any) => (m.holat === 'kamomad' ? KAMOMAD : BOSQICH[m.bosqich]?.rang || '#94a3b8')
-const yukFoiz = (m: any) => Math.round(Math.max(0, Math.min(1, Number(m.mashina?.tolish) || 0)) * 100)
-const faol = (m: any) => bugunmi.value && m.bosqich < 3
-const holatNom = (m: any) => (m.holat === 'kamomad' ? 'Kamomad' : BOSQICH[m.bosqich]?.nom || '')
+const holatNom = (m: any) => (m.holat === 'kamomad' ? 'Kamomad' : QISQA[m.bosqich] || '')
 
-/* Vaqt → yo'ldagi o'rin (%) */
-function x(v: string | Date) {
-  const d = new Date(v)
-  const h = d.getHours() + d.getMinutes() / 60
-  return Math.max(0, Math.min(100, (h - S0) / (S1 - S0) * 100))
-}
-const soatlar = Array.from({ length: S1 - S0 + 1 }, (_, i) => S0 + i).filter(h => h % 2 === 0)
-const hozirX = computed(() => x(hozir.value))
-
-function mashinaX(m: any) {
-  if (bugunmi.value && m.bosqich === 1) return hozirX.value
-  const v = m.voqealar || []
-  return v.length ? x(v[v.length - 1].vaqt) : 0
-}
-function boshX(m: any) { const v = m.voqealar || []; return v.length ? x(v[0].vaqt) : 0 }
-function maxSumma(m: any) { return Math.max(1, ...(m.voqealar || []).filter((e: any) => e.tur === 'sotuv').map((e: any) => e.summa)) }
-function nuqtaOlcham(m: any, e: any) { return 7 + 6 * Math.sqrt(e.summa / maxSumma(m)) }
-function signal(m: any) {
-  if (!m.gps?.sana) return null
-  const daq = Math.round((hozir.value.getTime() - new Date(m.gps.sana).getTime()) / 60000)
-  return { daq, matn: daq < 1 ? 'hozirgina' : daq < 60 ? `${daq} daq oldin` : `${Math.floor(daq / 60)} soat oldin`, online: daq <= 15 }
-}
-function tipMatn(e: any) {
-  switch (e.tur) {
-    case 'yuklash': return `Yuk berildi ${e.raqam} · ${fmtDona(e.dona)} kg`
-    case 'sotuv': return `${e.mijoz} · ${e.naqd ? 'naqd' : 'qarzga'} ${fmtSum(e.summa)}${e.uzoq ? ` · mijozdan ${e.masofa >= 1000 ? (e.masofa / 1000).toFixed(1) + ' km' : e.masofa + ' m'} uzoqda` : ''}`
-    case 'sorov': return `Agent so'rovi ${e.raqam} · ${fmtDona(e.dona)} kg${e.holat === 'qoralama' ? ' · omborchida' : e.holat === 'bekor' ? ' · bekor' : ''}`
-    case 'agent_qabul': return `Agent yukni qabul qildi ${e.raqam}`
-    case 'kun_yopish': return `Agent kunni yopdi${e.naqd !== null && e.naqd !== undefined ? ' · naqd ' + fmtSum(e.naqd) : ''}`
-    case 'sotmaslik': return `${e.mijoz} · savdo yo'q${e.sabab ? ' (' + e.sabab + ')' : ''}`
-    case 'mijozda': return `${e.mijoz} · hozir shu yerda`
-    case 'tolov': return `${e.mijoz} · qarz to'lovi ${fmtSum(e.summa)}`
-    case 'qabul': return `Qoldiq skladga ${e.raqam}${e.farq ? ' · farq ' + e.farq : ''}`
-    case 'kassa': return `Kassaga ${fmtSum(e.summa)}`
-  }
-  return e.tur
-}
+/* Jadval: yuk berilgan agentlar tepada, keyin ism bo'yicha */
+const berildi = (m: any) => Number(m.tovar?.berildi?.dona) || 0
+const naqd = (m: any) => { const q = qolda(m); return q != null ? Number(q) || 0 : (m.pul.inkassatsiya ? 0 : Number(m.pul.naqd_olindi) || 0) }
+const tartibli = computed<any[]>(() => [...mashinalar.value].sort((a, b) =>
+  (Number(b.bosqich > 0) - Number(a.bosqich > 0)) || String(a.agent.fullname).localeCompare(String(b.agent.fullname))))
+const yukOlganSoni = computed(() => mashinalar.value.filter(m => m.bosqich > 0).length)
+const jamiQator = computed(() => mashinalar.value.reduce((s, m) => ({
+  berildi: s.berildi + berildi(m), sotildi: s.sotildi + (Number(m.tovar.sotildi.dona) || 0), agentda: s.agentda + (Number(m.mashina.dona) || 0),
+  naqd: s.naqd + naqd(m), qarz: s.qarz + (Number(m.pul.qarzga_sotuv) || 0),
+}), { berildi: 0, sotildi: 0, agentda: 0, naqd: 0, qarz: 0 }))
 /* Ikonlar (24×24, chiziqli) — nav.ts dagi IK bilan bir uslubda */
 const IKON = {
   mashina: '<path d="M2 6h11v10H2z"/><path d="M13 9h4.2l3.8 4.2V16h-8"/><circle cx="6.5" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/>',
@@ -113,25 +83,14 @@ const IKON = {
   hujjat: '<path d="M14 2.5H6.5A2 2 0 0 0 4.5 4.5v15a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8z"/><path d="M14 2.5V8h5.5M8.5 13h7M8.5 17h4.5"/>',
   koz: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
 }
-function ctaIkon(m: any) {
-  if (!bugunmi.value) return IKON.koz
-  if (m.sorovlar?.length) return IKON.yukla
-  if (m.kun_yopish && m.bosqich < 3 && !m.topshirish.tovar) return IKON.qabul
-  if (m.bosqich === 0) return IKON.yukla
-  if (m.bosqich === 1) return IKON.tasdiq
-  if (m.bosqich === 2) return !m.topshirish.tovar ? IKON.qabul : IKON.hamyon
-  return IKON.hujjat
+/* Qatordagi ikkinchi tugma — qisqa matn */
+function korish(m: any) {
+  if (!bugunmi.value) return 'Ko\'rish'
+  if (m.sorovlar?.length) return 'So\'rov'
+  if ((m.kun_yopish && m.bosqich < 3 && !m.topshirish.tovar) || m.bosqich === 2) return 'Qabul qilish'
+  return m.bosqich === 3 ? 'Hisobot' : 'Ko\'rish'
 }
-function cta(m: any) {
-  if (!bugunmi.value) return 'Kunni ko\'rish'
-  // Agent ilovadan kutayotgan ish birinchi
-  if (m.sorovlar?.length) return 'So\'rovni ko\'rish'
-  if (m.kun_yopish && m.bosqich < 3 && !m.topshirish.tovar) return 'Topshirishni qabul qilish'
-  if (m.bosqich === 0) return 'Yuk berish'
-  if (m.bosqich === 1) return 'Kunni ko\'rish'
-  if (m.bosqich === 2) return !m.topshirish.tovar ? 'Qoldiqni qabul qilish' : 'Pulni qabul qilish'
-  return 'Hisobot'
-}
+const QISQA = ['Yuk olmagan', 'Savdoda', 'Topshirmoqda', 'Kun yopildi']
 
 const agentQabulKutmoqda = (m: any) => (m.kun?.agent_qabul?.yuklash || 0) > (m.kun?.agent_qabul?.qabul || 0)
 
@@ -252,13 +211,7 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
     <section class="al-card">
       <div class="al-card-hd">
         <h2><span class="al-h2-ic"><svg viewBox="0 0 24 24" v-html="IKON.mashina"/></span>Agentlar</h2>
-        <div class="al-leg">
-          <span><i class="lg sotuv"/>Naqd savdo</span>
-          <span><i class="lg qarz"/>Qarzga</span>
-          <span><i class="lg sotmaslik"/>Savdosiz tashrif</span>
-          <span><i class="lg tolov"/>Qarz to'lovi</span>
-          <span><i class="lg op"/>Yuk berish · qabul · kassa</span>
-        </div>
+        <span v-if="mashinalar.length" class="al-card-n">{{ yukOlganSoni }} / {{ mashinalar.length }} agentga yuk berilgan</span>
       </div>
 
       <div v-if="yuklanmoqda && !doska" class="al-empty">Yuklanmoqda…</div>
@@ -267,80 +220,62 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
         <span>Agentlar → ro'yxat → agentni tahrirlash → "Van Sell (ko'chma savdo)" belgisini yoqing</span>
       </div>
 
-      <article v-for="m in mashinalar" :key="m.agent.id" class="al-row"
-        :class="[`b${m.bosqich}`, { on: tanlangan === m.agent.id }]"
-        :style="{ '--holat': rangOf(m) }" tabindex="0" @click="och(m.agent.id)" @keydown.enter="och(m.agent.id)">
-
-        <div class="al-id">
-          <div class="al-id-top">
-            <span v-if="m.agent.mashina_raqam" class="al-plate">{{ m.agent.mashina_raqam }}</span>
-            <span class="al-st"><i/>{{ holatNom(m) }}</span>
-          </div>
-          <div v-if="bugunmi && (m.sorovlar?.length || (m.kun_yopish && m.bosqich < 3) || m.kun.uzoq_sotuv || agentQabulKutmoqda(m))" class="al-flags">
-            <span v-if="m.sorovlar?.length" class="al-flag sorov" :title="`Agent ilovadan ${fmtDona(m.sorovlar[0].dona)} kg so'radi`">So'rov · {{ fmtDona(m.sorovlar[0].dona) }} kg</span>
-            <span v-if="m.kun_yopish && m.bosqich < 3" class="al-flag keldi">Topshirishga keldi</span>
-            <span v-if="agentQabulKutmoqda(m)" class="al-flag">Agent qabul qilmagan</span>
-            <span v-if="m.kun.uzoq_sotuv" class="al-flag uzoq" title="Mijoz nuqtasidan uzoqda qilingan sotuvlar">{{ m.kun.uzoq_sotuv }} uzoqdan sotuv</span>
-          </div>
-          <div class="al-name">{{ m.agent.fullname }}</div>
-          <div class="al-cap" :title="`Agentdagi yuk: ${yukFoiz(m)}%`">
-            <span class="al-cap-bar"><i :style="{ width: yukFoiz(m) + '%' }"/></span>
-            <span>{{ m.bosqich === 0 ? 'Yuk berilmagan' : `${yukFoiz(m)}% yuk` }}</span>
-          </div>
-        </div>
-
-        <div class="al-mid">
-          <div class="al-meta">
-            <span v-if="m.kun.reja || m.kun.tashrif">{{ m.kun.tashrif }}/{{ m.kun.reja }} tashrif · {{ m.kun.savdo }} savdo</span>
-            <span v-if="bugunmi && signal(m)" class="al-sig" :class="{ on: signal(m)?.online }">
-              <i/>GPS {{ signal(m)?.matn }}<template v-if="m.gps?.battery"> · batareya {{ m.gps.battery }}%</template>
-            </span>
-          </div>
-
-          <!-- Kun chizig'i -->
-          <div class="al-road" :class="{ bosh: m.bosqich === 0 }">
-            <div class="al-ticks">
-              <span v-for="h in soatlar" :key="h" :style="{ left: ((h - S0) / (S1 - S0) * 100) + '%' }">{{ String(h).padStart(2, '0') }}:00</span>
-            </div>
-            <div class="al-track"/>
-            <div v-if="m.voqealar.length" class="al-trail" :style="{ left: boshX(m) + '%', width: Math.max(0, mashinaX(m) - boshX(m)) + '%' }"/>
-            <div v-if="bugunmi && m.bosqich > 0" class="al-now" :style="{ left: hozirX + '%' }"/>
-
-            <template v-for="(e, i) in m.voqealar" :key="i">
-              <!-- Mashina hali chiqmagan bo'lsa so'rov belgisi yo'lga emas, bayroqqa chiqadi -->
-              <span v-if="!(m.bosqich === 0 && e.tur === 'sorov')" class="ev" :class="[e.tur, { qarz: e.tur === 'sotuv' && !e.naqd, uzoq: e.uzoq }]"
-                :style="{ left: x(e.vaqt) + '%', ...(e.tur === 'sotuv' ? { width: nuqtaOlcham(m, e) + 'px', height: nuqtaOlcham(m, e) + 'px' } : {}) }">
-                <span class="tip"><b>{{ fmtVaqt(e.vaqt) }}</b>{{ tipMatn(e) }}</span>
-              </span>
-            </template>
-
-            <span v-if="m.bosqich === 1 && bugunmi" class="al-pos" :style="{ left: mashinaX(m) + '%' }"/>
-            <div v-if="m.bosqich === 0" class="al-road-msg">
-              {{ bugunmi ? 'Yuk berilmagan — yuk berish kutilmoqda' : 'Bu kuni yuk olmagan' }}
-            </div>
-          </div>
-
-          <dl class="al-nums">
-            <div><dt>Agentda</dt><dd>{{ fmtDona(m.mashina.dona) }} <small>kg</small></dd><dd class="s">{{ fmtSum(m.mashina.summa) }} so'm</dd></div>
-            <div><dt>Sotildi</dt><dd>{{ fmtDona(m.tovar.sotildi.dona) }} <small>kg</small></dd><dd class="s">{{ fmtSum(m.pul.sotuv_jami) }} so'm</dd></div>
-            <div v-if="qolda(m) != null"><dt>Qo'lda naqd</dt><dd :class="{ o: qolda(m) > 0 }" :style="qolda(m) < 0 ? 'color:#dc2626' : ''">{{ fmtSum(qolda(m)) }}</dd><dd class="s">so'm · jami</dd></div>
-            <div v-else><dt>Qo'lda naqd</dt><dd :class="{ o: !m.pul.inkassatsiya && m.pul.naqd_olindi > 0 }">{{ fmtSum(m.pul.inkassatsiya ? 0 : m.pul.naqd_olindi) }}</dd><dd class="s">{{ m.pul.inkassatsiya ? 'kassaga topshirilgan' : 'so\'m' }}</dd></div>
-            <div><dt>Qarzga</dt><dd>{{ fmtSum(m.pul.qarzga_sotuv) }}</dd><dd class="s">so'm</dd></div>
-          </dl>
-        </div>
-
-        <div class="al-act">
-          <button class="al-btn" :class="faol(m) ? 'p' : 's'" @click.stop="bugunmi && !m.sorovlar?.length && m.bosqich === 0 ? yukOch(m.agent.id) : och(m.agent.id)"><svg viewBox="0 0 24 24" v-html="ctaIkon(m)"/>{{ cta(m) }}</button>
-          <button v-if="bugunmi && m.bosqich > 0" class="al-btn s" title="Agentga qo'shimcha yuk berish" @click.stop="yukOch(m.agent.id)"><svg viewBox="0 0 24 24" v-html="IKON.yukla"/>Yuk berish</button>
-          <div v-if="m.bosqich === 2" class="al-act-s">
-            <span :class="{ ok: m.topshirish.tovar }">Tovar {{ m.topshirish.tovar ? 'qabul qilindi' : 'kutilmoqda' }}</span>
-            <span :class="{ ok: m.topshirish.pul }">Pul {{ m.topshirish.pul ? 'qabul qilindi' : 'kutilmoqda' }}</span>
-          </div>
-          <div v-else-if="m.bosqich === 3 && m.holat === 'kamomad'" class="al-act-s bad">
-            {{ m.tovar.farq.dona > 0 ? fmtDona(m.tovar.farq.dona) + ' kg' : '' }}{{ m.tovar.farq.dona > 0 && m.pul.farq > 0.5 ? ' · ' : '' }}{{ m.pul.farq > 0.5 ? fmtSum(m.pul.farq) + ' so\'m' : '' }} farq
-          </div>
-        </div>
-      </article>
+      <div v-else class="al-tw">
+        <table class="al-t">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Agent</th>
+              <th>Holat</th>
+              <th class="r">{{ bugunmi ? 'Bugun berildi' : 'Berildi' }}</th>
+              <th class="r">Sotildi</th>
+              <th class="r">Agentda qoldi</th>
+              <th class="r">Qo'lida naqd</th>
+              <th class="r">Qarzga</th>
+              <th/>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(m, i) in tartibli" :key="m.agent.id" class="al-row" :class="{ on: tanlangan === m.agent.id }"
+              :style="{ '--holat': rangOf(m) }" tabindex="0" title="Kun tafsilotini ochish" @click="och(m.agent.id)" @keydown.enter="och(m.agent.id)">
+              <td class="al-n">{{ i + 1 }}</td>
+              <td>
+                <span class="al-name">{{ m.agent.fullname }}</span><span v-if="m.agent.mashina_raqam" class="al-plate">{{ m.agent.mashina_raqam }}</span>
+                <div v-if="bugunmi && (m.sorovlar?.length || (m.kun_yopish && m.bosqich < 3) || m.kun.uzoq_sotuv || agentQabulKutmoqda(m)) || m.holat === 'kamomad'" class="al-flags">
+                  <span v-if="bugunmi && m.sorovlar?.length" class="al-flag sorov" :title="`Agent ilovadan ${fmtDona(m.sorovlar[0].dona)} kg so'radi`">So'rov · {{ fmtDona(m.sorovlar[0].dona) }} kg</span>
+                  <span v-if="bugunmi && m.kun_yopish && m.bosqich < 3" class="al-flag keldi">Topshirishga keldi</span>
+                  <span v-if="bugunmi && agentQabulKutmoqda(m)" class="al-flag">Agent qabul qilmagan</span>
+                  <span v-if="bugunmi && m.kun.uzoq_sotuv" class="al-flag uzoq" title="Mijoz nuqtasidan uzoqda qilingan sotuvlar">{{ m.kun.uzoq_sotuv }} uzoqdan sotuv</span>
+                  <span v-if="m.holat === 'kamomad'" class="al-flag bad">{{ m.tovar.farq.dona > 0 ? fmtDona(m.tovar.farq.dona) + ' kg' : '' }}{{ m.tovar.farq.dona > 0 && m.pul.farq > 0.5 ? ' · ' : '' }}{{ m.pul.farq > 0.5 ? fmtSum(m.pul.farq) + ' so\'m' : '' }} farq</span>
+                </div>
+              </td>
+              <td><span class="al-st"><i/>{{ holatNom(m) }}</span></td>
+              <td class="r" :class="{ nol: !berildi(m) }"><b>{{ fmtDona(berildi(m)) }} kg</b><small v-if="berildi(m)">{{ fmtSum(m.tovar.berildi.summa) }} so'm</small></td>
+              <td class="r" :class="{ nol: !m.tovar.sotildi.dona }"><b>{{ fmtDona(m.tovar.sotildi.dona) }} kg</b><small v-if="m.tovar.sotildi.dona">{{ fmtSum(m.pul.sotuv_jami) }} so'm</small></td>
+              <td class="r" :class="{ nol: !m.mashina.dona }"><b>{{ fmtDona(m.mashina.dona) }} kg</b><small v-if="m.mashina.dona">{{ fmtSum(m.mashina.summa) }} so'm</small></td>
+              <td class="r" :class="{ nol: !naqd(m), o: naqd(m) > 0, qizil: naqd(m) < 0 }"><b>{{ fmtSum(naqd(m)) }}</b></td>
+              <td class="r" :class="{ nol: !m.pul.qarzga_sotuv }"><b>{{ fmtSum(m.pul.qarzga_sotuv) }}</b></td>
+              <td>
+                <div class="al-act">
+                  <button v-if="bugunmi" class="al-btn" :class="m.bosqich === 0 ? 'p' : 's'" @click.stop="yukOch(m.agent.id)">Yuk berish</button>
+                  <button v-if="!bugunmi || m.bosqich > 0 || m.sorovlar?.length" class="al-btn s" @click.stop="och(m.agent.id)">{{ korish(m) }}</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot v-if="tartibli.length > 1">
+            <tr>
+              <td/><td>Jami</td><td/>
+              <td class="r">{{ fmtDona(jamiQator.berildi) }} kg</td>
+              <td class="r">{{ fmtDona(jamiQator.sotildi) }} kg</td>
+              <td class="r">{{ fmtDona(jamiQator.agentda) }} kg</td>
+              <td class="r">{{ fmtSum(jamiQator.naqd) }}</td>
+              <td class="r">{{ fmtSum(jamiQator.qarz) }}</td>
+              <td/>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </section>
 
     <!-- ═══ 14 KUNLIK JADVAL ═══ -->
@@ -445,94 +380,46 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 .al-empty { padding:40px; text-align:center; color:var(--mut); display:flex; flex-direction:column; gap:6px; font-size:13px; }
 .al-empty b { color:var(--ink); font-weight:600; }
 
-/* ═══ MASHINA QATORI ═══ */
-.al-row {
-  --holat:#94a3b8;
-  display:grid; grid-template-columns:210px 1fr 204px; gap:24px; align-items:center;
-  padding:16px 18px; border-top:1px solid var(--line); cursor:pointer; position:relative; outline:none; transition:background .12s;
-}
-.al-card-hd + .al-row { border-top:none; }
+/* ═══ AGENTLAR JADVALI ═══ */
+.al-tw { overflow-x:auto; }
+.al-t { width:100%; border-collapse:collapse; font-size:13.5px; }
+.al-t th { text-align:left; font-size:11.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--mut); padding:10px 10px; border-bottom:1px solid var(--line); white-space:nowrap; background:var(--hov); }
+.al-t td { padding:11px 10px; border-bottom:1px solid var(--line); vertical-align:middle; color:var(--ink); white-space:nowrap; }
+.al-t tbody tr:last-child td { border-bottom:none; }
+.al-t th.r, .al-t td.r { text-align:right; font-variant-numeric:tabular-nums; }
+.al-t td.r b { font-weight:600; }
+.al-t td.r small { display:block; font-size:11.5px; font-weight:400; color:var(--sub); }
+.al-t td.nol b, .al-t td.nol { color:var(--sub); font-weight:400; }
+.al-t td.o b { color:#b45309; }
+.al-t td.qizil b { color:#dc2626; }
+.al-row { --holat:#94a3b8; cursor:pointer; outline:none; transition:background .12s; }
 .al-row:hover, .al-row:focus-visible { background:var(--hov); }
 .al-row.on { background:var(--acc-soft); box-shadow:inset 3px 0 0 var(--acc); }
-
-.al-id { display:flex; flex-direction:column; gap:6px; min-width:0; }
-.al-id-top { display:flex; align-items:center; gap:10px; }
-.al-plate { font:600 11.5px/1 ui-monospace, 'SF Mono', Menlo, monospace; letter-spacing:.06em; padding:4px 6px; border:1px solid var(--line); border-radius:4px; color:var(--ink2); background:var(--surface); white-space:nowrap; }
-.al-st { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink2); white-space:nowrap; }
+.al-n { color:var(--sub); width:28px; }
+.al-t th:first-child, .al-t td:first-child { padding-left:18px; }
+.al-t th:last-child, .al-t td:last-child { padding-right:18px; }
+.al-name { font-weight:600; color:var(--ink); }
+.al-plate { margin-left:8px; font:600 11px/1 ui-monospace, 'SF Mono', Menlo, monospace; letter-spacing:.06em; padding:3px 5px; border:1px solid var(--line); border-radius:4px; color:var(--ink2); }
+.al-st { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink2); }
 .al-st i { width:7px; height:7px; border-radius:50%; background:var(--holat); }
-.al-flags { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+.al-flags { display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
 .al-flag { font-size:11px; font-weight:500; padding:2px 7px; border-radius:5px; background:var(--hov); color:var(--ink2); white-space:nowrap; }
 .al-flag.sorov { background:color-mix(in srgb, #7c3aed 12%, transparent); color:#6d28d9; }
 .al-flag.keldi { background:color-mix(in srgb, #d97706 14%, transparent); color:#b45309; }
 .al-flag.uzoq  { background:color-mix(in srgb, #dc2626 10%, transparent); color:#b91c1c; }
+.al-flag.bad   { background:color-mix(in srgb, #dc2626 10%, transparent); color:#b91c1c; }
 :root[data-theme="dark"] .al-flag.sorov, .shell.dark .al-flag.sorov { color:#c4b5fd; }
 :root[data-theme="dark"] .al-flag.keldi, .shell.dark .al-flag.keldi { color:#fcd34d; }
-:root[data-theme="dark"] .al-flag.uzoq,  .shell.dark .al-flag.uzoq  { color:#fca5a5; }
-.al-name { font-size:14px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.al-cap { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--mut); font-variant-numeric:tabular-nums; }
-.al-cap-bar { width:72px; height:4px; border-radius:2px; background:var(--act); overflow:hidden; }
-.al-cap-bar i { display:block; height:100%; background:var(--ink2); border-radius:2px; }
-
-.al-mid { display:flex; flex-direction:column; gap:8px; min-width:0; }
-.al-meta { display:flex; align-items:center; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--mut); min-height:16px; }
-.al-sig { display:inline-flex; align-items:center; gap:6px; }
-.al-sig i { width:6px; height:6px; border-radius:50%; background:var(--sub); }
-.al-sig.on i { background:#059669; }
-
-/* Kun chizig'i */
-.al-road { position:relative; height:46px; margin:0 4px; }
-.al-ticks { position:absolute; left:0; right:0; top:0; height:12px; }
-.al-ticks span { position:absolute; transform:translateX(-50%); font-size:10.5px; line-height:1; color:var(--sub); font-variant-numeric:tabular-nums; }
-.al-track { position:absolute; left:-4px; right:-4px; top:27px; height:4px; border-radius:2px; background:var(--act); }
-.al-trail { position:absolute; top:27px; height:4px; border-radius:2px; background:color-mix(in srgb, var(--ink2) 28%, transparent); }
-.al-row.b1 .al-trail { background:color-mix(in srgb, #7c3aed 45%, transparent); }
-.al-now { position:absolute; top:16px; bottom:2px; width:0; border-left:1px dashed var(--sub); }
-.al-road-msg { position:absolute; left:0; right:0; top:22px; text-align:center; font-size:12px; color:var(--mut); }
-.al-road.bosh .al-track { opacity:0; }
-.al-road.bosh .al-ticks { opacity:.6; }
-
-.ev { position:absolute; top:29px; transform:translate(-50%, -50%); border-radius:50%; z-index:2; }
-.ev.sotuv { background:#059669; box-shadow:0 0 0 2px var(--surface); }
-.ev.sotuv.qarz { background:var(--surface); border:1.5px solid #059669; }
-.ev.sotmaslik { width:6px; height:6px; background:var(--sub); box-shadow:0 0 0 2px var(--surface); }
-.ev.mijozda { width:10px; height:10px; background:var(--surface); border:2px solid #7c3aed; }
-.ev.tolov { width:7px; height:7px; border-radius:1px; transform:translate(-50%, -50%) rotate(45deg); background:#d97706; box-shadow:0 0 0 2px var(--surface); }
-.ev.yuklash, .ev.qabul, .ev.kassa { width:16px; height:16px; border-radius:4px; background:var(--ink2); color:var(--surface); box-shadow:0 0 0 2px var(--surface);
-  display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; line-height:1; }
-.ev.yuklash::before { content:'↓'; }
-.ev.sorov { width:10px; height:10px; background:var(--surface); border:2px dashed #7c3aed; }
-.ev.agent_qabul { width:8px; height:8px; background:#059669; box-shadow:0 0 0 2px var(--surface); }
-.ev.kun_yopish { width:12px; height:12px; border-radius:3px; background:#d97706; box-shadow:0 0 0 2px var(--surface); }
-.ev.sotuv.uzoq { box-shadow:0 0 0 2px var(--surface), 0 0 0 4px #dc2626; }
-.ev.qabul::before { content:'↑'; }
-.ev.kassa::before { content:''; width:8px; height:5px; border:1.25px solid currentColor; border-radius:1px; }
-.ev .tip { position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); white-space:nowrap; background:var(--ink); color:var(--surface);
-  font-size:12px; font-weight:500; line-height:1.35; padding:6px 9px; border-radius:6px; opacity:0; pointer-events:none; transition:opacity .1s; box-shadow:0 6px 16px rgba(0,0,0,.18); }
-.ev.tolov .tip { transform:translateX(-50%) rotate(-45deg); }
-.ev .tip b { font-weight:600; margin-right:6px; font-variant-numeric:tabular-nums; opacity:.7; }
-.ev:hover { z-index:5; }
-.ev:hover .tip { opacity:1; }
-.al-pos { position:absolute; top:29px; width:12px; height:12px; border-radius:50%; transform:translate(-50%, -50%); background:var(--holat); box-shadow:0 0 0 3px var(--surface), 0 0 0 4px color-mix(in srgb, var(--holat) 40%, transparent); z-index:4; }
-
-.al-nums { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin:0; }
-.al-nums div { display:flex; flex-direction:column; min-width:0; }
-.al-nums dt { font-size:12px; color:var(--mut); }
-.al-nums dd { margin:0; font-size:14px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
-.al-nums dd small { font-size:12px; font-weight:400; color:var(--mut); }
-.al-nums dd.o { color:#b45309; }
-.al-nums dd.s { font-size:12px; font-weight:400; color:var(--sub); }
-
-.al-act { display:flex; flex-direction:column; align-items:stretch; gap:8px; }
-.al-btn { height:38px; padding:0 14px; border-radius:9px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; transition:background .12s, border-color .12s;
-  display:inline-flex; align-items:center; justify-content:center; gap:8px; }
-.al-btn svg { width:16px; height:16px; flex-shrink:0; }
-.al-btn.p { border:1px solid var(--brand); background:var(--brand); color:#fff; box-shadow:0 4px 12px -4px rgba(124,58,237,.5); }
+:root[data-theme="dark"] .al-flag.uzoq,  .shell.dark .al-flag.uzoq, :root[data-theme="dark"] .al-flag.bad, .shell.dark .al-flag.bad { color:#fca5a5; }
+.al-act { display:flex; justify-content:flex-end; gap:6px; }
+.al-btn { height:30px; padding:0 10px; border-radius:8px; font-family:inherit; font-size:12.5px; font-weight:500; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+.al-btn svg { width:15px; height:15px; flex-shrink:0; }
+.al-btn.p { border:1px solid var(--brand); background:var(--brand); color:#fff; }
 .al-btn.p:hover { background:var(--brand-hover); }
 .al-btn.s { border:1px solid var(--line); background:var(--surface); color:var(--ink); }
 .al-btn.s:hover { background:var(--hov); border-color:var(--brand-300); color:var(--acc); }
-.al-act-s { display:flex; flex-direction:column; gap:2px; font-size:12px; color:var(--mut); text-align:center; }
-.al-act-s .ok { color:#059669; }
-.al-act-s.bad { color:#dc2626; }
+.al-t tfoot td { border-top:1px solid var(--line); border-bottom:none; background:var(--hov); font-weight:600; }
+.al-card-n { font-size:12.5px; color:var(--mut); }
 
 /* ═══ 14 KUNLIK JADVAL ═══ */
 .al-mx-grid { display:grid; gap:4px; align-items:center; padding:14px 18px 18px; }
@@ -559,17 +446,11 @@ onUnmounted(() => { if (taymer) clearInterval(taymer); if (soat) clearInterval(s
 
 @media (max-width:1180px) {
   .al-kpi { grid-template-columns:1fr 1fr; }
-  .al-row { grid-template-columns:180px 1fr; }
-  .al-act { grid-column:1 / -1; flex-direction:row; align-items:center; }
-  .al-act-s { flex-direction:row; gap:12px; }
 }
 @media (max-width:760px) {
   .al-kpi { grid-template-columns:1fr 1fr; gap:8px; }
   .al-k { padding:12px; gap:10px; }
   .al-k-ic { width:34px; height:34px; }
-  .al-row { grid-template-columns:1fr; gap:14px; }
-  .al-act .al-btn { flex:1; }
-  .al-nums { grid-template-columns:1fr 1fr; }
   .al-mx-grid { grid-template-columns:110px repeat(14, 1fr) !important; gap:3px; }
 }
 </style>
