@@ -335,7 +335,7 @@ const IKON = {
 
           <div class="as-d-flow">
             <svg viewBox="0 0 24 24" v-html="IKON.mashina"/>
-            <span v-if="tanlangan.kanal === 'sklad'">Van Sell: <b>skladdan, xodimsiz</b> — admin webdan sotgan. Tovar asosiy skladdan chiqqan, naqd to'g'ridan-to'g'ri kassada (inkassatsiya shart emas).</span>
+            <span v-if="tanlangan.kanal === 'sklad'">Van Sell: <b>skladdan, xodimsiz</b> — admin webdan sotgan. Tovar asosiy skladdan chiqqan, naqd to'g'ridan-to'g'ri {{ (tanlangan.kassa?.nomi || tanlangan.kassa_nomi) ? `«${tanlangan.kassa?.nomi || tanlangan.kassa_nomi}» kassasida` : 'kassada' }} (inkassatsiya shart emas).</span>
             <span v-else-if="tanlangan.manba === 'web'">Van Sell: <b>{{ tanlangan.agent_nomi }}</b> nomidan <b>webdan</b> kiritilgan — tovar undagi yukdan chiqqan, naqd uning hisobida.</span>
             <span v-else>Van Sell: <b>{{ tanlangan.agent_nomi }}</b> o'zidagi yukdan joyida sotgan va shu zahoti topshirgan.</span>
           </div>

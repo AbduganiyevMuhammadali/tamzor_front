@@ -60,6 +60,14 @@ const chekBand = ref(false)
 const chekXato = ref('')
 const plastikKassalar = computed<any[]>(() => (sklad.value ? [] : tayyor.value?.plastik_kassalar || []))
 const plastik = computed(() => usul.value === 'plastik')
+/* Skladdan sotuvda naqd qaysi kassaga tushishi (backend §25): tayyor.naqd_kassalar — [{ id, nomi }].
+   Maydon kelmasa (eski backend) — tanlov yo'q, sotuv avvalgidek. Agent nomidan sotuvda ham yo'q: pul agentga yoziladi. */
+const nqKassa = ref<number | ''>('')
+const naqdQollab = computed(() => agentId.value === 'sklad' && Array.isArray(tayyor.value?.naqd_kassalar))
+const naqdKassalar = computed<any[]>(() => (naqdQollab.value ? tayyor.value.naqd_kassalar : []))
+const naqdKassaKerak = computed(() => naqdQollab.value && !plastik.value && tolov.value !== 'qarz')
+const nqNomi = computed(() => naqdKassalar.value.find(k => k.id === nqKassa.value)?.nomi || '')
+const NAQD_KASSA_YOQ = "Faol naqd kassa yo'q — Moliya → Kassalar'da yarating"
 /* Viloyat narxi (backend §20): agent nomidan sotuvda narxni server agent viloyati bo'yicha hisoblaydi —
    narx faqat ko'rsatiladi (body'dagi narx e'tiborsiz), narxi yo'q tovar sotilmaydi. Skladdan sotuv avvalgidek. */
 const viloyatQoida = computed(() => !sklad.value && !!tayyor.value?.viloyat_qoida)
@@ -146,6 +154,11 @@ watch(() => mijoz.value?.qarz_bloklangan, (b) => { if (b) tolov.value = 'naqd' }
 // Plastikda "to'liq qarzga" bo'lmaydi; agent almashsa kassa ro'yxati ham almashadi
 watch(usul, (u) => { if (u === 'plastik' && tolov.value === 'qarz') tolov.value = 'naqd' })
 watch(agentId, plastikTozala)
+// Kassa bitta bo'lsa o'zi tanlanadi; ro'yxatdan chiqib ketgan tanlov tozalanadi
+watch(naqdKassalar, (k) => {
+  if (k.length === 1) nqKassa.value = k[0].id
+  else if (!k.some(x => x.id === nqKassa.value)) nqKassa.value = ''
+}, { immediate: true })
 watch(plastikKassalar, (k) => { if (plastik.value && !k.length) plastikTozala(); else if (k.length === 1 && plastik.value) plKassa.value = k[0].id })
 
 onMounted(async () => {
@@ -207,6 +220,10 @@ const muammo = computed(() => {
   const nx = qatorlar.value.find(q => q.narxsiz)
   if (nx) return `"${nx.tovar_nomi}" uchun narx kiriting`
   if (tolov.value === 'qisman' && (naqd.value <= 0 || naqd.value >= jami.value)) return `${plastik.value ? 'Plastik' : 'Naqd'} summa 0 dan katta va ${fmtSum(jami.value)} dan kichik bo'lsin`
+  if (naqdKassaKerak.value) {
+    if (!naqdKassalar.value.length) return NAQD_KASSA_YOQ
+    if (!nqKassa.value) return 'Kassani tanlang'
+  }
   if (plastik.value) {
     if (!plKassa.value) return 'Plastik kassani tanlang'
     if (chekBand.value) return 'Chek yuklanmoqda…'
@@ -250,6 +267,8 @@ async function sot() {
       tolov_sana: qarz.value > 0.5 ? tolovSana.value : null,
       izoh: izoh.value.trim() || null,
       // Plastik maydonlari faqat plastikda yuboriladi (naqd sotuv avvalgidek)
+      // Skladdan sotuvda naqd qism tanlangan naqd kassaga yoziladi
+      ...(naqdKassaKerak.value && naqd.value > 0 ? { kassa_id: Number(nqKassa.value) } : {}),
       ...(plastik.value ? { tolov_usuli: 'plastik', kassa_id: Number(plKassa.value), chek_rasm: chek.value!.yol, ...(chekIzoh.value.trim() ? { chek_izoh: chekIzoh.value.trim().slice(0, 255) } : {}) } : {}),
     })
     natija.value.qatorlar = qatorlar.value.map(q => ({ nomi: q.tovar_nomi, dona: q.dona, olchov: q.olchov, narx: q.narxi, summa: q.summa }))
@@ -310,7 +329,7 @@ const IKON = {
       <div class="ws-done-pul">
         <div><span>Summa</span><b>{{ fmtSum(natija.summa) }}</b></div>
         <div v-if="natija.tolov_usuli === 'plastik' && natija.plastik" class="warn"><span>Plastik · {{ natija.plastik.kassa_nomi }}</span><b>{{ fmtSum(natija.plastik.summa) }}</b><small>tasdiq kutilmoqda — <RouterLink to="/moliya/plastik">navbatda ko'rish</RouterLink></small></div>
-        <div v-else class="ok"><span>{{ natija.agent ? 'Naqd · xodim kassasiga' : 'Naqd · kassaga tushdi' }}</span><b>{{ fmtSum(natija.naqd) }}</b></div>
+        <div v-else class="ok"><span>{{ natija.agent ? 'Naqd · xodim kassasiga' : natija.kassa?.nomi ? `Naqd · ${natija.kassa.nomi} · kassaga tushdi` : 'Naqd · kassaga tushdi' }}</span><b>{{ fmtSum(natija.naqd) }}</b></div>
         <div :class="{ warn: natija.qarz > 0.5 }"><span>Qarzga</span><b>{{ fmtSum(natija.qarz) }}</b><small v-if="natija.tolov_sana">{{ fmtKun(natija.tolov_sana) }} gacha</small></div>
       </div>
       <table class="ws-done-t">
@@ -517,6 +536,13 @@ const IKON = {
                   <input class="ws-in" v-model="chekIzoh" maxlength="255" placeholder="Ixtiyoriy"/>
                 </label>
               </template>
+              <template v-if="naqdKassaKerak">
+                <label v-if="naqdKassalar.length" class="ws-f">
+                  <span>Naqd kassa</span>
+                  <select class="ws-in" v-model="nqKassa"><option value="">— Kassani tanlang —</option><option v-for="k in naqdKassalar" :key="k.id" :value="k.id">{{ k.nomi }}</option></select>
+                </label>
+                <p v-else class="ws-muammo">{{ NAQD_KASSA_YOQ }}. Qarzga sotish mumkin.</p>
+              </template>
               <label v-if="tolov === 'qisman'" class="ws-f">
                 <span>{{ plastik ? 'Plastik summa' : 'Naqd olindi' }}</span>
                 <NumberInput css-class="ws-in" v-model="naqdMatn" :bosh="''" placeholder="0"/>
@@ -529,7 +555,7 @@ const IKON = {
 
             <dl class="ws-pul">
               <div v-if="plastik" class="warn"><dt>Plastik · {{ plastikKassalar.find(k => k.id === plKassa)?.nomi || 'kassa' }} — tasdiq kutiladi</dt><dd>{{ fmtSum(naqd) }}</dd></div>
-              <div v-else class="ok"><dt>Naqd · {{ agent?.fullname }} kassasiga</dt><dd>{{ fmtSum(naqd) }}</dd></div>
+              <div v-else class="ok"><dt>{{ sklad ? `Naqd · ${nqNomi || 'kassaga'}` : `Naqd · ${agent?.fullname} kassasiga` }}</dt><dd>{{ fmtSum(naqd) }}</dd></div>
               <div :class="{ warn: qarz > 0.5 }"><dt>Qarzga · mijoz balansiga</dt><dd>{{ fmtSum(qarz) }}</dd></div>
               <div v-if="mijoz && qarz > 0.5"><dt>Mijoz qarzi bo'ladi</dt><dd :class="{ neg: limitOshadi }">{{ yangiBalans < -0.5 ? fmtSum(-yangiBalans) : '0' }}<small v-if="mijoz.kredit_limit > 0"> / {{ fmtSum(mijoz.kredit_limit) }}</small></dd></div>
             </dl>
@@ -542,7 +568,7 @@ const IKON = {
             <button class="ws-btn pri full" :disabled="!!muammo" @click="sotishOch">Sotish · {{ fmtSum(jami) }} so'm</button>
             <p v-if="muammo && qatorlar.length" class="ws-muammo">{{ muammo }}</p>
             <p v-if="saqlashXato && !tasdiq" class="ws-muammo">{{ saqlashXato }}</p>
-            <p v-if="sklad" class="ws-izoh">Sotuv <b>skladdan, xodimsiz</b> yoziladi: tovar asosiy skladdan chiqadi, naqd to'g'ridan-to'g'ri kassaga tushadi, qarz mijoz balansiga. Bonus hech kimga yozilmaydi.</p>
+            <p v-if="sklad" class="ws-izoh">Sotuv <b>skladdan, xodimsiz</b> yoziladi: tovar asosiy skladdan chiqadi, naqd to'g'ridan-to'g'ri {{ nqNomi && naqdKassaKerak ? `«${nqNomi}» kassasiga` : 'kassaga' }} tushadi, qarz mijoz balansiga. Bonus hech kimga yozilmaydi.</p>
             <p v-else class="ws-izoh">Sotuv <b>{{ agent?.fullname }}</b> nomidan yoziladi: tovar undagi yukdan chiqadi, naqd uning qo'lida turadi (keyin topshiradi), bonus ham unga.</p>
           </section>
         </aside>
@@ -566,7 +592,7 @@ const IKON = {
             <div><dt>Naqd</dt><dd class="pos">{{ fmtSum(naqd) }} so'm</dd></div>
             <div v-if="qarz > 0.5"><dt>Qarzga</dt><dd class="warn">{{ fmtSum(qarz) }} so'm · {{ fmtKun(tolovSana) }} gacha</dd></div>
           </dl>
-          <p class="ws-modal-p">{{ sklad ? `Tovar asosiy skladdan chiqadi, naqd kassaga tushadi; sotuv ${fmtKun(sana)} kuniga yoziladi.` : `Tovar ${agent?.fullname}dagi yukdan chiqadi va sotuv uning ${fmtKun(sana)} kuniga yoziladi.` }} Yozilgan sotuv bekor qilinmaydi, xato faqat vozvrat (qaytarish) bilan to'g'rilanadi. Tovar va summani tekshirib oling.</p>
+          <p class="ws-modal-p">{{ sklad ? `Tovar asosiy skladdan chiqadi, naqd ${nqNomi && naqdKassaKerak ? `«${nqNomi}» kassasiga` : 'kassaga'} tushadi; sotuv ${fmtKun(sana)} kuniga yoziladi.` : `Tovar ${agent?.fullname}dagi yukdan chiqadi va sotuv uning ${fmtKun(sana)} kuniga yoziladi.` }} Yozilgan sotuv bekor qilinmaydi, xato faqat vozvrat (qaytarish) bilan to'g'rilanadi. Tovar va summani tekshirib oling.</p>
           <p v-if="saqlashXato" class="ws-muammo">{{ saqlashXato }}</p>
           <div class="ws-modal-ft">
             <button class="ws-btn" :disabled="saqlanmoqda" @click="tasdiq = false">Ortga</button>
