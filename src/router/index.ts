@@ -143,4 +143,25 @@ router.beforeEach((to) => {
   }
 })
 
+/* Server yangilangach ochiq turgan eski sahifa: eski fayl nomlari serverda yo'q, sahifa bo'lagi yuklanmaydi va
+   o'tish jim to'xtab qoladi (masalan, "Kirish" bosilganda hech narsa bo'lmaydi). Bunday xatoda sahifani
+   o'sha manzilga to'liq qayta yuklaymiz — yangi versiya olinadi. Cheksiz aylanmasligi uchun 10 soniyada bir marta. */
+const BOLAK_XATO = /dynamically imported module|Importing a module script failed|error loading dynamically imported|Unable to preload CSS|Loading chunk|Loading CSS chunk|Couldn't resolve component/i
+function yangiVersiyagaOt(manzil: string) {
+  const K = 'sellz_qayta_yuklash'
+  try {
+    if (Date.now() - Number(sessionStorage.getItem(K) || 0) < 10000) return
+    sessionStorage.setItem(K, String(Date.now()))
+  } catch { /* storage yo'q — baribir bir marta urinamiz */ }
+  window.location.assign(manzil)
+}
+router.onError((xato, to) => {
+  if (BOLAK_XATO.test(String(xato?.message || xato))) yangiVersiyagaOt(to?.fullPath || window.location.pathname)
+})
+// Vite: oldindan yuklanadigan bo'lak topilmasa (router'dan tashqaridagi dinamik importlar ham)
+window.addEventListener('vite:preloadError', (e) => {
+  e.preventDefault()
+  yangiVersiyagaOt(router.currentRoute.value.fullPath)
+})
+
 export default router
